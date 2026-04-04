@@ -18,8 +18,9 @@ if [[ ! -f "$PROMPT_FILE" ]]; then
   exit 1
 fi
 
-export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin"
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
 export HOME="$HOME"
+export CLAUDE_AUTOMATED=1
 
 "$CLAUDE" \
   --print \
