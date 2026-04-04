@@ -69,7 +69,7 @@
     co = checkout
     cb = checkout -b
     bd = branch -d
-    bD = branch -D
+    bdf = branch -D
 
     # Committing (Conventional Commits reminders in alias names)
     cm = commit -m

@@ -14,8 +14,15 @@
 # =============================================================================
 
 INPUT=$(cat)
-FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty')
 CWD=$(echo "$INPUT" | jq -r '.cwd // empty')
+
+# MultiEdit carries edits[].file_path; Write/Edit carry a single file_path
+if [ "$TOOL_NAME" = "MultiEdit" ]; then
+  FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.edits[].file_path // empty' 2>/dev/null | grep '\.py$' | head -1)
+else
+  FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+fi
 
 # Guard: not a Python file
 if [[ "$FILE_PATH" != *.py ]]; then
@@ -33,10 +40,13 @@ fi
 BASENAME=$(basename "$FILE_PATH" .py)
 DIRNAME=$(dirname "$FILE_PATH")
 
-# Strategy 1: tests/ mirror (app/services/auth.py → tests/services/test_auth.py)
+# Strategy 1: tests/ mirror — strip common source roots (app/, src/, lib/)
 RELATIVE_PATH=${FILE_PATH#./}
-TEST_MIRROR="tests/${RELATIVE_PATH#app/}"
-TEST_MIRROR="${TEST_MIRROR%/*}/test_${BASENAME}.py"
+STRIPPED_PATH="$RELATIVE_PATH"
+for PREFIX in app/ src/ lib/; do
+  STRIPPED_PATH="${STRIPPED_PATH#$PREFIX}"
+done
+TEST_MIRROR="tests/${STRIPPED_PATH%/*}/test_${BASENAME}.py"
 
 # Strategy 2: test file in same directory (auth.py → test_auth.py)
 TEST_SAME_DIR="${DIRNAME}/test_${BASENAME}.py"
@@ -72,8 +82,10 @@ fi
 EXIT_CODE=$?
 
 if [ $EXIT_CODE -ne 0 ]; then
-  # Output test failures as additional context for Claude
-  echo "{\"additionalContext\": \"Test failures in $TEST_FILE:\\n$RESULT\"}"
+  # Output test failures as additional context for Claude (jq ensures safe JSON escaping)
+  # PostToolUse hooks must wrap additionalContext inside hookSpecificOutput per official docs
+  jq -n --arg file "$TEST_FILE" --arg result "$RESULT" \
+    '{"hookSpecificOutput": {"hookEventName": "PostToolUse", "additionalContext": ("Test failures in " + $file + ":\n" + $result)}}'
 fi
 
 exit 0

@@ -10,9 +10,10 @@
 # PATH Configuration
 # -----------------------------------------------------------------------------
 export PATH="$HOME/.local/bin:$PATH"
-export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"  # fallback for non-login shells
 export PATH="$HOME/.npm-global/bin:$PATH"
 export PATH="$HOME/.bun/bin:$PATH"
+typeset -U PATH  # deduplicate PATH entries (zsh built-in)
 
 # -----------------------------------------------------------------------------
 # Environment Variables
@@ -21,10 +22,6 @@ export EDITOR="cursor --wait"
 export VISUAL="cursor --wait"
 export LANG="en_GB.UTF-8"
 export LC_ALL="en_GB.UTF-8"
-
-# Claude Code
-export CLAUDE_CODE_SUBAGENT_MODEL="claude-sonnet-4-6"
-export CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=80
 
 # Python — ensure uv is the default
 export UV_PYTHON_PREFERENCE="only-managed"
@@ -157,4 +154,27 @@ mkfastapi() {
   touch "$name"/app/schemas/__init__.py
   touch "$name"/tests/__init__.py
   echo "Created FastAPI structure in $name/"
+}
+
+alias claude-mem='bun "/Users/godl1ke/.claude/plugins/cache/thedotmack/claude-mem/10.6.3/scripts/worker-service.cjs"'
+
+
+# -----------------------------------------------------------------------------
+# Claude Code — additions April 2026 (v2.1.91+)
+# -----------------------------------------------------------------------------
+export CLAUDE_CODE_NO_FLICKER="1"
+
+# Secrets — fill these in
+export CONTEXT7_API_KEY=""  # https://context7.com/dashboard — free key raises rate limit from 1k/month
+export SENTRY_ORG="aman-h2"        # your Sentry org slug
+
+# Parallel worktree launcher — usage: cc_parallel "feat-auth" "fix-payments" "refactor-api"
+cc_parallel() {
+  local PROJECT_DIR="${PWD}"
+  for name in "$@"; do
+    tmux new-session -d -s "$name" -c "$PROJECT_DIR" "claude --worktree $name" 2>/dev/null || \
+      tmux new-window -t "$name" -c "$PROJECT_DIR" "claude --worktree $name"
+    echo "Started: $name"
+  done
+  echo "Attach: tmux attach -t <name>"
 }

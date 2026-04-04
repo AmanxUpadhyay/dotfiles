@@ -1,49 +1,106 @@
 #!/bin/bash
 # =============================================================================
-# GODL1KE session-start.sh — Inject Git Context at Session Start
+# GODL1KE session-start.sh — Inject Git + Obsidian Context at Session Start
 # =============================================================================
-# WHY: When you start a Claude Code session, Claude has zero context about
-# where you are in the codebase. This hook injects the current branch,
-# recent commits, and changed files so Claude knows what's happening
-# from the very first prompt. No more "what branch am I on?" questions.
-#
-# Location: ~/.claude/hooks/session-start.sh
-# Triggered by: SessionStart → startup
+# Injects:
+#   1. Git context (branch, recent commits, changed files)
+#   2. Org detection (maps working directory to client/startup)
+#   3. Obsidian context (most recent session note + org context file)
+#   4. Breadcrumb from repo (if exists)
 # =============================================================================
 
-# Guard: not in a git repo
-if ! git rev-parse --is-inside-work-tree &>/dev/null; then
-  exit 0
-fi
+VAULT="/Users/godl1ke/Library/Mobile Documents/iCloud~md~obsidian/Documents/GODL1KE"
+CONTEXT=""
 
-BRANCH=$(git branch --show-current 2>/dev/null)
-RECENT_COMMITS=$(git log --oneline -5 2>/dev/null)
-CHANGED_FILES=$(git diff --name-only 2>/dev/null)
-STAGED_FILES=$(git diff --cached --name-only 2>/dev/null)
-STASH_COUNT=$(git stash list 2>/dev/null | wc -l | tr -d ' ')
+# ---------------------------------------------------------------------------
+# 1. Git context
+# ---------------------------------------------------------------------------
+if git rev-parse --is-inside-work-tree &>/dev/null; then
+  BRANCH=$(git branch --show-current 2>/dev/null)
+  RECENT_COMMITS=$(git log --oneline -5 2>/dev/null)
+  CHANGED_FILES=$(git diff --name-only 2>/dev/null)
+  STAGED_FILES=$(git diff --cached --name-only 2>/dev/null)
+  STASH_COUNT=$(git stash list 2>/dev/null | wc -l | tr -d ' ')
 
-CONTEXT="Git Context:
+  GIT_CTX="Git Context:
 • Branch: $BRANCH
 • Recent commits:
 $RECENT_COMMITS"
 
-if [ -n "$CHANGED_FILES" ]; then
-  CONTEXT="$CONTEXT
+  [[ -n "$CHANGED_FILES" ]] && GIT_CTX="$GIT_CTX
 • Uncommitted changes:
 $CHANGED_FILES"
-fi
 
-if [ -n "$STAGED_FILES" ]; then
-  CONTEXT="$CONTEXT
+  [[ -n "$STAGED_FILES" ]] && GIT_CTX="$GIT_CTX
 • Staged for commit:
 $STAGED_FILES"
-fi
 
-if [ "$STASH_COUNT" -gt 0 ]; then
-  CONTEXT="$CONTEXT
+  [[ "$STASH_COUNT" -gt 0 ]] && GIT_CTX="$GIT_CTX
 • Stashed changes: $STASH_COUNT"
+
+  CONTEXT="$GIT_CTX"
 fi
 
-echo "{\"additionalContext\": $(echo "$CONTEXT" | jq -Rs .)}"
+# ---------------------------------------------------------------------------
+# 2. Org detection
+# ---------------------------------------------------------------------------
+source "$HOME/.claude/hooks/detect-org.sh"
+CONTEXT="$CONTEXT
 
+## Organisation: $DETECTED_ORG
+Obsidian vault available via mcp__obsidian tools (vault: GODL1KE).
+Session notes → 06-Sessions/$DETECTED_ORG/
+Decision records → org Decisions/ folder
+Bug fixes → 04-Knowledge/Bug-Jar/"
+
+# ---------------------------------------------------------------------------
+# 3. Obsidian: most recent session note for this org
+# ---------------------------------------------------------------------------
+SESSION_DIR="$VAULT/06-Sessions/$DETECTED_ORG_FOLDER"
+if [[ -d "$SESSION_DIR" ]]; then
+  LATEST=$(ls -t "$SESSION_DIR"/*.md 2>/dev/null | head -1)
+  if [[ -n "$LATEST" && -f "$LATEST" ]]; then
+    SESSION_CONTENT=$(head -60 "$LATEST")
+    CONTEXT="$CONTEXT
+
+## Last Session ($DETECTED_ORG)
+$SESSION_CONTENT"
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# 4. Obsidian: org context file (living spec)
+# ---------------------------------------------------------------------------
+# Check common locations for context.md
+for CANDIDATE in \
+  "$VAULT/02-Startups/$DETECTED_ORG_FOLDER/context.md" \
+  "$VAULT/03-Clients/$DETECTED_ORG_FOLDER/context.md" \
+  "$VAULT/01-LXS/$DETECTED_ORG_FOLDER/context.md" \
+  "$VAULT/06-Sessions/$DETECTED_ORG_FOLDER/context.md"; do
+  if [[ -f "$CANDIDATE" ]]; then
+    CONTEXT_CONTENT=$(head -80 "$CANDIDATE")
+    CONTEXT="$CONTEXT
+
+## Project Context ($DETECTED_ORG)
+$CONTEXT_CONTENT"
+    break
+  fi
+done
+
+# ---------------------------------------------------------------------------
+# 5. Breadcrumb from repo (if exists)
+# ---------------------------------------------------------------------------
+BREADCRUMB="${CLAUDE_PROJECT_DIR:-$PWD}/.claude/breadcrumbs.md"
+if [[ -f "$BREADCRUMB" ]]; then
+  CRUMB=$(cat "$BREADCRUMB")
+  CONTEXT="$CONTEXT
+
+## Repo Breadcrumbs
+$CRUMB"
+fi
+
+# ---------------------------------------------------------------------------
+# Output
+# ---------------------------------------------------------------------------
+echo "{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": $(echo "$CONTEXT" | jq -Rs .)}}"
 exit 0

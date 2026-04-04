@@ -1,28 +1,13 @@
-# =============================================================================
-# /catchup — Summarise Where Things Stand
-# =============================================================================
-# WHY: When you context-switch back to a project, you need to know what
-# happened since you last worked here. This reads recent git history,
-# MEMORY.md, and current branch state to give you a quick briefing.
-#
-# Usage: /catchup
-# Location: ~/.claude/commands/catchup.md
-# =============================================================================
+---
+description: "Catch up on the current session — summarise what was built, what's pending, and the current state of the codebase."
+---
 
-Catch me up on this project. I've been away and need to know what's happening.
+Please give me a concise catchup on this session:
 
-Steps:
-1. Read the current git branch and status
-2. Read the last 10 commits with `git log --oneline -10`
-3. Check for any uncommitted changes or stashed work
-4. Read MEMORY.md if it exists (Auto Memory notes)
-5. Check for any open PRs with `gh pr list`
-6. Look at any TODO or FIXME comments in recently changed files
+1. **What was completed**: List the specific files changed and features/fixes implemented.
+2. **Current state**: What is working right now? What is broken or incomplete?
+3. **Pending work**: What tasks remain from the original plan?
+4. **Key decisions made**: Any architectural or implementation choices worth noting.
+5. **Next step**: One concrete recommended action to continue from here.
 
-Present a concise briefing:
-- **Current branch**: what you're working on
-- **Recent activity**: what was done in the last few sessions
-- **Open work**: uncommitted changes, stashes, open PRs
-- **Next steps**: what appears to be the logical next action
-
-Keep it brief — this is a status check, not a deep dive.
+Keep it tight — this is a handoff briefing, not a summary of everything we discussed.
