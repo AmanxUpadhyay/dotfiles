@@ -2,7 +2,7 @@
 # =============================================================================
 # daily-retrospective.sh — Generate yesterday's daily note in Obsidian
 # =============================================================================
-# Fires at 8:57am Mon-Fri. Invokes Claude Code with daily retrospective prompt.
+# Fires at 8:57am Mon-Sat. Saturday firing captures Friday's work.
 # Reads sessions from Obsidian MCP + meetings from Granola MCP.
 # Output: 07-Daily/YYYY-MM-DD.md
 # =============================================================================
