@@ -1,0 +1,72 @@
+# =============================================================================
+# GODL1KE .pre-commit-config.yaml — Git Pre-Commit Hooks
+# =============================================================================
+# WHY: These hooks run on EVERY git commit, catching problems before they
+# enter the repo. This is separate from Claude Code hooks — pre-commit
+# runs on `git commit`, Claude hooks run on tool use. Together they form
+# a two-layer quality gate.
+#
+# SETUP: Copy to each project root, then run:
+#   pre-commit install
+#   pre-commit run --all-files  (first-time check)
+#
+# Location: <project-root>/.pre-commit-config.yaml
+# =============================================================================
+
+repos:
+  # ---------------------------------------------------------------------------
+  # General file hygiene
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace        # Remove trailing whitespace
+      - id: end-of-file-fixer          # Ensure files end with newline
+      - id: check-yaml                 # Validate YAML syntax
+      - id: check-json                 # Validate JSON syntax
+      - id: check-toml                 # Validate TOML syntax (pyproject.toml)
+      - id: check-merge-conflict       # Catch unresolved merge markers
+      - id: check-added-large-files    # Prevent accidental large files (>500KB)
+        args: ['--maxkb=500']
+      - id: debug-statements           # Catch leftover breakpoint() / pdb
+      - id: check-ast                  # Verify Python files parse correctly
+
+  # ---------------------------------------------------------------------------
+  # Python formatting (Ruff — replaces Black)
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.0
+    hooks:
+      - id: ruff-format               # Format code
+      - id: ruff                       # Lint + autofix
+        args: ['--fix']
+
+  # ---------------------------------------------------------------------------
+  # Secrets detection — prevent credentials from entering git
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        # First time setup: detect-secrets scan > .secrets.baseline
+        # Then commit .secrets.baseline to the repo
+
+  # ---------------------------------------------------------------------------
+  # Security: dependency vulnerability scanning
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/pypa/pip-audit
+    rev: v2.7.3
+    hooks:
+      - id: pip-audit
+        args: ['--strict', '--desc']
+
+  # ---------------------------------------------------------------------------
+  # Conventional Commits — enforce commit message format
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.4.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: ['feat', 'fix', 'chore', 'docs', 'refactor', 'test', 'ci', 'perf', 'build']

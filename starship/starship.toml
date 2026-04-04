@@ -1,0 +1,77 @@
+# =============================================================================
+# GODL1KE starship.toml — Prompt Configuration
+# =============================================================================
+# WHY: Starship shows you exactly what you need at a glance — current
+# directory, git branch, Python version, and whether you're in a venv.
+# It's fast (written in Rust) and works across shells.
+# Location: ~/.config/starship.toml
+# =============================================================================
+
+# Timeout for commands (ms) — keeps prompt snappy
+command_timeout = 500
+
+# Prompt format — clean single line
+format = """
+$directory\
+$git_branch\
+$git_status\
+$python\
+$docker_context\
+$cmd_duration\
+$line_break\
+$character"""
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+style = "bold cyan"
+
+[git_branch]
+format = " [$symbol$branch]($style) "
+symbol = " "
+style = "bold purple"
+
+[git_status]
+format = '([$all_status$ahead_behind]($style) )'
+style = "bold red"
+conflicted = "="
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+untracked = "?${count}"
+stashed = "📦"
+modified = "!${count}"
+staged = "+${count}"
+deleted = "✘${count}"
+
+[python]
+format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
+symbol = "🐍 "
+style = "yellow"
+
+[docker_context]
+format = '[$symbol$context]($style) '
+symbol = "🐳 "
+style = "blue"
+
+[cmd_duration]
+min_time = 2_000  # Show if command took > 2 seconds
+format = "[$duration]($style) "
+style = "bold yellow"
+
+# Disabled modules — keep prompt fast
+[aws]
+disabled = true
+
+[azure]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[package]
+disabled = true

@@ -1,0 +1,40 @@
+{
+  "_comment": "==========================================================================",
+  "_comment2": "GODL1KE MCP Server Config — Copy to ~/.claude.json",
+  "_comment3": "==========================================================================",
+  "_comment4": "WHY: MCP servers extend Claude Code with external tools. These four",
+  "_comment5": "servers are loaded globally for every project. Context7 gives version-",
+  "_comment6": "specific library docs, Sequential Thinking helps complex reasoning,",
+  "_comment7": "Linear connects to your LXS task board, and Obsidian reads your vault.",
+  "_comment8": "==========================================================================",
+  "_comment9": "IMPORTANT: Remove all _comment fields before using. JSON doesn't support comments.",
+  "_comment10": "Also merge with any existing ~/.claude.json content (e.g., onboarding state).",
+
+  "mcpServers": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "_note": "Version-specific library documentation. Ask 'use context7 to find FastAPI docs' in a session."
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "_note": "Complex multi-step reasoning. Activates automatically for hard problems."
+    },
+    "linear": {
+      "type": "http",
+      "url": "https://mcp.linear.app/mcp",
+      "_note": "LXS Consulting task management. Requires OAuth setup: claude mcp add --transport http linear https://mcp.linear.app/mcp"
+    },
+    "obsidian": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@bitbonsai/mcpvault",
+        "--vault",
+        "VAULT_PATH_PLACEHOLDER"
+      ],
+      "_note": "Replace VAULT_PATH_PLACEHOLDER with: ~/Library/Mobile Documents/iCloud~md~obsidian/Documents/GODL1KE"
+    }
+  }
+}

@@ -1,0 +1,94 @@
+# =============================================================================
+# GODL1KE .gitconfig — Global Git Configuration
+# =============================================================================
+# WHY: Consistent git behaviour across all six orgs. SSH commit signing
+# proves your commits are genuinely from you. Aliases save keystrokes.
+# Location: ~/.gitconfig
+#
+# SETUP REQUIRED: After install, run:
+#   ssh-keygen -t ed25519 -C "your-email@example.com"
+#   gh auth login
+#   gh ssh-key add ~/.ssh/id_ed25519.pub --title "GODL1KE M2 Max"
+#
+# Then update [user] section below with your actual name/email.
+# =============================================================================
+
+[user]
+    name = Aman
+    email = amanxupadhyay@outlook.com
+    signingkey = ~/.ssh/id_ed25519.pub
+
+[gpg]
+    format = ssh
+
+[commit]
+    gpgsign = true   # Sign all commits automatically
+
+[tag]
+    gpgsign = true   # Sign all tags automatically
+
+[init]
+    defaultBranch = main
+
+[core]
+    editor = cursor --wait
+    autocrlf = input
+    excludesFile = ~/.gitignore_global
+    pager = bat --paging=always
+
+[pull]
+    rebase = true    # Rebase on pull (cleaner history)
+
+[push]
+    default = current
+    autoSetupRemote = true  # `git push` auto-creates upstream branch
+
+[fetch]
+    prune = true     # Auto-remove deleted remote branches
+
+[merge]
+    conflictStyle = zdiff3  # Better conflict markers
+
+[diff]
+    algorithm = histogram   # Better diff output
+    colorMoved = default
+
+[rebase]
+    autoStash = true  # Auto-stash before rebase, pop after
+
+# -----------------------------------------------------------------------------
+# Aliases
+# -----------------------------------------------------------------------------
+[alias]
+    # Status & log
+    s = status --short --branch
+    lg = log --oneline --graph --decorate -20
+    lga = log --oneline --graph --decorate --all -30
+
+    # Branching
+    co = checkout
+    cb = checkout -b
+    bd = branch -d
+    bD = branch -D
+
+    # Committing (Conventional Commits reminders in alias names)
+    cm = commit -m
+    ca = commit --amend --no-edit
+    cam = commit --amend -m
+
+    # Stash
+    ss = stash save
+    sp = stash pop
+    sl = stash list
+
+    # Working with PRs
+    prc = "!gh pr create --fill"
+    prv = "!gh pr view --web"
+    prl = "!gh pr list"
+
+    # Undo
+    undo = reset --soft HEAD~1
+    unstage = reset HEAD --
+
+    # Clean merged branches
+    cleanup = "!git branch --merged | grep -v '\\*\\|main\\|develop' | xargs -n 1 git branch -d"

@@ -1,0 +1,58 @@
+# =============================================================================
+# GODL1KE .gitignore_global — Patterns Ignored Across ALL Repos
+# =============================================================================
+# WHY: These patterns should never be committed to any repo. Instead of
+# adding them to every project's .gitignore, this global file catches them.
+# Location: ~/.gitignore_global (referenced in .gitconfig core.excludesFile)
+# =============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# IDEs & Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.cursor/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment files (NEVER commit secrets)
+.env
+.env.local
+.env.*.local
+
+# Node (for claude-mem, MCP servers)
+node_modules/
+
+# Claude Code local files
+.claude/settings.local.json
+
+# Logs
+*.log
+logs/
+
+# OS temp files
+Thumbs.db
+Desktop.ini

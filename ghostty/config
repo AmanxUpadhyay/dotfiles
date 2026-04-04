@@ -1,0 +1,36 @@
+# =============================================================================
+# GODL1KE Ghostty Config — Terminal Configuration
+# =============================================================================
+# WHY: Ghostty is GPU-accelerated and fast. This config sets a clean
+# appearance with a Nerd Font for Starship icons and good readability.
+# Location: ~/.config/ghostty/config
+# =============================================================================
+
+# Font
+font-family = JetBrainsMono Nerd Font
+font-size = 14
+
+# Window
+window-padding-x = 12
+window-padding-y = 8
+window-decoration = true
+macos-titlebar-style = tabs
+
+# Theme — dark, easy on the eyes
+theme = Catppuccin Mocha
+
+# Cursor
+cursor-style = block
+cursor-style-blink = false
+
+# Scrollback
+scrollback-limit = 50000
+
+# Shell integration
+shell-integration = zsh
+
+# Copy/paste
+copy-on-select = clipboard
+clipboard-paste-protection = false
+
+
