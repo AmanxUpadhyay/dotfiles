@@ -40,7 +40,10 @@ Generate 3-5 bullet points for tomorrow's focus.
 
 ## Step 4 — Write the Daily Note
 
-Write to `07-Daily/{{ YESTERDAY }}.md` using `mcp__obsidian__write_note`.
+Use Bash to get the lowercase day name for yesterday: `date -v-1d +%A | tr '[:upper:]' '[:lower:]'`
+
+Write to `07-Daily/{{ YESTERDAY }}-{{ DAY_NAME_LOWERCASE }}.md` using `mcp__obsidian__write_note`.
+Example: `07-Daily/2026-04-03-friday.md`
 
 Use this exact structure:
 

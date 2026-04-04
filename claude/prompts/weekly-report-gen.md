@@ -19,12 +19,9 @@ Generate this week's draft weekly reports. Today is Friday {{ TODAY }}. The week
 
 ## Step 1 — Read This Week's Daily Notes
 
-Use `mcp__obsidian__read_note` to read each daily note from Mon-Fri:
-- `07-Daily/{{ MON }}.md`
-- `07-Daily/{{ TUE }}.md`
-- `07-Daily/{{ WED }}.md`
-- `07-Daily/{{ THU }}.md`
-- `07-Daily/{{ TODAY }}.md`
+Daily notes use the pattern `07-Daily/YYYY-MM-DD-dayname.md` (e.g., `2026-04-03-friday.md`).
+
+Use `mcp__obsidian__search_notes` to find daily notes from this week (search for each date string: {{ MON }}, {{ TUE }}, {{ WED }}, {{ THU }}, {{ TODAY }}). Alternatively, use `mcp__obsidian__read_note` if you know the exact day name for each date (use Bash: `date -v-Nd +%A | tr '[:upper:]' '[:lower:]'` where N=4,3,2,1,0 days ago).
 
 Skip any that don't exist (no work that day).
 
