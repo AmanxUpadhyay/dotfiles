@@ -71,12 +71,12 @@ fi
 # ---------------------------------------------------------------------------
 # 4. Obsidian: org context file (living spec)
 # ---------------------------------------------------------------------------
-# Check common locations for context.md
+# Check common locations for org context file (named after org, e.g. LXS.md, AdTecher.md)
 for CANDIDATE in \
-  "$VAULT/02-Startups/$DETECTED_ORG_FOLDER/context.md" \
-  "$VAULT/03-Clients/$DETECTED_ORG_FOLDER/context.md" \
-  "$VAULT/01-LXS/$DETECTED_ORG_FOLDER/context.md" \
-  "$VAULT/06-Sessions/$DETECTED_ORG_FOLDER/context.md"; do
+  "$VAULT/02-Startups/$DETECTED_ORG_FOLDER/$DETECTED_ORG_FOLDER.md" \
+  "$VAULT/03-Clients/$DETECTED_ORG_FOLDER/$DETECTED_ORG_FOLDER.md" \
+  "$VAULT/01-LXS/$DETECTED_ORG_FOLDER/$DETECTED_ORG_FOLDER.md" \
+  "$VAULT/01-LXS/$DETECTED_ORG.md"; do
   if [[ -f "$CANDIDATE" ]]; then
     CONTEXT_CONTENT=$(head -80 "$CANDIDATE")
     CONTEXT="$CONTEXT

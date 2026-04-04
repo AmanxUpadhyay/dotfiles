@@ -1,0 +1,13 @@
+{
+  "mappings": [
+    { "path_contains": "vulcan",     "org": "AdTecher" },
+    { "path_contains": "adtecher",   "org": "AdTecher" },
+    { "path_contains": "ledgx",      "org": "Ledgx" },
+    { "path_contains": "clubrevai",  "org": "ClubRevAI" },
+    { "path_contains": "clubrev",    "org": "ClubRevAI" },
+    { "path_contains": "wayv",       "org": "Wayv",      "vault_folder": "Wayv Telcom" },
+    { "path_contains": "persimmon",  "org": "Persimmon", "vault_folder": "Persimmon Homes" },
+    { "path_contains": "lxs",        "org": "LXS" }
+  ],
+  "default_org": "LXS"
+}
