@@ -22,6 +22,10 @@ case "$TOOL_NAME" in
 esac
 
 if [ "$TOOL_NAME" = "Bash" ] && [ -n "$COMMAND" ]; then
+  # Guard: don't retry chained commands — same injection risk as auto-approve
+  if echo "$COMMAND" | grep -qE '(;|&&|\||`|\$\()'; then
+    exit 0
+  fi
   if echo "$COMMAND" | grep -qE '^(git (status|log|diff|branch|show)|ls |pwd|cat |grep |find |head |tail |wc )'; then
     echo '{"retry": true}'
     exit 0
