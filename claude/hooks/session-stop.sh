@@ -8,6 +8,11 @@
 
 INPUT=$(cat)
 
+# Guard: skip session notes in automated/cron-triggered sessions.
+if [[ "$CLAUDE_AUTOMATED" == "1" ]]; then
+  exit 0
+fi
+
 # Guard: prevent repeated blocking within the same session-hour.
 # The stop_hook_active field does NOT exist in the Stop hook schema, so we
 # use a temp file marker instead. Hour granularity auto-expires after ~1 hour.
