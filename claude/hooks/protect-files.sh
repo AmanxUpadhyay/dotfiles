@@ -11,10 +11,17 @@
 # =============================================================================
 
 INPUT=$(cat)
-FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty')
+
+# MultiEdit has an array of paths; Write/Edit have a single file_path
+if [ "$TOOL_NAME" = "MultiEdit" ]; then
+  FILE_PATHS=$(echo "$INPUT" | jq -r '.tool_input.edits[].file_path // empty' 2>/dev/null)
+else
+  FILE_PATHS=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+fi
 
 # Guard: no file path
-if [ -z "$FILE_PATH" ]; then
+if [ -z "$FILE_PATHS" ]; then
   exit 0
 fi
 
@@ -36,10 +43,20 @@ PROTECTED_PATTERNS=(
 )
 
 for pattern in "${PROTECTED_PATTERNS[@]}"; do
-  if [[ "$FILE_PATH" == *"$pattern"* ]]; then
-    echo "BLOCKED: '$FILE_PATH' matches protected pattern '$pattern'. Edit this file manually." >&2
-    exit 2
-  fi
+  while IFS= read -r FILE_PATH; do
+    [ -z "$FILE_PATH" ] && continue
+    if [[ "$FILE_PATH" == *"$pattern"* ]]; then
+      # Allow .env.example / .env.sample / .env.template — these are reference files, not secrets
+      if [[ "$pattern" == ".env" ]]; then
+        BASENAME_CHECK=$(basename "$FILE_PATH")
+        if [[ "$BASENAME_CHECK" == ".env.example" || "$BASENAME_CHECK" == ".env.sample" || "$BASENAME_CHECK" == ".env.template" ]]; then
+          continue
+        fi
+      fi
+      echo "BLOCKED: '$FILE_PATH' matches protected pattern '$pattern'. Edit this file manually." >&2
+      exit 2
+    fi
+  done <<< "$FILE_PATHS"
 done
 
 exit 0

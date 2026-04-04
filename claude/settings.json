@@ -1,5 +1,13 @@
 {
-  "model": "claude-sonnet-4-6",
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "claude-sonnet-4-6",
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "80",
+    "MAX_MCP_OUTPUT_TOKENS": "50000"
+  },
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "permissions": {
     "allow": [
       "Read",
@@ -8,10 +16,7 @@
       "Agent"
     ]
   },
-  "env": {
-    "CLAUDE_CODE_SUBAGENT_MODEL": "claude-sonnet-4-6",
-    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "80"
-  },
+  "model": "opusplan",
   "hooks": {
     "SessionStart": [
       {
@@ -63,9 +68,110 @@
             "command": "bash \"$HOME/.claude/hooks/auto-test.sh\"",
             "timeout": 60,
             "async": true
+          },
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/test-fix-detector.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/prompt-injection-guard.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/permission-auto-approve.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PermissionDenied": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/permission-denied.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/stop-notification.sh\"",
+            "timeout": 5,
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/session-stop.sh\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/breadcrumb-writer.sh\"",
+            "timeout": 5,
+            "async": true
           }
         ]
       }
     ]
-  }
+  },
+  "enabledPlugins": {
+    "claude-mem@thedotmack": true,
+    "ui-ux-pro-max@ui-ux-pro-max-skill": true,
+    "claude-session-driver@superpowers-marketplace": true,
+    "elements-of-style@superpowers-marketplace": true,
+    "episodic-memory@superpowers-marketplace": true,
+    "superpowers@superpowers-marketplace": true,
+    "superpowers-developing-for-claude-code@superpowers-marketplace": true
+  },
+  "extraKnownMarketplaces": {
+    "thedotmack": {
+      "source": {
+        "source": "github",
+        "repo": "thedotmack/claude-mem"
+      },
+      "autoUpdate": true
+    },
+    "superpowers-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "obra/superpowers-marketplace"
+      },
+      "autoUpdate": true
+    },
+    "ui-ux-pro-max-skill": {
+      "source": {
+        "source": "github",
+        "repo": "nextlevelbuilder/ui-ux-pro-max-skill"
+      },
+      "autoUpdate": true
+    }
+  },
+  "effortLevel": "high",
+  "skipDangerousModePermissionPrompt": true
 }

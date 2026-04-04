@@ -1,7 +1,7 @@
 ---
 name: researcher
 description: "Background researcher. Investigates libraries, patterns, and documentation while you code. Run with Ctrl+B to background."
-model: sonnet
+model: claude-sonnet-4-6
 tools: Read, Grep, Glob, WebSearch, WebFetch
 disallowedTools: Write, Edit, MultiEdit
 permissionMode: plan
