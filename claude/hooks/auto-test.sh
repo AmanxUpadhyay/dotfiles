@@ -19,15 +19,19 @@ CWD=$(echo "$INPUT" | jq -r '.cwd // empty')
 
 # MultiEdit carries edits[].file_path; Write/Edit carry a single file_path
 if [ "$TOOL_NAME" = "MultiEdit" ]; then
-  FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.edits[].file_path // empty' 2>/dev/null | grep '\.py$' | head -1)
+  # Collect ALL Python files from MultiEdit, not just the first one
+  FILE_PATHS=$(echo "$INPUT" | jq -r '.tool_input.edits[].file_path // empty' 2>/dev/null | grep '\.py$')
 else
-  FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+  FILE_PATHS=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
 fi
 
-# Guard: not a Python file
-if [[ "$FILE_PATH" != *.py ]]; then
+# Guard: no Python files
+if [[ -z "$FILE_PATHS" ]]; then
   exit 0
 fi
+
+# Use first Python file for test lookup (representative path)
+FILE_PATH=$(echo "$FILE_PATHS" | head -1)
 
 cd "$CWD" 2>/dev/null || exit 0
 

@@ -6,8 +6,6 @@ INPUT=$(cat)
 PROMPT=$(echo "$INPUT" | jq -r '.prompt // empty')
 [ -z "$PROMPT" ] && exit 0
 
-PROMPT_LOWER=$(echo "$PROMPT" | tr '[:upper:]' '[:lower:]')
-
 PATTERNS=(
   'ignore (all )?(previous|above|prior) instructions'
   'disregard (all )?(previous|above|prior) instructions'
@@ -28,7 +26,7 @@ PATTERNS=(
 )
 
 for pattern in "${PATTERNS[@]}"; do
-  if echo "$PROMPT_LOWER" | grep -qiE "$pattern"; then
+  if echo "$PROMPT" | grep -qiE "$pattern"; then
     echo "BLOCKED [injection-guard]: Potential injection pattern detected: '$pattern'" >&2
     echo "If this is a legitimate request, rephrase it." >&2
     exit 2

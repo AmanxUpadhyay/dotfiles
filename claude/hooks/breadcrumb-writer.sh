@@ -7,6 +7,10 @@
 # =============================================================================
 
 INPUT=$(cat)
+
+# Guard: skip in automated/cron-triggered sessions
+[[ "$CLAUDE_AUTOMATED" == "1" ]] && exit 0
+
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // "unknown"' 2>/dev/null)
 
 # Guard: only write breadcrumbs inside a git repo

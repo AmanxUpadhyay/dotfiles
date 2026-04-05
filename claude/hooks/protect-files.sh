@@ -25,38 +25,62 @@ if [ -z "$FILE_PATHS" ]; then
   exit 0
 fi
 
-# Protected file patterns
-PROTECTED_PATTERNS=(
-  ".env"
-  ".pem"
-  ".key"
-  ".p12"
-  ".pfx"
-  "credentials"
-  "secrets"
-  "id_rsa"
-  "id_ed25519"
-  ".ssh/config"
-  ".aws/credentials"
-  ".azure/credentials"
-  "serviceAccountKey"
-)
+while IFS= read -r FILE_PATH; do
+  [ -z "$FILE_PATH" ] && continue
+  BASENAME=$(basename "$FILE_PATH")
 
-for pattern in "${PROTECTED_PATTERNS[@]}"; do
-  while IFS= read -r FILE_PATH; do
-    [ -z "$FILE_PATH" ] && continue
-    if [[ "$FILE_PATH" == *"$pattern"* ]]; then
-      # Allow .env.example / .env.sample / .env.template — these are reference files, not secrets
-      if [[ "$pattern" == ".env" ]]; then
-        BASENAME_CHECK=$(basename "$FILE_PATH")
-        if [[ "$BASENAME_CHECK" == ".env.example" || "$BASENAME_CHECK" == ".env.sample" || "$BASENAME_CHECK" == ".env.template" ]]; then
-          continue
-        fi
-      fi
-      echo "BLOCKED: '$FILE_PATH' matches protected pattern '$pattern'. Edit this file manually." >&2
+  # --- Extension patterns: match only if basename ends with the extension ---
+  # Prevents false positives like keyboard.key.ts, privatekey_test.py
+  for ext in ".pem" ".p12" ".pfx"; do
+    if [[ "$BASENAME" == *"$ext" ]]; then
+      echo "BLOCKED: '$FILE_PATH' has protected extension '$ext'. Edit this file manually." >&2
       exit 2
     fi
-  done <<< "$FILE_PATHS"
-done
+  done
+
+  # .key extension: only block if basename ends with .key (not .key.ts, .key.json etc.)
+  if [[ "$BASENAME" =~ \.key$ ]]; then
+    echo "BLOCKED: '$FILE_PATH' has protected extension '.key'. Edit this file manually." >&2
+    exit 2
+  fi
+
+  # --- Dotenv: block .env, .env.local, .env.production etc. ---
+  # Allow .env.example, .env.sample, .env.template (reference/documentation files)
+  if [[ "$BASENAME" == .env || "$BASENAME" == .env.* ]]; then
+    case "$BASENAME" in
+      .env.example|.env.sample|.env.template)
+        : # Allow — these are documentation files, not secrets
+        ;;
+      *)
+        echo "BLOCKED: '$FILE_PATH' is an environment secrets file. Edit this file manually." >&2
+        exit 2
+        ;;
+    esac
+  fi
+
+  # --- Exact basename match (with optional extension): credentials.json blocked,
+  # credentials_test.py allowed. Uses regex for basename == pattern or pattern.ext ---
+  for secret in "credentials" "secrets" "id_rsa" "id_ed25519"; do
+    if [[ "$BASENAME" == "$secret" || "$BASENAME" == "$secret."* ]]; then
+      echo "BLOCKED: '$FILE_PATH' matches protected filename '$secret'. Edit this file manually." >&2
+      exit 2
+    fi
+  done
+
+  # --- Path suffix: match against the full path ending ---
+  for suffix in ".ssh/config" ".aws/credentials" ".azure/credentials"; do
+    if [[ "$FILE_PATH" == *"$suffix" ]]; then
+      echo "BLOCKED: '$FILE_PATH' matches protected path '$suffix'. Edit this file manually." >&2
+      exit 2
+    fi
+  done
+
+  # --- Basename contains: substring match on basename only ---
+  if [[ "$BASENAME" == *"serviceAccountKey"* ]]; then
+    echo "BLOCKED: '$FILE_PATH' contains 'serviceAccountKey' in filename. Edit this file manually." >&2
+    exit 2
+  fi
+
+done <<< "$FILE_PATHS"
 
 exit 0

@@ -13,8 +13,9 @@ allow() {
 }
 
 # Auto-approve safe read-only tools
+# Docs: docs.anthropic.com/en/docs/claude-code/hooks (PermissionRequest event)
 case "$TOOL_NAME" in
-  Read|Glob|Grep|LS) allow "Safe read-only operation" ;;
+  Read|Glob|Grep) allow "Safe read-only operation" ;;
 esac
 
 # Auto-approve safe bash commands

@@ -9,7 +9,8 @@
 #   4. Breadcrumb from repo (if exists)
 # =============================================================================
 
-VAULT="/Users/godl1ke/Library/Mobile Documents/iCloud~md~obsidian/Documents/GODL1KE"
+source "$HOME/.claude/env.sh"
+VAULT="$OBSIDIAN_VAULT"
 CONTEXT=""
 
 # ---------------------------------------------------------------------------

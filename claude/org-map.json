@@ -5,9 +5,46 @@
     { "path_contains": "ledgx",      "org": "Ledgx" },
     { "path_contains": "clubrevai",  "org": "ClubRevAI" },
     { "path_contains": "clubrev",    "org": "ClubRevAI" },
-    { "path_contains": "wayv",       "org": "Wayv",      "vault_folder": "Wayv Telcom" },
-    { "path_contains": "persimmon",  "org": "Persimmon", "vault_folder": "Persimmon Homes" },
-    { "path_contains": "lxs",        "org": "LXS" }
+    { "path_contains": "wayv",       "org": "Wayv" },
+    { "path_contains": "persimmon",  "org": "Persimmon" },
+    { "path_contains": "/lxs",       "org": "LXS" }
   ],
-  "default_org": "LXS"
+  "default_org": "Personal",
+  "orgs": {
+    "AdTecher": {
+      "wikilink": "[[02-Startups/AdTecher/AdTecher|AdTecher]] · [[VAULT]]",
+      "vault_folder": "AdTecher",
+      "session_folder": "AdTecher"
+    },
+    "Ledgx": {
+      "wikilink": "[[02-Startups/Ledgx/Ledgx|Ledgx]] · [[VAULT]]",
+      "vault_folder": "Ledgx",
+      "session_folder": "Ledgx"
+    },
+    "ClubRevAI": {
+      "wikilink": "[[03-Clients/ClubRevAI/ClubRevAI|ClubRevAI]] · [[VAULT]]",
+      "vault_folder": "ClubRevAI",
+      "session_folder": "ClubRevAI"
+    },
+    "Wayv": {
+      "wikilink": "[[03-Clients/Wayv Telcom/Wayv Telcom|Wayv]] · [[VAULT]]",
+      "vault_folder": "Wayv Telcom",
+      "session_folder": "Wayv"
+    },
+    "Persimmon": {
+      "wikilink": "[[01-LXS/Persimmon Homes/Persimmon Homes|Persimmon]] · [[01-LXS/LXS|LXS]] · [[VAULT]]",
+      "vault_folder": "Persimmon Homes",
+      "session_folder": "Persimmon"
+    },
+    "LXS": {
+      "wikilink": "[[01-LXS/LXS|LXS]] · [[VAULT]]",
+      "vault_folder": "LXS",
+      "session_folder": "LXS"
+    },
+    "Personal": {
+      "wikilink": "[[VAULT]]",
+      "vault_folder": "Personal",
+      "session_folder": "Personal"
+    }
+  }
 }
