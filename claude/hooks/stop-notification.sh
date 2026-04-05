@@ -2,6 +2,10 @@
 # Stop hook — macOS notification when Claude finishes a task. Runs async.
 
 INPUT=$(cat)
+
+# Guard: skip in automated/cron-triggered sessions
+[[ "$CLAUDE_AUTOMATED" == "1" ]] && exit 0
+
 STOP_REASON=$(echo "$INPUT" | jq -r '.stop_reason // "completed"')
 CWD=$(echo "$INPUT" | jq -r '.cwd // ""')
 

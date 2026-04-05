@@ -69,7 +69,7 @@ REMOTE_DEFAULT="${REMOTE_DEFAULT:-main}"
 CHANGED_FILES=$(git diff --name-only "origin/${REMOTE_DEFAULT}...HEAD" 2>/dev/null)
 if [ -n "$CHANGED_FILES" ]; then
   SECRET_PATTERNS='(api[_-]?key|api[_-]?secret|access[_-]?token|secret[_-]?key|private[_-]?key|password)\s*[=:]\s*["\x27][A-Za-z0-9+/=_-]{16,}'
-  SECRETS_FOUND=$(echo "$CHANGED_FILES" | xargs grep -lEi "$SECRET_PATTERNS" 2>/dev/null)
+  SECRETS_FOUND=$(echo "$CHANGED_FILES" | tr '\n' '\0' | xargs -0 grep -lEi "$SECRET_PATTERNS" 2>/dev/null)
   if [ -n "$SECRETS_FOUND" ]; then
     ERRORS="${ERRORS}\n❌ SECRETS: Possible credentials found in:\n$SECRETS_FOUND\nRemove secrets and use environment variables instead."
   fi
