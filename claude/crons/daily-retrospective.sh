@@ -14,6 +14,13 @@ LOGFILE="$CLAUDE_LOG_DIR/daily-retro-$(date +%Y-%m-%d).log"
 PROMPT_FILE="$HOME/.dotfiles/claude/prompts/daily-retrospective.md"
 
 mkdir -p "$CLAUDE_LOG_DIR"
+
+if ! preflight_check "daily-retrospective"; then
+  echo "[$(date)] PREFLIGHT FAILED" >> "$LOGFILE"
+  notify_failure "daily-retrospective-preflight" "$LOGFILE"
+  exit 1
+fi
+
 echo "[$(date)] Daily retrospective starting" >> "$LOGFILE"
 
 if [[ ! -f "$PROMPT_FILE" ]]; then
@@ -26,7 +33,7 @@ export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
 export HOME="$HOME"
 export CLAUDE_AUTOMATED=1
 
-DATE_HINT="Today is $(date +%Y-%m-%d) ($(date +%A))."
+DATE_HINT="${DATE_HINT:-Today is $(date +%Y-%m-%d) ($(date +%A)).}"
 PROMPT="$DATE_HINT $(cat "$PROMPT_FILE")"
 
 "$CLAUDE_BIN" \
@@ -39,6 +46,10 @@ STATUS=$?
 if [[ $STATUS -ne 0 ]]; then
   echo "[$(date)] ERROR: Claude exited with status $STATUS" >> "$LOGFILE"
   notify_failure "daily-retrospective" "$LOGFILE"
+fi
+
+if [[ $STATUS -eq 0 ]]; then
+  touch "$CLAUDE_LOG_DIR/.last-success-daily-retrospective"
 fi
 
 echo "[$(date)] Daily retrospective finished (exit $STATUS)" >> "$LOGFILE"
