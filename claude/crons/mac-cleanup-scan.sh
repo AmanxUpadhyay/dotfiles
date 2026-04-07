@@ -13,9 +13,13 @@
 # Location: ~/.dotfiles/claude/crons/mac-cleanup-scan.sh
 # =============================================================================
 
-set -uo pipefail
+set -euo pipefail
 
 source "$HOME/.claude/env.sh"
+
+if ! preflight_check "mac-cleanup-scan"; then
+    exit 1
+fi
 
 DATE=$(date +%Y-%m-%d)
 TIME=$(date +%H:%M)
@@ -29,7 +33,7 @@ THRESHOLD_BYTES="${THRESHOLD_BYTES:-$(( 1 * 1024 * 1024 * 1024 ))}"  # 1 GB (ove
 dir_bytes() {
     local path="$1"
     if [[ -d "$path" ]]; then
-        du -sk "$path" 2>/dev/null | awk '{print $1 * 1024}' || echo 0
+        du -sk "$path" 2>/dev/null | awk '{print $1 * 1024; f=1} END {if (!f) print 0}' || echo 0
     else
         echo 0
     fi
@@ -97,13 +101,14 @@ PLUGIN_DIR="$HOME/.claude/plugins/cache/thedotmack/claude-mem"
 STALE_BYTES=0
 STALE_CMD_LINES=""
 if [[ -d "$PLUGIN_DIR" ]]; then
-    CURRENT_VER=$(ls "$PLUGIN_DIR" 2>/dev/null | sort -V | tail -1)
-    while IFS= read -r ver; do
+    CURRENT_VER=$(for p in "$PLUGIN_DIR"/*/; do basename "$p"; done 2>/dev/null | sort -V | tail -1)
+    for ver_path in "$PLUGIN_DIR"/*/; do
+        ver=$(basename "$ver_path")
         [[ -z "$ver" || "$ver" == "$CURRENT_VER" ]] && continue
-        sz=$(dir_bytes "$PLUGIN_DIR/$ver")
+        sz=$(dir_bytes "$ver_path")
         STALE_BYTES=$(( STALE_BYTES + sz ))
-        STALE_CMD_LINES+="rm -rf ~/.claude/plugins/cache/thedotmack/claude-mem/${ver}"$'\n'
-    done < <(ls "$PLUGIN_DIR" 2>/dev/null)
+        STALE_CMD_LINES+="rm -rf ~/.claude/plugins/cache/thedotmack/claude-mem/\"${ver}\""$'\n'
+    done
 fi
 if (( STALE_BYTES > 0 )); then
     add_target "stale_plugins" "Stale claude-mem plugin versions" "$STALE_BYTES" \
