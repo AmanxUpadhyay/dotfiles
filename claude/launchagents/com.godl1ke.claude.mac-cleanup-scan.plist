@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.godl1ke.claude.mac-cleanup-scan</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/godl1ke/.dotfiles/claude/crons/mac-cleanup-scan.sh</string>
+    </array>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Weekday</key>
+        <integer>0</integer>
+        <key>Hour</key>
+        <integer>10</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>HOME</key>
+        <string>/Users/godl1ke</string>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/Users/godl1ke/Library/Logs/claude-crons/mac-cleanup-scan-launchd.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/godl1ke/Library/Logs/claude-crons/mac-cleanup-scan-launchd-err.log</string>
+</dict>
+</plist>
