@@ -66,10 +66,10 @@ add_target() {
     fi
 }
 
-# 1. Claude VM bundle
-VM_BYTES=$(dir_bytes "$HOME/Library/Application Support/Claude/vm_bundles/claudevm.bundle")
+# 1. Claude VM bundle (scan full vm_bundles/ dir — auto-regenerates on next Claude desktop launch)
+VM_BYTES=$(dir_bytes "$HOME/Library/Application Support/Claude/vm_bundles")
 add_target "vm_bundle" "Claude VM bundle" "$VM_BYTES" \
-    "rm -rf ~/Library/Application\\ Support/Claude/vm_bundles/claudevm.bundle"
+    "rm -rf ~/Library/Application\\ Support/Claude/vm_bundles/"
 
 # 2. Claude transcripts (JSONL only, excluding memory/)
 TRANSCRIPT_BYTES=0
