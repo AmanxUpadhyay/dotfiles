@@ -27,8 +27,8 @@ COMMAND_LOWER=$(echo "$COMMAND" | tr '[:upper:]' '[:lower:]')
 
 # --- Destructive file operations ---
 # Match: rm -rf, rm -fr, rm -r -f, sudo rm -rf, with critical targets
-# Critical targets: /, ~, $HOME, .., /usr, /etc, /var, /opt, /bin, /sbin, /lib, *, ./  .
-if [[ "$COMMAND" =~ (sudo[[:space:]]+)?rm[[:space:]]+(-[rRfF]+[[:space:]]+)+(/|~|[.][.]|/usr|/etc|/var|/opt|/bin|/sbin|/lib|\*|[.]/[[:space:]]|\"[.]\"|[.][[:space:]]|\"[.]\"|\$HOME) ]]; then
+# Critical targets: / ~/  ~ (root only), $HOME, .., /usr, /etc, /var, /opt, /bin, /sbin, /lib, *, ./
+if [[ "$COMMAND" =~ (sudo[[:space:]]+)?rm[[:space:]]+(-[rRfF]+[[:space:]]+)+(\/[[:space:]]|\/+$|~\/+$|~/[[:space:]]|~[[:space:]]|~$|[.][.]|/usr|/etc|/var|/opt|/bin|/sbin|/lib|\*|[.]/[[:space:]]|\"[.]\"|[.][[:space:]]|\"[.]\"|\$HOME) ]]; then
   echo "BLOCKED: Recursive deletion targeting critical directory or wildcard. Use a specific path instead." >&2
   exit 2
 fi
