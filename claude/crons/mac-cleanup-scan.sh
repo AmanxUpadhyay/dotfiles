@@ -16,8 +16,10 @@
 set -euo pipefail
 
 source "$HOME/.claude/env.sh"
+source "$HOME/.dotfiles/claude/crons/notify-failure.sh"
 
 if ! preflight_check "mac-cleanup-scan"; then
+    notify_failure "mac-cleanup-scan-preflight" ""
     exit 1
 fi
 
@@ -101,14 +103,17 @@ PLUGIN_DIR="$HOME/.claude/plugins/cache/thedotmack/claude-mem"
 STALE_BYTES=0
 STALE_CMD_LINES=""
 if [[ -d "$PLUGIN_DIR" ]]; then
-    CURRENT_VER=$(for p in "$PLUGIN_DIR"/*/; do basename "$p"; done 2>/dev/null | sort -V | tail -1)
-    for ver_path in "$PLUGIN_DIR"/*/; do
-        ver=$(basename "$ver_path")
-        [[ -z "$ver" || "$ver" == "$CURRENT_VER" ]] && continue
-        sz=$(dir_bytes "$ver_path")
-        STALE_BYTES=$(( STALE_BYTES + sz ))
-        STALE_CMD_LINES+="rm -rf ~/.claude/plugins/cache/thedotmack/claude-mem/\"${ver}\""$'\n'
-    done
+    CURRENT_VER=$(for p in "$PLUGIN_DIR"/*/; do [[ -d "$p" ]] && basename "$p"; done 2>/dev/null | sort -V | tail -1)
+    if [[ -n "$CURRENT_VER" ]]; then
+        for ver_path in "$PLUGIN_DIR"/*/; do
+            [[ -d "$ver_path" ]] || continue
+            ver=$(basename "$ver_path")
+            [[ "$ver" == "$CURRENT_VER" ]] && continue
+            sz=$(dir_bytes "$ver_path")
+            STALE_BYTES=$(( STALE_BYTES + sz ))
+            STALE_CMD_LINES+="rm -rf ~/.claude/plugins/cache/thedotmack/claude-mem/${ver}"$'\n'
+        done
+    fi
 fi
 if (( STALE_BYTES > 0 )); then
     add_target "stale_plugins" "Stale claude-mem plugin versions" "$STALE_BYTES" \
