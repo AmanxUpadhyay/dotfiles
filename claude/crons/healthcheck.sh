@@ -94,59 +94,28 @@ run_preflight() {
 }
 
 # ---------------------------------------------------------------------------
-# Phase 2: Post-run — verify that recent crons touched their markers
+# Phase 2: Post-run — verify that recent crons produced notes in the vault
 # ---------------------------------------------------------------------------
 run_postrun() {
   local errors=()
-  local now
-  now=$(date +%s)
   local dow
   dow=$(date +%u)  # 1=Mon … 7=Sun
 
-  # Daily morning: marker must be < 2h15m old (cron fired at 08:57, checked at 11:00)
-  local daily_marker="$MARKER_DIR/.last-success-daily-retrospective"
-  if [[ ! -f "$daily_marker" ]]; then
-    errors+=("daily-retrospective has never succeeded (no marker file)")
-  else
-    local age=$(( now - $(stat -f %m "$daily_marker") ))
-    if (( age > 8100 )); then  # 2h15m = 8100 seconds
-      errors+=("daily-retrospective marker is stale ($(( age / 60 ))m old, expected < 135m)")
-    fi
+  # Daily note check: morning task (09:00) creates YESTERDAY's note
+  # By 11:00, yesterday's note should exist in the vault
+  local YESTERDAY
+  YESTERDAY=$(date -v-1d +%Y-%m-%d)
+  if ! ls "$OBSIDIAN_VAULT/07-Daily/$YESTERDAY"*.md &>/dev/null; then
+    errors+=("Daily note for $YESTERDAY not found in vault")
   fi
 
-  # Daily evening: marker must be < 25h old (cron fires at 22:30, checked next morning at 08:50)
-  # Only check if the marker exists — it's new so don't alert if it's never run yet
-  local evening_marker="$MARKER_DIR/.last-success-daily-retro-evening"
-  if [[ -f "$evening_marker" ]]; then
-    local age=$(( now - $(stat -f %m "$evening_marker") ))
-    if (( age > 90000 )); then  # 25h = 90000 seconds
-      errors+=("daily-retro-evening marker is stale ($(( age / 3600 ))h old, expected < 25h)")
-    fi
-  fi
-
-  # Weekly report-gen: fires Friday 17:02. Check on Sat (dow=6), Sun (7), Mon (1)
+  # Weekly note check: on Sat/Sun/Mon, last week's summary should exist
   if [[ "$dow" =~ ^(6|7|1)$ ]]; then
-    local gen_marker="$MARKER_DIR/.last-success-weekly-report-gen"
-    if [[ ! -f "$gen_marker" ]]; then
-      errors+=("weekly-report-gen has never succeeded (no marker file)")
-    else
-      local age=$(( now - $(stat -f %m "$gen_marker") ))
-      if (( age > 259200 )); then  # 3 days = 259200 seconds
-        errors+=("weekly-report-gen marker is stale ($(( age / 3600 ))h old, expected < 72h)")
-      fi
-    fi
-  fi
-
-  # Weekly finalize: fires Monday 09:03. Check on Tue (dow=2), Wed (3), Thu (4)
-  if [[ "$dow" =~ ^(2|3|4)$ ]]; then
-    local fin_marker="$MARKER_DIR/.last-success-weekly-finalize"
-    if [[ ! -f "$fin_marker" ]]; then
-      errors+=("weekly-finalize has never succeeded (no marker file)")
-    else
-      local age=$(( now - $(stat -f %m "$fin_marker") ))
-      if (( age > 259200 )); then  # 3 days = 259200 seconds
-        errors+=("weekly-finalize marker is stale ($(( age / 3600 ))h old, expected < 72h)")
-      fi
+    # Get last week's number
+    local LAST_WEEK
+    LAST_WEEK=$(date -v-7d +%Y-W%V)
+    if ! ls "$OBSIDIAN_VAULT/07-Daily/$LAST_WEEK"*.md &>/dev/null; then
+      errors+=("Weekly summary for $LAST_WEEK not found in vault")
     fi
   fi
 
