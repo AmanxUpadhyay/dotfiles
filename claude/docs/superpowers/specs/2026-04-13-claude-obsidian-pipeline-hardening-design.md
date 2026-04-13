@@ -63,33 +63,87 @@ Migrate from launchd + `--print` to Claude Desktop Scheduled Tasks, which:
 
 ## Desktop Scheduled Tasks
 
-### Task 1: daily-retrospective
+### Task 1: daily-retrospective (Morning — Yesterday's Note)
 
-- **Schedule**: 09:00 daily (Europe/London)
+- **Schedule**: 09:00 daily (Europe/London = 08:00 UTC during BST, 09:00 UTC during GMT)
 - **Prompt source**: `~/.dotfiles/claude/prompts/daily-retrospective.md`
-- **Output**: `07-Daily/YYYY-MM-DD-dayname.md`
+- **Purpose**: Create **yesterday's** daily note as a retrospective on the previous day
+- **Output**: `07-Daily/YYYY-MM-DD-dayname.md` (yesterday's date)
+- **Working directory**: `~` (home)
 - **Tools**: `mcp__obsidian__*`, Read, Write, Glob, Grep
+- **Fallback**: If Granola MCP fails, skip meetings section gracefully
 
-### Task 2: daily-retro-evening
+### Task 2: daily-retro-evening (Evening — Today's Note)
 
-- **Schedule**: 22:30 daily (Europe/London)
-- **Prompt**: Check if today's daily note exists. If yes, patch with any sessions created since morning. If no, create fresh.
-- **Output**: Patches existing daily note or creates new
+- **Schedule**: 22:30 daily (Europe/London = 21:30 UTC during BST, 22:30 UTC during GMT)
+- **Prompt source**: `~/.dotfiles/claude/prompts/daily-retro-evening.md` (NEW — to be created)
+- **Purpose**: Create or patch **today's** daily note with today's sessions
+- **Output**: `07-Daily/YYYY-MM-DD-dayname.md` (today's date)
+- **Working directory**: `~` (home)
 - **Tools**: `mcp__obsidian__*`
+- **Deduplication**: Check session note timestamps; skip any already listed in existing note
 
-### Task 3: weekly-report
+### Task 3: weekly-report (Friday Afternoon)
 
-- **Schedule**: 17:00 every Friday (Europe/London)
+- **Schedule**: 17:00 every Friday (Europe/London = 16:00 UTC during BST, 17:00 UTC during GMT)
 - **Prompt source**: `~/.dotfiles/claude/prompts/weekly-report-gen.md`
+- **Purpose**: Generate per-org weekly reports from Mon-Fri daily notes
 - **Output**: Per-org reports + `07-Daily/YYYY-WNN-weekly-summary.md`
+- **Working directory**: `~` (home)
 - **Tools**: `mcp__obsidian__*`, Read, Glob, Grep
 
-### Task 4: weekly-finalize
+### Task 4: weekly-finalize (Monday Morning)
 
 - **Schedule**: 09:00 every Monday (Europe/London)
 - **Prompt source**: `~/.dotfiles/claude/prompts/weekly-finalize.md`
-- **Output**: Finalizes previous week's report with any weekend sessions
+- **Purpose**: Finalize previous week's report with any weekend sessions
+- **Output**: Patches previous week's summary
+- **Working directory**: `~` (home)
 - **Tools**: `mcp__obsidian__*`
+
+### New Prompt File Required
+
+Create `~/.dotfiles/claude/prompts/daily-retro-evening.md`:
+
+```markdown
+# Daily Retrospective Evening — Prompt Template
+
+You are running an evening update for Aman's Obsidian vault (GODL1KE).
+
+## Your Task
+
+Create or update **today's** daily note. Today is {{ TODAY }} ({{ DAY_NAME }}).
+
+## Step 1 — Check if Today's Note Exists
+
+Use `mcp__obsidian__search_notes` to find today's daily note:
+- Search query: `{{ TODAY }}`
+- Path filter: `07-Daily/`
+
+## Step 2 — Gather Today's Sessions
+
+Use `mcp__obsidian__search_notes` to find session notes from today:
+- Search query: `{{ TODAY }}`
+- Filter: path starts with `06-Sessions/`
+
+## Step 3 — Create or Patch
+
+**If today's note exists:**
+- Read it with `mcp__obsidian__read_note`
+- Identify sessions NOT already listed in ## Sessions
+- Use `mcp__obsidian__patch_note` to append only new sessions
+- Update ## Tomorrow's Focus with any new open threads
+
+**If today's note does NOT exist:**
+- Create it fresh using the standard daily note format
+- Include all sessions found
+
+## Output Format
+
+Path: `07-Daily/{{ TODAY }}-{{ DAY_NAME_LOWER }}.md`
+
+Use standard daily note structure from the morning template.
+```
 
 ### Creating Scheduled Tasks
 
@@ -230,13 +284,42 @@ If issues arise:
 
 ## Success Criteria
 
+- [ ] New prompt file created: `daily-retro-evening.md`
 - [ ] All 4 Desktop scheduled tasks created and enabled
-- [ ] Daily note generated at 09:00 without manual intervention
-- [ ] Daily note patched at 22:30 with new sessions
+- [ ] Yesterday's daily note generated at 09:00 without manual intervention
+- [ ] Today's daily note created/patched at 22:30 with today's sessions
 - [ ] Weekly report generated Friday 17:00
 - [ ] Weekly finalized Monday 09:00
 - [ ] Healthcheck detects failures (note missing = alert)
 - [ ] Claude Desktop starts on login
+- [ ] No duplicate sessions appear in daily notes (dedup works)
+
+## Edge Cases and Mitigations
+
+### Session-Stop vs Evening-Retro Overlap
+
+If a user ends a session at 22:25 (triggering session-stop.sh) and evening-retro runs at 22:30:
+- **Mitigation**: Evening-retro checks session note timestamps and skips any already present in the daily note
+- **Implementation**: Compare session note paths already in `## Sessions` against search results
+
+### iCloud Sync Delays
+
+The vault is in iCloud (`~/Library/Mobile Documents/`). Sync delays are possible.
+- **Mitigation**: Desktop scheduled tasks write locally; iCloud handles sync
+- **Risk**: Low — writes are local, not dependent on cloud sync completing
+
+### Granola MCP Authentication
+
+The morning prompt uses Granola for meetings. Auth may fail.
+- **Mitigation**: Prompt instructs to skip meetings section gracefully if Granola unavailable
+- **Fallback**: Note is created without meetings; can be patched manually
+
+### DST Transitions
+
+Schedules are Europe/London. During DST transitions:
+- **BST (Mar-Oct)**: 09:00 local = 08:00 UTC
+- **GMT (Oct-Mar)**: 09:00 local = 09:00 UTC
+- **Mitigation**: Desktop Scheduled Tasks should handle timezone automatically; verify after first DST transition
 
 ## Appendix: Why Not Other Approaches
 
