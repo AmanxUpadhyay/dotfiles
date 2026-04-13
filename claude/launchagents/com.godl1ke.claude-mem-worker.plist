@@ -3,23 +3,13 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.godl1ke.claude.mac-cleanup-scan</string>
+    <string>com.godl1ke.claude-mem-worker</string>
 
     <key>ProgramArguments</key>
     <array>
         <string>/bin/bash</string>
-        <string>/Users/godl1ke/.dotfiles/claude/crons/mac-cleanup-scan.sh</string>
+        <string>/Users/godl1ke/.dotfiles/claude/crons/claude-mem-worker.sh</string>
     </array>
-
-    <key>StartCalendarInterval</key>
-    <dict>
-        <key>Weekday</key>
-        <integer>0</integer>
-        <key>Hour</key>
-        <integer>10</integer>
-        <key>Minute</key>
-        <integer>0</integer>
-    </dict>
 
     <key>EnvironmentVariables</key>
     <dict>
@@ -29,9 +19,19 @@
         <string>/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
     </dict>
 
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
     <key>StandardOutPath</key>
-    <string>/Users/godl1ke/Library/Logs/claude-crons/mac-cleanup-scan-launchd.log</string>
+    <string>/Users/godl1ke/Library/Logs/claude-mem-worker.log</string>
+
     <key>StandardErrorPath</key>
-    <string>/Users/godl1ke/Library/Logs/claude-crons/mac-cleanup-scan-launchd-err.log</string>
+    <string>/Users/godl1ke/Library/Logs/claude-mem-worker-error.log</string>
+
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
 </dict>
 </plist>

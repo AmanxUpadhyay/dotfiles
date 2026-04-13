@@ -3,22 +3,22 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.godl1ke.claude.mac-cleanup-scan</string>
+    <string>com.godl1ke.claude.weekly-report-gen</string>
 
     <key>ProgramArguments</key>
     <array>
         <string>/bin/bash</string>
-        <string>/Users/godl1ke/.dotfiles/claude/crons/mac-cleanup-scan.sh</string>
+        <string>/Users/godl1ke/.dotfiles/claude/crons/weekly-report-gen.sh</string>
     </array>
 
     <key>StartCalendarInterval</key>
     <dict>
         <key>Weekday</key>
-        <integer>0</integer>
+        <integer>5</integer>
         <key>Hour</key>
-        <integer>10</integer>
+        <integer>17</integer>
         <key>Minute</key>
-        <integer>0</integer>
+        <integer>2</integer>
     </dict>
 
     <key>EnvironmentVariables</key>
@@ -30,8 +30,8 @@
     </dict>
 
     <key>StandardOutPath</key>
-    <string>/Users/godl1ke/Library/Logs/claude-crons/mac-cleanup-scan-launchd.log</string>
+    <string>/Users/godl1ke/Library/Logs/claude-crons/weekly-report-gen-launchd.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/godl1ke/Library/Logs/claude-crons/mac-cleanup-scan-launchd-err.log</string>
+    <string>/Users/godl1ke/Library/Logs/claude-crons/weekly-report-gen-launchd-err.log</string>
 </dict>
 </plist>
