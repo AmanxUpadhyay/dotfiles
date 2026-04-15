@@ -38,3 +38,4 @@ chmod +x install.sh
 - **Symlinks over copies**: All configs are symlinked from this repo, so `git pull` updates everything
 - **PR gate**: Every PR must pass lint, tests, and security checks automatically
 - **Memory on autopilot**: Auto Memory + claude-mem run in the background with zero manual management
+<!-- Updated: 2026-04-15 23:13:20 -->
