@@ -2,7 +2,6 @@ from datetime import UTC, datetime
 
 from claude_stack_audit.checks.base import (
     Selection,
-    clear_registry_for_tests,
     enabled_checks,
     register,
 )
@@ -70,9 +69,7 @@ def test_report_carries_generated_at_and_version():
     assert r.scorecard.score == 1000
 
 
-def test_registry_register_and_enabled_checks():
-    clear_registry_for_tests()
-
+def test_registry_register_and_enabled_checks(empty_registry):
     @register
     class DummyInventory:
         id = "TEST_INV"
@@ -105,9 +102,7 @@ def test_registry_register_and_enabled_checks():
     assert subset[0].id == "TEST_REL"
 
 
-def test_selection_combines_quick_and_criteria_filters():
-    clear_registry_for_tests()
-
+def test_selection_combines_quick_and_criteria_filters(empty_registry):
     @register
     class A:
         id = "A"

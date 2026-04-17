@@ -4,7 +4,6 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from claude_stack_audit.checks.base import clear_registry_for_tests
 from claude_stack_audit.cli import app
 
 
@@ -15,16 +14,16 @@ def test_version_flag():
     assert "0.1.0" in result.stdout
 
 
-def test_list_checks_empty(tmp_path):
-    clear_registry_for_tests()
+def test_list_checks_empty(empty_registry, tmp_path):
     runner = CliRunner()
     result = runner.invoke(app, ["list-checks"])
     assert result.exit_code == 0
     assert "No checks registered" in result.stdout
 
 
-def test_run_writes_reports_to_output_dir(fake_dotfiles: Path, tmp_path, monkeypatch):
-    clear_registry_for_tests()
+def test_run_writes_reports_to_output_dir(
+    empty_registry, fake_dotfiles: Path, tmp_path, monkeypatch
+):
     # Skip env validation for this test
     monkeypatch.setattr("claude_stack_audit.cli.validate_environment", lambda **_: None)
     runner = CliRunner()

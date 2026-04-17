@@ -121,3 +121,23 @@ def fake_dotfiles(tmp_path: Path) -> Path:
     start.chmod(0o755)
 
     return dot
+
+
+@pytest.fixture
+def empty_registry():
+    """Clear the check registry for a test, then restore it via module reload.
+
+    Without restore, a test that clears the registry would pollute every
+    subsequent test in the same pytest session, because checks register
+    only at import time.
+    """
+    import importlib
+
+    from claude_stack_audit import checks as _checks
+    from claude_stack_audit.checks.base import clear_registry_for_tests
+
+    clear_registry_for_tests()
+    try:
+        yield
+    finally:
+        importlib.reload(_checks)

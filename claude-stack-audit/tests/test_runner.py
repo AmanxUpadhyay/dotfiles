@@ -7,7 +7,6 @@ import pytest
 
 from claude_stack_audit.checks.base import (
     Selection,
-    clear_registry_for_tests,
     register,
 )
 from claude_stack_audit.config import Config
@@ -20,8 +19,9 @@ def _mk_config(root: Path, out: Path) -> Config:
     return Config(dotfiles_root=root, output_dir=out, selection=Selection())
 
 
-def test_runner_collects_findings_from_all_checks(fake_dotfiles, fake_external_tools, tmp_path):
-    clear_registry_for_tests()
+def test_runner_collects_findings_from_all_checks(
+    empty_registry, fake_dotfiles, fake_external_tools, tmp_path
+):
 
     @register
     class EmitsOne:
@@ -46,9 +46,9 @@ def test_runner_collects_findings_from_all_checks(fake_dotfiles, fake_external_t
     assert report.findings[0].check_id == "T01"
 
 
-def test_runner_emits_meta_finding_on_check_crash(fake_dotfiles, fake_external_tools, tmp_path):
-    clear_registry_for_tests()
-
+def test_runner_emits_meta_finding_on_check_crash(
+    empty_registry, fake_dotfiles, fake_external_tools, tmp_path
+):
     @register
     class Crashes:
         id = "T02"
@@ -78,9 +78,9 @@ def test_validate_environment_raises_when_shellcheck_missing(tmp_path):
         validate_environment(dotfiles_root=tmp_path, external=NoTools())
 
 
-def test_runner_sorts_findings_by_severity_desc(fake_dotfiles, fake_external_tools, tmp_path):
-    clear_registry_for_tests()
-
+def test_runner_sorts_findings_by_severity_desc(
+    empty_registry, fake_dotfiles, fake_external_tools, tmp_path
+):
     @register
     class Many:
         id = "T03"
