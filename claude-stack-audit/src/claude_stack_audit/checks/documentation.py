@@ -46,3 +46,42 @@ class ScriptHeaderPresent:
                         "purpose, inputs, outputs, and side-effects."
                     ),
                 )
+
+
+@register
+class EnvVarCommented:
+    id = "DOC002"
+    name = "env var has preceding comment"
+    criterion = Criterion.DOCUMENTATION
+    layer = Layer.AUTOMATION
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        env_sh = ctx.claude_root / "env.sh"
+        if not env_sh.is_file():
+            return
+        lines = env_sh.read_text().splitlines()
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+            if not stripped.startswith("export "):
+                continue
+            # Look up to 3 non-blank lines back for a comment (shebang excluded)
+            has_comment = False
+            for j in range(max(0, i - 3), i):
+                prev = lines[j].strip()
+                if prev.startswith("#") and not prev.startswith("#!"):
+                    has_comment = True
+                    break
+            if has_comment:
+                continue
+            var_match = re.match(r"export\s+([A-Z_][A-Z0-9_]*)", stripped)
+            var_name = var_match.group(1) if var_match else "?"
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.MEDIUM,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=f"env.sh:{i + 1}",
+                message=f"export {var_name} has no preceding comment",
+                details=None,
+                fix_hint="Add a `# purpose: ...` comment immediately above the export.",
+            )
