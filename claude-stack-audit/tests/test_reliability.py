@@ -7,6 +7,7 @@ from claude_stack_audit.checks.reliability import (
     CronHealthcheckMarker,
     CronIdempotencyGuard,
     ErrOrExitTrap,
+    JqDefensiveDefaults,
     LongOpTimeout,
     SetEuoPipefail,
     ShellcheckClean,
@@ -256,3 +257,28 @@ def test_REL008_flags_claude_call_without_timeout(  # noqa: N802
     flagged = [f for f in findings if "unbounded-claude.sh" in f.artifact]
     assert len(flagged) == 1
     assert flagged[0].severity == Severity.MEDIUM
+
+
+def test_REL009_passes_when_jq_has_defensive_default(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    script = fake_dotfiles / "claude" / "hooks" / "safe-jq.sh"
+    script.write_text("#!/bin/bash\nset -euo pipefail\necho '{}' | jq '.foo // empty'\n")
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(JqDefensiveDefaults().run(ctx))
+    flagged = [f for f in findings if "safe-jq.sh" in f.artifact]
+    assert flagged == []
+
+
+def test_REL009_flags_jq_without_default(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    script = fake_dotfiles / "claude" / "hooks" / "unsafe-jq.sh"
+    script.write_text("#!/bin/bash\nset -euo pipefail\necho '{}' | jq '.foo'\n")
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(JqDefensiveDefaults().run(ctx))
+    flagged = [f for f in findings if "unsafe-jq.sh" in f.artifact]
+    assert len(flagged) == 1
+    assert flagged[0].severity == Severity.LOW

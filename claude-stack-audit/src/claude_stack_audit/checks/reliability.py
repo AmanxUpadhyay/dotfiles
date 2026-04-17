@@ -277,3 +277,31 @@ class LongOpTimeout:
                     "$CLAUDE_BIN ...` so a hung process can't wedge the cron."
                 ),
             )
+
+
+@register
+class JqDefensiveDefaults:
+    id = "REL009"
+    name = "jq uses defensive defaults"
+    criterion = Criterion.RELIABILITY
+    layer = Layer.AUTOMATION
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        for script in ctx.bash_scripts:
+            body = ctx.file_cache.read(script)
+            if "jq " not in body and "jq'" not in body and 'jq"' not in body:
+                continue
+            if "// " in body:
+                continue
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.LOW,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=str(script.relative_to(ctx.claude_root.parent)),
+                message="jq used without defensive default",
+                details=None,
+                fix_hint=(
+                    "Use `jq '.foo // empty'` or `// []` so jq doesn't fail on unexpected shapes."
+                ),
+            )
