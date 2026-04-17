@@ -120,6 +120,11 @@ def fake_dotfiles(tmp_path: Path) -> Path:
     start.write_text("#!/bin/bash\nset -euo pipefail\necho start\n")
     start.chmod(0o755)
 
+    (claude / "agents" / "reviewer.md").write_text(
+        "---\nname: reviewer\n---\n\nReview code quality.\n"
+    )
+    (claude / "commands" / "audit.md").write_text("---\nname: audit\n---\n\nRun the audit tool.\n")
+
     (claude / "launchagents" / "com.test.audit.plist").write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n'

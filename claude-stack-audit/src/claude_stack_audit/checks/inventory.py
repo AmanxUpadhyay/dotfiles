@@ -96,3 +96,28 @@ class LaunchAgentInventory:
             if len(parts) >= 3:
                 labels.add(parts[2].strip())
         return labels
+
+
+@register
+class AgentCommandInventory:
+    id = "INV004"
+    name = "agent and command inventory"
+    criterion = Criterion.INVENTORY
+    layer = Layer.AUTOMATION
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        for kind, subdir in (("agent", "agents"), ("command", "commands")):
+            directory = ctx.claude_root / subdir
+            if not directory.is_dir():
+                continue
+            for md in sorted(directory.glob("*.md")):
+                yield Finding(
+                    check_id=self.id,
+                    severity=Severity.INFO,
+                    layer=self.layer,
+                    criterion=self.criterion,
+                    artifact=str(md.relative_to(ctx.claude_root.parent)),
+                    message=f"{kind} {md.stem}",
+                    details=None,
+                    fix_hint=None,
+                )

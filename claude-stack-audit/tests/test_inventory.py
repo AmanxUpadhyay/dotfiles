@@ -1,6 +1,11 @@
 from pathlib import Path
 
-from claude_stack_audit.checks.inventory import CronInventory, HookInventory, LaunchAgentInventory
+from claude_stack_audit.checks.inventory import (
+    AgentCommandInventory,
+    CronInventory,
+    HookInventory,
+    LaunchAgentInventory,
+)
 from claude_stack_audit.context import Context
 from claude_stack_audit.external import ToolResult
 
@@ -84,3 +89,25 @@ def test_INV003_marks_loaded_when_launchctl_reports_label(  # noqa: N802
     assert len(findings) == 1
     assert "loaded" in findings[0].message
     assert "unloaded" not in findings[0].message
+
+
+def test_INV004_enumerates_agents_and_commands(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(AgentCommandInventory().run(ctx))
+    # fixture has reviewer.md + audit.md
+    assert len(findings) == 2
+    kinds = {f.message.split()[0] for f in findings}
+    assert kinds == {"agent", "command"}
+    names = {f.message.split()[1] for f in findings}
+    assert names == {"reviewer", "audit"}
+
+
+def test_INV004_emits_nothing_when_dirs_empty(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    (fake_dotfiles / "claude" / "agents" / "reviewer.md").unlink()
+    (fake_dotfiles / "claude" / "commands" / "audit.md").unlink()
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    assert list(AgentCommandInventory().run(ctx)) == []
