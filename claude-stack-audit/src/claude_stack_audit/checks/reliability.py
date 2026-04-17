@@ -187,3 +187,29 @@ class CronIdempotencyGuard:
                     "check a last-success marker to skip redundant runs."
                 ),
             )
+
+
+@register
+class CompanionTestPresent:
+    id = "REL006"
+    name = "companion test directory present"
+    criterion = Criterion.RELIABILITY
+    layer = Layer.AUTOMATION
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        tests_dir = ctx.dotfiles_root / "tests"
+        if tests_dir.is_dir():
+            return
+        yield Finding(
+            check_id=self.id,
+            severity=Severity.MEDIUM,
+            layer=self.layer,
+            criterion=self.criterion,
+            artifact=str(tests_dir),
+            message="no tests directory for dotfiles hook/cron scripts",
+            details=None,
+            fix_hint=(
+                "Create ~/.dotfiles/tests/ with bats or pytest suites covering "
+                "hook and cron scripts."
+            ),
+        )

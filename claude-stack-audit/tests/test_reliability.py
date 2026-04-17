@@ -3,6 +3,7 @@ from pathlib import Path
 
 from claude_stack_audit.checks.reliability import (
     ClaudeBinResolved,
+    CompanionTestPresent,
     CronIdempotencyGuard,
     ErrOrExitTrap,
     SetEuoPipefail,
@@ -159,3 +160,26 @@ def test_REL005_flags_cron_without_guard(  # noqa: N802
     flagged = [f for f in findings if "no-guard.sh" in f.artifact]
     assert len(flagged) == 1
     assert flagged[0].severity == Severity.MEDIUM
+
+
+def test_REL006_passes_when_tests_dir_exists(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    # Create a tests directory at the dotfiles root of the fixture
+    tests_dir = fake_dotfiles / "tests"
+    tests_dir.mkdir()
+    (tests_dir / "placeholder.bats").write_text("# placeholder\n")
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(CompanionTestPresent().run(ctx))
+    assert findings == []
+
+
+def test_REL006_flags_missing_tests_dir(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    # Fixture does NOT create ~/.dotfiles/tests — so this should flag
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(CompanionTestPresent().run(ctx))
+    assert len(findings) == 1
+    assert findings[0].severity == Severity.MEDIUM
+    assert findings[0].check_id == "REL006"
