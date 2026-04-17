@@ -4,6 +4,7 @@ from pathlib import Path
 from claude_stack_audit.checks.reliability import (
     ClaudeBinResolved,
     CompanionTestPresent,
+    CronHealthcheckMarker,
     CronIdempotencyGuard,
     ErrOrExitTrap,
     SetEuoPipefail,
@@ -183,3 +184,49 @@ def test_REL006_flags_missing_tests_dir(  # noqa: N802
     assert len(findings) == 1
     assert findings[0].severity == Severity.MEDIUM
     assert findings[0].check_id == "REL006"
+
+
+def test_REL007_passes_when_cron_writes_marker(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    script = fake_dotfiles / "claude" / "crons" / "marked-cron.sh"
+    script.write_text(
+        "#!/bin/bash\n"
+        "set -euo pipefail\n"
+        "echo running\n"
+        'touch "$HOME/Library/Logs/claude-crons/.last-success-marked"\n'
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(CronHealthcheckMarker().run(ctx))
+    flagged = [f for f in findings if "marked-cron.sh" in f.artifact]
+    assert flagged == []
+
+
+def test_REL007_flags_cron_without_marker(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    script = fake_dotfiles / "claude" / "crons" / "unmarked-cron.sh"
+    script.write_text("#!/bin/bash\nset -euo pipefail\necho running\n")
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(CronHealthcheckMarker().run(ctx))
+    flagged = [f for f in findings if "unmarked-cron.sh" in f.artifact]
+    assert len(flagged) == 1
+    assert flagged[0].severity == Severity.HIGH
+
+
+def test_REL007_skips_healthcheck_itself(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    script = fake_dotfiles / "claude" / "crons" / "healthcheck.sh"
+    script.write_text(
+        "#!/bin/bash\n"
+        "set -euo pipefail\n"
+        "echo checking\n"  # no last-success write, but this is the healthcheck itself
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(CronHealthcheckMarker().run(ctx))
+    flagged = [f for f in findings if "healthcheck.sh" in f.artifact]
+    assert flagged == []
