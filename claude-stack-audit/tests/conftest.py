@@ -81,6 +81,10 @@ def fake_dotfiles(tmp_path: Path) -> Path:
                     ],
                 },
                 "permissions": {"allow": ["Read"], "deny": []},
+                "mcpServers": {
+                    "test-stdio-mcp": {"command": "node", "args": ["server.js"]},
+                    "test-http-mcp": {"url": "http://localhost:3000"},
+                },
             }
         )
     )

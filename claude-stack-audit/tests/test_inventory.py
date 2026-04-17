@@ -5,6 +5,7 @@ from claude_stack_audit.checks.inventory import (
     CronInventory,
     HookInventory,
     LaunchAgentInventory,
+    McpServerInventory,
 )
 from claude_stack_audit.context import Context
 from claude_stack_audit.external import ToolResult
@@ -111,3 +112,52 @@ def test_INV004_emits_nothing_when_dirs_empty(  # noqa: N802
     (fake_dotfiles / "claude" / "commands" / "audit.md").unlink()
     ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
     assert list(AgentCommandInventory().run(ctx)) == []
+
+
+def test_INV005_enumerates_mcp_servers_with_transport(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(McpServerInventory().run(ctx))
+    # fixture has two mcp servers
+    assert len(findings) == 2
+    names = {f.artifact for f in findings}
+    assert names == {"mcp:test-stdio-mcp", "mcp:test-http-mcp"}
+    by_name = {f.artifact: f for f in findings}
+    assert "stdio" in by_name["mcp:test-stdio-mcp"].message
+    assert "http" in by_name["mcp:test-http-mcp"].message
+
+
+def test_INV005_no_findings_when_no_mcp_section(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    import json as _json
+
+    settings_path = fake_dotfiles / "claude" / "settings.json"
+    data = _json.loads(settings_path.read_text())
+    data.pop("mcpServers", None)
+    settings_path.write_text(_json.dumps(data))
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    assert list(McpServerInventory().run(ctx)) == []
+
+
+def test_INV005_transport_fallback_and_non_dict_guard(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    import json as _json
+
+    settings_path = fake_dotfiles / "claude" / "settings.json"
+    data = _json.loads(settings_path.read_text())
+    # unknown transport: dict with neither command nor url
+    # non-dict spec: a string
+    data["mcpServers"] = {
+        "no-transport": {},
+        "string-spec": "bad",
+    }
+    settings_path.write_text(_json.dumps(data))
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(McpServerInventory().run(ctx))
+    assert len(findings) == 2
+    by_name = {f.artifact: f for f in findings}
+    assert "unknown" in by_name["mcp:no-transport"].message
+    assert "unknown" in by_name["mcp:string-spec"].message

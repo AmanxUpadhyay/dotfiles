@@ -121,3 +121,38 @@ class AgentCommandInventory:
                     details=None,
                     fix_hint=None,
                 )
+
+
+@register
+class McpServerInventory:
+    id = "INV005"
+    name = "mcp server inventory"
+    criterion = Criterion.INVENTORY
+    layer = Layer.CORE
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        servers = ctx.settings.raw.get("mcpServers", {}) or {}
+        if not isinstance(servers, dict):
+            return
+        for name, spec in servers.items():
+            transport = self._transport(spec)
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.INFO,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=f"mcp:{name}",
+                message=f"{name} ({transport})",
+                details=None,
+                fix_hint=None,
+            )
+
+    @staticmethod
+    def _transport(spec: object) -> str:
+        if not isinstance(spec, dict):
+            return "unknown"
+        if "command" in spec:
+            return "stdio"
+        if "url" in spec:
+            return "http"
+        return "unknown"
