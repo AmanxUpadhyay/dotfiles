@@ -1,5 +1,11 @@
 from datetime import UTC, datetime
 
+from claude_stack_audit.checks.base import (
+    Selection,
+    clear_registry_for_tests,
+    enabled_checks,
+    register,
+)
 from claude_stack_audit.models import (
     Criterion,
     Finding,
@@ -62,3 +68,38 @@ def test_report_carries_generated_at_and_version():
     )
     assert r.tool_version == "0.1.0"
     assert r.scorecard.score == 1000
+
+
+def test_registry_register_and_enabled_checks():
+    clear_registry_for_tests()
+
+    @register
+    class DummyInventory:
+        id = "TEST_INV"
+        name = "dummy inventory"
+        criterion = Criterion.INVENTORY
+        layer = Layer.CORE
+
+        def run(self, ctx):
+            return []
+
+    @register
+    class DummyReliability:
+        id = "TEST_REL"
+        name = "dummy reliability"
+        criterion = Criterion.RELIABILITY
+        layer = Layer.AUTOMATION
+
+        def run(self, ctx):
+            return []
+
+    enabled = enabled_checks(Selection())
+    assert len(enabled) == 2
+
+    quick = enabled_checks(Selection(quick=True))
+    assert len(quick) == 1
+    assert quick[0].id == "TEST_INV"
+
+    subset = enabled_checks(Selection(criteria={Criterion.RELIABILITY}))
+    assert len(subset) == 1
+    assert subset[0].id == "TEST_REL"
