@@ -3,7 +3,10 @@ from pathlib import Path
 from claude_stack_audit.checks.documentation import (
     AdrCoverage,
     ClaudeReadmePresent,
+    CrontabCommentsPresent,
     EnvVarCommented,
+    HookSettingsDocumented,
+    RunbookPresent,
     ScriptHeaderPresent,
 )
 from claude_stack_audit.context import Context
@@ -101,3 +104,31 @@ def test_DOC004_flags_when_no_adrs(  # noqa: N802
     assert len(findings) == 1
     assert findings[0].severity == Severity.MEDIUM
     assert findings[0].check_id == "DOC004"
+
+
+def test_DOC005_passes_when_runbook_exists(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    cron = fake_dotfiles / "claude" / "crons" / "my-cron.sh"
+    cron.write_text("#!/bin/bash\nset -euo pipefail\necho hi\n")
+    cron.chmod(0o755)
+    runbooks = fake_dotfiles / "docs" / "superpowers" / "runbooks"
+    runbooks.mkdir(parents=True)
+    (runbooks / "my-cron.md").write_text("# my-cron runbook\n")
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(RunbookPresent().run(ctx))
+    flagged = [f for f in findings if "my-cron.sh" in f.artifact]
+    assert flagged == []
+
+
+def test_DOC005_flags_cron_without_runbook(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    cron = fake_dotfiles / "claude" / "crons" / "unfdocumented-cron.sh"
+    cron.write_text("#!/bin/bash\nset -euo pipefail\necho hi\n")
+    cron.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(RunbookPresent().run(ctx))
+    flagged = [f for f in findings if "unfdocumented-cron.sh" in f.artifact]
+    assert len(flagged) == 1
+    assert flagged[0].severity == Severity.HIGH

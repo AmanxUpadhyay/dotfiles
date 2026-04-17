@@ -140,3 +140,34 @@ class AdrCoverage:
                 "docs/superpowers/adr/YYYY-MM-DD-<topic>.md."
             ),
         )
+
+
+@register
+class RunbookPresent:
+    id = "DOC005"
+    name = "cron has runbook"
+    criterion = Criterion.DOCUMENTATION
+    layer = Layer.AUTOMATION
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        crons_dir = ctx.claude_root / "crons"
+        if not crons_dir.is_dir():
+            return
+        runbooks_dir = ctx.dotfiles_root / "docs" / "superpowers" / "runbooks"
+        for script in sorted(crons_dir.glob("*.sh")):
+            runbook = runbooks_dir / f"{script.stem}.md"
+            if runbook.is_file():
+                continue
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.HIGH,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=str(script.relative_to(ctx.claude_root.parent)),
+                message=f"no runbook at docs/superpowers/runbooks/{script.stem}.md",
+                details=None,
+                fix_hint=(
+                    f"Create docs/superpowers/runbooks/{script.stem}.md documenting "
+                    "purpose, inputs, outputs, failure modes, and recovery steps."
+                ),
+            )
