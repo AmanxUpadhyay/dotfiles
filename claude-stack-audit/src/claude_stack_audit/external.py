@@ -27,6 +27,27 @@ def _decode(val: bytes | str | None) -> str:
     return val
 
 
+def _elapsed_ms(start: float) -> int:
+    return int((time.monotonic() - start) * 1000)
+
+
+def _make_result(
+    *,
+    returncode: int,
+    stdout: str,
+    stderr: str,
+    start: float,
+    timed_out: bool = False,
+) -> ToolResult:
+    return ToolResult(
+        returncode=returncode,
+        stdout=stdout,
+        stderr=stderr,
+        duration_ms=_elapsed_ms(start),
+        timed_out=timed_out,
+    )
+
+
 class ExternalTools:
     """Wraps subprocess.run with a default timeout and safe error handling."""
 
@@ -51,32 +72,23 @@ class ExternalTools:
                 cwd=cwd,
                 check=False,
             )
-            return ToolResult(
-                returncode=proc.returncode,
-                stdout=proc.stdout,
-                stderr=proc.stderr,
-                duration_ms=_elapsed_ms(start),
-                timed_out=False,
-            )
         except subprocess.TimeoutExpired as exc:
-            return ToolResult(
+            return _make_result(
                 returncode=-1,
                 stdout=_decode(exc.stdout),
                 stderr=_decode(exc.stderr) + f"\n[timeout after {exc.timeout}s]",
-                duration_ms=_elapsed_ms(start),
+                start=start,
                 timed_out=True,
             )
         except OSError as exc:
-            # Covers FileNotFoundError (127), PermissionError (126),
-            # NotADirectoryError (126), and similar OS-level failures.
-            returncode = 127 if isinstance(exc, FileNotFoundError) else 126
-            return ToolResult(
-                returncode=returncode,
-                stdout="",
-                stderr=str(exc),
-                duration_ms=_elapsed_ms(start),
-                timed_out=False,
-            )
+            code = 127 if isinstance(exc, FileNotFoundError) else 126
+            return _make_result(returncode=code, stdout="", stderr=str(exc), start=start)
+        return _make_result(
+            returncode=proc.returncode,
+            stdout=proc.stdout,
+            stderr=proc.stderr,
+            start=start,
+        )
 
     def shellcheck(self, path: str | Path) -> ToolResult:
         return self.run(["shellcheck", "--format=json", str(path)])
@@ -88,7 +100,3 @@ class ExternalTools:
         combined = (r.stdout or r.stderr).strip()
         lines = combined.splitlines()
         return lines[0] if lines else None
-
-
-def _elapsed_ms(start: float) -> int:
-    return int((time.monotonic() - start) * 1000)
