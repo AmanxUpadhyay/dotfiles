@@ -103,3 +103,36 @@ def test_registry_register_and_enabled_checks():
     subset = enabled_checks(Selection(criteria={Criterion.RELIABILITY}))
     assert len(subset) == 1
     assert subset[0].id == "TEST_REL"
+
+
+def test_selection_combines_quick_and_criteria_filters():
+    clear_registry_for_tests()
+
+    @register
+    class A:
+        id = "A"
+        name = "a"
+        criterion = Criterion.INVENTORY
+        layer = Layer.CORE
+
+        def run(self, ctx):
+            return []
+
+    @register
+    class B:
+        id = "B"
+        name = "b"
+        criterion = Criterion.RELIABILITY
+        layer = Layer.AUTOMATION
+
+        def run(self, ctx):
+            return []
+
+    # quick=True + criteria={RELIABILITY}: RELIABILITY is filtered out by quick,
+    # so nothing passes both filters.
+    assert enabled_checks(Selection(quick=True, criteria={Criterion.RELIABILITY})) == []
+
+    # quick=True + criteria={INVENTORY}: INVENTORY passes quick AND is in the set.
+    result = enabled_checks(Selection(quick=True, criteria={Criterion.INVENTORY}))
+    assert len(result) == 1
+    assert result[0].id == "A"

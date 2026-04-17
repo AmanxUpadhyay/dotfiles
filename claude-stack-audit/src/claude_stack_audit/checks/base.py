@@ -39,7 +39,8 @@ class Selection:
 
 
 def enabled_checks(selection: Selection) -> list[Check]:
-    return [c() for c in _REGISTRY if selection.includes(c())]
+    instances = [c() for c in _REGISTRY]
+    return [inst for inst in instances if selection.includes(inst)]
 
 
 def all_registered_check_classes() -> list[type[Check]]:

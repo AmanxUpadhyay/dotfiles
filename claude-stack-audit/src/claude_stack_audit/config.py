@@ -34,4 +34,7 @@ class Config:
 def parse_criteria(s: str | None) -> set[Criterion] | None:
     if not s:
         return None
-    return {Criterion(x.strip()) for x in s.split(",")}
+    parts = [x.strip() for x in s.split(",") if x.strip()]
+    if not parts:
+        return None
+    return {Criterion(p) for p in parts}
