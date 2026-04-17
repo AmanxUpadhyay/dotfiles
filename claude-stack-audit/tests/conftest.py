@@ -59,6 +59,17 @@ def fake_dotfiles(tmp_path: Path) -> Path:
     claude = dot / "claude"
     (claude / "hooks").mkdir(parents=True)
     (claude / "crons").mkdir()
+
+    cron_with_trap = claude / "crons" / "with-trap.sh"
+    cron_with_trap.write_text(
+        "#!/bin/bash\nset -euo pipefail\ntrap 'echo oops' ERR\necho running\n"
+    )
+    cron_with_trap.chmod(0o755)
+
+    cron_no_trap = claude / "crons" / "no-trap.sh"
+    cron_no_trap.write_text("#!/bin/bash\nset -euo pipefail\necho running\n")
+    cron_no_trap.chmod(0o755)
+
     (claude / "agents").mkdir()
     (claude / "commands").mkdir()
     (claude / "launchagents").mkdir()

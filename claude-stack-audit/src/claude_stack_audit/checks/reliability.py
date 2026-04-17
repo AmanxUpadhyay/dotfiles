@@ -90,3 +90,30 @@ class SetEuoPipefail:
                 details=None,
                 fix_hint="Add `set -euo pipefail` as the second line after the shebang.",
             )
+
+
+@register
+class ErrOrExitTrap:
+    id = "REL003"
+    name = "cron scripts have ERR or EXIT trap"
+    criterion = Criterion.RELIABILITY
+    layer = Layer.AUTOMATION
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        crons_dir = ctx.claude_root / "crons"
+        if not crons_dir.is_dir():
+            return
+        for script in sorted(crons_dir.glob("*.sh")):
+            body = ctx.file_cache.read(script)
+            if "trap " in body and ("ERR" in body or "EXIT" in body):
+                continue
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.MEDIUM,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=str(script.relative_to(ctx.claude_root.parent)),
+                message="cron script has no ERR or EXIT trap",
+                details=None,
+                fix_hint="Add `trap 'notify-failure.sh' ERR` near the top of the script.",
+            )
