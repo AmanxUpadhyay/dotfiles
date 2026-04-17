@@ -85,3 +85,29 @@ class EnvVarCommented:
                 details=None,
                 fix_hint="Add a `# purpose: ...` comment immediately above the export.",
             )
+
+
+@register
+class ClaudeReadmePresent:
+    id = "DOC003"
+    name = "claude/ has README"
+    criterion = Criterion.DOCUMENTATION
+    layer = Layer.CORE
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        readme = ctx.claude_root / "README.md"
+        if readme.is_file():
+            return
+        yield Finding(
+            check_id=self.id,
+            severity=Severity.HIGH,
+            layer=self.layer,
+            criterion=self.criterion,
+            artifact=str(readme.relative_to(ctx.claude_root.parent)),
+            message="claude/ directory missing README.md",
+            details=None,
+            fix_hint=(
+                "Create claude/README.md documenting install flow, component map, "
+                "hooks/crons inventory, and common troubleshooting."
+            ),
+        )

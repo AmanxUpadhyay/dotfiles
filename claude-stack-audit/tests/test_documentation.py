@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from claude_stack_audit.checks.documentation import (
+    ClaudeReadmePresent,
     EnvVarCommented,
     ScriptHeaderPresent,
 )
@@ -58,3 +59,22 @@ def test_DOC002_flags_export_without_comment(  # noqa: N802
     assert len(findings) == 1
     assert findings[0].severity == Severity.MEDIUM
     assert "CLAUDE_LOG_DIR" in findings[0].message
+
+
+def test_DOC003_passes_when_readme_exists(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    (fake_dotfiles / "claude" / "README.md").write_text("# claude setup\n")
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(ClaudeReadmePresent().run(ctx))
+    assert findings == []
+
+
+def test_DOC003_flags_missing_readme(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    # Fixture doesn't create README.md
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(ClaudeReadmePresent().run(ctx))
+    assert len(findings) == 1
+    assert findings[0].severity == Severity.HIGH
