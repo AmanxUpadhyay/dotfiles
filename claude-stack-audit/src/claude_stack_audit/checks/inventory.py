@@ -32,3 +32,24 @@ class HookInventory:
                         details=None,
                         fix_hint=None,
                     )
+
+
+@register
+class CronInventory:
+    id = "INV002"
+    name = "cron inventory"
+    criterion = Criterion.INVENTORY
+    layer = Layer.AUTOMATION
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        for entry in ctx.crontab:
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.INFO,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=entry.script,
+                message=f"cron {entry.schedule} → {entry.script}",
+                details=None,
+                fix_hint=None,
+            )
