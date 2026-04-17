@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Iterable
 
 from claude_stack_audit.checks.base import register
@@ -116,4 +117,40 @@ class ErrOrExitTrap:
                 message="cron script has no ERR or EXIT trap",
                 details=None,
                 fix_hint="Add `trap 'notify-failure.sh' ERR` near the top of the script.",
+            )
+
+
+_HARDCODED_CLAUDE_RE = re.compile(
+    r"(?P<path>(?:/[\w.-]+)+/claude|~/[\w./-]+/claude|\$HOME/[\w./-]+/claude)\b"
+)
+
+
+@register
+class ClaudeBinResolved:
+    id = "REL004"
+    name = "no hardcoded claude path"
+    criterion = Criterion.RELIABILITY
+    layer = Layer.AUTOMATION
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        for script in ctx.bash_scripts:
+            body = ctx.file_cache.read(script)
+            if "$CLAUDE_BIN" in body or "${CLAUDE_BIN" in body:
+                continue
+            match = _HARDCODED_CLAUDE_RE.search(body)
+            if not match:
+                continue
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.HIGH,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=str(script.relative_to(ctx.claude_root.parent)),
+                message="hardcoded claude binary path",
+                details=f"found: {match.group('path')}",
+                fix_hint=(
+                    "Replace with $CLAUDE_BIN and source env.sh so the dynamic "
+                    "resolution chain (~/.local/bin → ~/.npm-packages/bin → "
+                    "/opt/homebrew/bin) handles installer changes."
+                ),
             )

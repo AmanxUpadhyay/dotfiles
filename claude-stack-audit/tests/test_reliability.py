@@ -1,7 +1,12 @@
 import json
 from pathlib import Path
 
-from claude_stack_audit.checks.reliability import ErrOrExitTrap, SetEuoPipefail, ShellcheckClean
+from claude_stack_audit.checks.reliability import (
+    ClaudeBinResolved,
+    ErrOrExitTrap,
+    SetEuoPipefail,
+    ShellcheckClean,
+)
 from claude_stack_audit.context import Context
 from claude_stack_audit.external import ToolResult
 from claude_stack_audit.models import Severity
@@ -100,3 +105,31 @@ def test_REL003_flags_cron_without_trap(  # noqa: N802
     flagged = [f for f in findings if "no-trap.sh" in f.artifact]
     assert len(flagged) == 1
     assert flagged[0].severity == Severity.MEDIUM
+
+
+def test_REL004_passes_when_script_uses_CLAUDE_BIN(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    script = fake_dotfiles / "claude" / "crons" / "uses-env.sh"
+    script.write_text(
+        "#!/bin/bash\nset -euo pipefail\nsource $HOME/.dotfiles/claude/env.sh\n$CLAUDE_BIN --help\n"
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(ClaudeBinResolved().run(ctx))
+    flagged = [f for f in findings if "uses-env.sh" in f.artifact]
+    assert flagged == []
+
+
+def test_REL004_flags_hardcoded_npm_path(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    script = fake_dotfiles / "claude" / "crons" / "bad-hardcoded.sh"
+    script.write_text("#!/bin/bash\nset -euo pipefail\n~/.npm-packages/bin/claude --version\n")
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(ClaudeBinResolved().run(ctx))
+    flagged = [f for f in findings if "bad-hardcoded.sh" in f.artifact]
+    assert len(flagged) == 1
+    assert flagged[0].severity == Severity.HIGH
+    assert "npm-packages" in flagged[0].details
