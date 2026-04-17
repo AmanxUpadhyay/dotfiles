@@ -3,11 +3,12 @@ emits META findings on crashes, and returns a sorted Report."""
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from datetime import UTC, datetime
 from pathlib import Path
 
 from claude_stack_audit import __version__
-from claude_stack_audit.checks.base import enabled_checks
+from claude_stack_audit.checks.base import Check, enabled_checks
 from claude_stack_audit.config import Config
 from claude_stack_audit.context import Context
 from claude_stack_audit.external import ExternalTools
@@ -54,27 +55,47 @@ def run(
     now = now or datetime.now(UTC)
     context = Context.build(dotfiles_root=config.dotfiles_root, external=external)
 
+    findings = _collect_findings(enabled_checks(config.selection), context)
+    _sort_findings(findings)
+
+    return Report(
+        generated_at=now,
+        tool_version=__version__,
+        findings=findings,
+        # phase 1: Inventory stays empty; INV checks will populate it in phase 2.
+        inventory=Inventory(),
+        scorecard=Scorecard.from_findings(findings),
+        external_tool_versions={
+            "shellcheck": external.version(["shellcheck", "--version"]) or "unknown",
+        },
+    )
+
+
+def _collect_findings(checks: Iterable[Check], context: Context) -> list[Finding]:
+    """Run each check; exceptions become META001 findings so the runner never crashes."""
     findings: list[Finding] = []
-    inventory = Inventory()
-
-    for check in enabled_checks(config.selection):
+    for check in checks:
         try:
-            for f in check.run(context):
-                findings.append(f)
-        except Exception as exc:  # noqa: BLE001 - intentional: never crash the runner
-            findings.append(
-                Finding(
-                    check_id="META001",
-                    severity=Severity.HIGH,
-                    layer=Layer.CORE,
-                    criterion=Criterion.CROSS_CUTTING,
-                    artifact=f"check:{check.id}",
-                    message=f"check {check.id} crashed",
-                    details=f"{check.id} raised {type(exc).__name__}: {exc}",
-                    fix_hint=f"See logs; fix the check implementation for {check.id}.",
-                )
-            )
+            findings.extend(check.run(context))
+        except Exception as exc:  # noqa: BLE001 - checks are arbitrary code; we classify, never crash
+            findings.append(_meta_finding(check, exc))
+    return findings
 
+
+def _meta_finding(check: Check, exc: Exception) -> Finding:
+    return Finding(
+        check_id="META001",
+        severity=Severity.HIGH,
+        layer=Layer.CORE,
+        criterion=Criterion.CROSS_CUTTING,
+        artifact=f"check:{check.id}",
+        message=f"check {check.id} crashed",
+        details=f"{check.id} raised {type(exc).__name__}: {exc}",
+        fix_hint=f"See logs; fix the check implementation for {check.id}.",
+    )
+
+
+def _sort_findings(findings: list[Finding]) -> None:
     findings.sort(
         key=lambda f: (
             _SEVERITY_ORDER[f.severity],
@@ -83,15 +104,4 @@ def run(
             f.check_id,
             f.artifact,
         )
-    )
-
-    return Report(
-        generated_at=now,
-        tool_version=__version__,
-        findings=findings,
-        inventory=inventory,
-        scorecard=Scorecard.from_findings(findings),
-        external_tool_versions={
-            "shellcheck": external.version(["shellcheck", "--version"]) or "unknown",
-        },
     )

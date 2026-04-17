@@ -11,6 +11,7 @@ from claude_stack_audit.checks.base import (
     register,
 )
 from claude_stack_audit.config import Config
+from claude_stack_audit.external import ToolResult
 from claude_stack_audit.models import Criterion, Finding, Layer, Severity
 from claude_stack_audit.runner import ValidationError, run, validate_environment
 
@@ -69,8 +70,6 @@ def test_runner_emits_meta_finding_on_check_crash(fake_dotfiles, fake_external_t
 def test_validate_environment_raises_when_shellcheck_missing(tmp_path):
     class NoTools:
         def run(self, argv, **_):
-            from claude_stack_audit.external import ToolResult
-
             return ToolResult(
                 returncode=127, stdout="", stderr="not found", duration_ms=0, timed_out=False
             )
