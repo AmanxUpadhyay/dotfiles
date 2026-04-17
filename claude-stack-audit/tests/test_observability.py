@@ -2,6 +2,7 @@ from pathlib import Path
 
 from claude_stack_audit.checks.observability import (
     DurationStatusMarkers,
+    HookHandlerExists,
     LogPathConsistency,
     LogRotationPolicy,
     NotifyFailureSourced,
@@ -148,3 +149,35 @@ def test_OBS005_flags_when_no_rotation_exists(  # noqa: N802
     assert len(findings) == 1
     assert findings[0].severity == Severity.MEDIUM
     assert findings[0].check_id == "OBS005"
+
+
+def test_OBS006_passes_when_hook_commands_exist(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    # Fixture settings.json points at hooks/session-stop.sh and hooks/session-start.sh,
+    # both of which exist.
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(HookHandlerExists().run(ctx))
+    assert findings == []
+
+
+def test_OBS006_flags_missing_hook_handler(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    import json as _json
+
+    settings_path = fake_dotfiles / "claude" / "settings.json"
+    data = _json.loads(settings_path.read_text())
+    data["hooks"]["Stop"] = [
+        {
+            "matcher": "",
+            "hooks": [{"type": "command", "command": "hooks/does-not-exist.sh"}],
+        }
+    ]
+    settings_path.write_text(_json.dumps(data))
+
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(HookHandlerExists().run(ctx))
+    flagged = [f for f in findings if "does-not-exist.sh" in f.artifact]
+    assert len(flagged) == 1
+    assert flagged[0].severity == Severity.HIGH

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Iterable
+from pathlib import Path
 
 from claude_stack_audit.checks.base import register
 from claude_stack_audit.context import Context
@@ -177,3 +178,35 @@ class LogRotationPolicy:
                 "or gzip/logrotate)."
             ),
         )
+
+
+@register
+class HookHandlerExists:
+    id = "OBS006"
+    name = "hook handler resolves"
+    criterion = Criterion.OBSERVABILITY
+    layer = Layer.AUTOMATION
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        for event_name, entries in (ctx.settings.hook_events or {}).items():
+            for entry in entries or []:
+                for hook in entry.get("hooks", []) or []:
+                    cmd = hook.get("command", "")
+                    if not cmd:
+                        continue
+                    # Resolve relative paths against claude_root
+                    path = ctx.claude_root / cmd if not cmd.startswith("/") else Path(cmd)
+                    if path.is_file():
+                        continue
+                    yield Finding(
+                        check_id=self.id,
+                        severity=Severity.HIGH,
+                        layer=self.layer,
+                        criterion=self.criterion,
+                        artifact=cmd,
+                        message=f"{event_name} hook command does not resolve",
+                        details=f"expected: {path}",
+                        fix_hint=(
+                            "Fix the command path in settings.json or create the handler script."
+                        ),
+                    )
