@@ -152,3 +152,23 @@ def test_DOC006_flags_entry_without_comment(  # noqa: N802
     findings = list(CrontabCommentsPresent().run(ctx))
     assert len(findings) == 1
     assert findings[0].severity == Severity.MEDIUM
+
+
+def test_DOC007_passes_when_doc_exists(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    doc = fake_dotfiles / "docs" / "settings.hooks.md"
+    doc.parent.mkdir(parents=True, exist_ok=True)
+    doc.write_text("# hook documentation\n")
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(HookSettingsDocumented().run(ctx))
+    assert findings == []
+
+
+def test_DOC007_flags_when_no_doc(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(HookSettingsDocumented().run(ctx))
+    assert len(findings) == 1
+    assert findings[0].severity == Severity.MEDIUM

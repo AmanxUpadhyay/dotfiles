@@ -209,3 +209,33 @@ class CrontabCommentsPresent:
                 fix_hint="Add a `# purpose: ...` comment immediately above each cron entry.",
             )
 
+
+@register
+class HookSettingsDocumented:
+    id = "DOC007"
+    name = "hook settings documented"
+    criterion = Criterion.DOCUMENTATION
+    layer = Layer.AUTOMATION
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        candidates = [
+            ctx.dotfiles_root / "docs" / "settings.hooks.md",
+            ctx.dotfiles_root / "docs" / "superpowers" / "settings.hooks.md",
+            ctx.claude_root / "docs" / "settings.hooks.md",
+        ]
+        for c in candidates:
+            if c.is_file():
+                return
+        yield Finding(
+            check_id=self.id,
+            severity=Severity.MEDIUM,
+            layer=self.layer,
+            criterion=self.criterion,
+            artifact=str(ctx.dotfiles_root / "docs" / "settings.hooks.md"),
+            message="no settings.hooks.md found",
+            details=None,
+            fix_hint=(
+                "Create docs/settings.hooks.md explaining each hook event "
+                "wired in settings.json (matcher, command, purpose)."
+            ),
+        )
