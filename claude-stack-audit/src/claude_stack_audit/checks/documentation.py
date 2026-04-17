@@ -111,3 +111,32 @@ class ClaudeReadmePresent:
                 "hooks/crons inventory, and common troubleshooting."
             ),
         )
+
+
+@register
+class AdrCoverage:
+    id = "DOC004"
+    name = "ADR coverage"
+    criterion = Criterion.DOCUMENTATION
+    layer = Layer.CORE
+
+    _ADR_DIRS = ("docs/superpowers/adr", "docs/decisions")
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        for rel in self._ADR_DIRS:
+            candidate = ctx.dotfiles_root / rel
+            if candidate.is_dir() and any(candidate.glob("*.md")):
+                return  # at least one ADR exists
+        yield Finding(
+            check_id=self.id,
+            severity=Severity.MEDIUM,
+            layer=self.layer,
+            criterion=self.criterion,
+            artifact=str(ctx.dotfiles_root),
+            message="no ADRs found under docs/superpowers/adr or docs/decisions",
+            details=None,
+            fix_hint=(
+                "Capture architectural decisions as dated markdown files in "
+                "docs/superpowers/adr/YYYY-MM-DD-<topic>.md."
+            ),
+        )

@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from claude_stack_audit.checks.documentation import (
+    AdrCoverage,
     ClaudeReadmePresent,
     EnvVarCommented,
     ScriptHeaderPresent,
@@ -78,3 +79,25 @@ def test_DOC003_flags_missing_readme(  # noqa: N802
     findings = list(ClaudeReadmePresent().run(ctx))
     assert len(findings) == 1
     assert findings[0].severity == Severity.HIGH
+
+
+def test_DOC004_passes_when_adr_exists(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    adr_dir = fake_dotfiles / "docs" / "superpowers" / "adr"
+    adr_dir.mkdir(parents=True)
+    (adr_dir / "2026-04-17-first.md").write_text("# ADR-0001\n")
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(AdrCoverage().run(ctx))
+    assert findings == []
+
+
+def test_DOC004_flags_when_no_adrs(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    # Fixture has no docs/superpowers/adr by default
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(AdrCoverage().run(ctx))
+    assert len(findings) == 1
+    assert findings[0].severity == Severity.MEDIUM
+    assert findings[0].check_id == "DOC004"
