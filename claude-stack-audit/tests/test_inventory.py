@@ -1,7 +1,8 @@
 from pathlib import Path
 
-from claude_stack_audit.checks.inventory import CronInventory, HookInventory
+from claude_stack_audit.checks.inventory import CronInventory, HookInventory, LaunchAgentInventory
 from claude_stack_audit.context import Context
+from claude_stack_audit.external import ToolResult
 
 
 def test_INV001_enumerates_hooks_from_settings(  # noqa: N802
@@ -45,3 +46,41 @@ def test_INV002_no_findings_when_crontab_empty(  # noqa: N802
     ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
     findings = list(CronInventory().run(ctx))
     assert findings == []
+
+
+def test_INV003_enumerates_plist_files(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LaunchAgentInventory().run(ctx))
+    assert len(findings) == 1
+    assert findings[0].check_id == "INV003"
+    assert "com.test.audit" in findings[0].message
+    # FakeExternalTools.run returns rc=0 stdout='' — no labels, so "unloaded"
+    assert "unloaded" in findings[0].message
+
+
+def test_INV003_marks_loaded_when_launchctl_reports_label(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    # Patch FakeExternalTools.run for launchctl
+    original_run = fake_external_tools.run
+
+    def patched_run(argv, **kwargs):
+        if argv and argv[0] == "launchctl":
+            return ToolResult(
+                returncode=0,
+                stdout="PID\tStatus\tLabel\n-\t0\tcom.test.audit\n",
+                stderr="",
+                duration_ms=1,
+                timed_out=False,
+            )
+        return original_run(argv, **kwargs)
+
+    fake_external_tools.run = patched_run  # type: ignore[method-assign]
+
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LaunchAgentInventory().run(ctx))
+    assert len(findings) == 1
+    assert "loaded" in findings[0].message
+    assert "unloaded" not in findings[0].message

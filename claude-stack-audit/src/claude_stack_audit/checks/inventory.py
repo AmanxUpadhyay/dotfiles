@@ -1,12 +1,15 @@
-"""Inventory checks (INV001–INV007). Phase 1 ships INV001 only."""
+"""Inventory checks (INV001–INV007). Phase 1 ships INV001. Phase 2 adds INV002–INV007."""
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterable
 
 from claude_stack_audit.checks.base import register
 from claude_stack_audit.context import Context
 from claude_stack_audit.models import Criterion, Finding, Layer, Severity
+
+_LABEL_RE = re.compile(r"<key>\s*Label\s*</key>\s*<string>([^<]+)</string>", re.IGNORECASE)
 
 
 @register
@@ -53,3 +56,43 @@ class CronInventory:
                 details=None,
                 fix_hint=None,
             )
+
+
+@register
+class LaunchAgentInventory:
+    id = "INV003"
+    name = "launchagent inventory"
+    criterion = Criterion.INVENTORY
+    layer = Layer.AUTOMATION
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        launchagents_dir = ctx.claude_root / "launchagents"
+        if not launchagents_dir.is_dir():
+            return
+        loaded_labels = self._loaded_labels(ctx)
+        for plist in sorted(launchagents_dir.glob("*.plist")):
+            body = plist.read_text()
+            m = _LABEL_RE.search(body)
+            label = m.group(1) if m else plist.stem
+            state = "loaded" if label in loaded_labels else "unloaded"
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.INFO,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=str(plist.relative_to(ctx.claude_root.parent)),
+                message=f"launchagent {label} ({state})",
+                details=None,
+                fix_hint=None,
+            )
+
+    def _loaded_labels(self, ctx: Context) -> set[str]:
+        r = ctx.external.run(["launchctl", "list"], timeout=5.0)
+        if r.returncode != 0:
+            return set()
+        labels: set[str] = set()
+        for line in r.stdout.splitlines()[1:]:  # skip header row
+            parts = line.split("\t")
+            if len(parts) >= 3:
+                labels.add(parts[2].strip())
+        return labels
