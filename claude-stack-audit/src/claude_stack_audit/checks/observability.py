@@ -85,3 +85,33 @@ class StdoutCaptureWithTimestamp:
                     "(moreutils) or prepend `date -u +%FT%TZ` to log lines."
                 ),
             )
+
+
+@register
+class NotifyFailureSourced:
+    id = "OBS003"
+    name = "cron sources notify-failure"
+    criterion = Criterion.OBSERVABILITY
+    layer = Layer.AUTOMATION
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        crons_dir = ctx.claude_root / "crons"
+        if not crons_dir.is_dir():
+            return
+        for script in sorted(crons_dir.glob("*.sh")):
+            body = ctx.file_cache.read(script)
+            if "notify-failure" in body:
+                continue
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.HIGH,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=str(script.relative_to(ctx.claude_root.parent)),
+                message="cron does not source notify-failure.sh",
+                details=None,
+                fix_hint=(
+                    'Add `source "$HOME/.dotfiles/claude/crons/notify-failure.sh"` '
+                    "near the top and call `notify_failure` from an ERR trap."
+                ),
+            )

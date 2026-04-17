@@ -2,6 +2,7 @@ from pathlib import Path
 
 from claude_stack_audit.checks.observability import (
     LogPathConsistency,
+    NotifyFailureSourced,
     StdoutCaptureWithTimestamp,
 )
 from claude_stack_audit.context import Context
@@ -61,3 +62,34 @@ def test_OBS002_flags_claude_call_without_timestamp(  # noqa: N802
     flagged = [f for f in findings if "no-timestamp.sh" in f.artifact]
     assert len(flagged) == 1
     assert flagged[0].severity == Severity.MEDIUM
+
+
+def test_OBS003_passes_when_cron_sources_notify(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    script = fake_dotfiles / "claude" / "crons" / "notifies.sh"
+    script.write_text(
+        "#!/bin/bash\n"
+        "set -euo pipefail\n"
+        'source "$HOME/.dotfiles/claude/crons/notify-failure.sh"\n'
+        "trap notify_failure ERR\n"
+        "echo running\n"
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(NotifyFailureSourced().run(ctx))
+    flagged = [f for f in findings if "notifies.sh" in f.artifact]
+    assert flagged == []
+
+
+def test_OBS003_flags_cron_without_notify(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    script = fake_dotfiles / "claude" / "crons" / "silent.sh"
+    script.write_text("#!/bin/bash\nset -euo pipefail\necho running\n")
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(NotifyFailureSourced().run(ctx))
+    flagged = [f for f in findings if "silent.sh" in f.artifact]
+    assert len(flagged) == 1
+    assert flagged[0].severity == Severity.HIGH
