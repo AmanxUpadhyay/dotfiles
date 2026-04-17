@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from claude_stack_audit.checks.reliability import ShellcheckClean
+from claude_stack_audit.checks.reliability import SetEuoPipefail, ShellcheckClean
 from claude_stack_audit.context import Context
 from claude_stack_audit.external import ToolResult
 from claude_stack_audit.models import Severity
@@ -54,3 +54,29 @@ def test_REL001_emits_high_for_errors_medium_for_warnings(  # noqa: N802
     severities = {f.severity for f in flagged}
     assert Severity.HIGH in severities
     assert Severity.MEDIUM in severities
+
+
+def test_REL002_passes_for_scripts_with_set_euo_pipefail(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    # fixture scripts (session-stop.sh, session-start.sh) all have set -euo pipefail
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(SetEuoPipefail().run(ctx))
+    # No findings for fixture scripts
+    for f in findings:
+        assert "session-stop.sh" not in f.artifact
+        assert "session-start.sh" not in f.artifact
+
+
+def test_REL002_flags_script_without_set_euo_pipefail(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    bare = fake_dotfiles / "claude" / "hooks" / "no-euo.sh"
+    bare.write_text("#!/bin/bash\necho hello world\n")
+    bare.chmod(0o755)
+
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(SetEuoPipefail().run(ctx))
+    flagged = [f for f in findings if "no-euo.sh" in f.artifact]
+    assert len(flagged) == 1
+    assert flagged[0].severity == Severity.HIGH

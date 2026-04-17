@@ -1,4 +1,4 @@
-"""Reliability checks (REL001–REL009). Phase 1 ships REL001 only."""
+"""Reliability checks (REL001–REL009)."""
 
 from __future__ import annotations
 
@@ -59,3 +59,34 @@ class ShellcheckClean:
                         "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
                     ),
                 )
+
+
+@register
+class SetEuoPipefail:
+    id = "REL002"
+    name = "set -euo pipefail present"
+    criterion = Criterion.RELIABILITY
+    layer = Layer.AUTOMATION
+
+    _ACCEPTABLE_PATTERNS = (
+        "set -euo pipefail",
+        "set -eou pipefail",
+        "set -e -u -o pipefail",
+    )
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        for script in ctx.bash_scripts:
+            body = ctx.file_cache.read(script)
+            head = "\n".join(body.splitlines()[:10])
+            if any(p in head for p in self._ACCEPTABLE_PATTERNS):
+                continue
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.HIGH,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=str(script.relative_to(ctx.claude_root.parent)),
+                message="missing `set -euo pipefail` in first 10 lines",
+                details=None,
+                fix_hint="Add `set -euo pipefail` as the second line after the shebang.",
+            )
