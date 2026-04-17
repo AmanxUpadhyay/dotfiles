@@ -6,6 +6,7 @@ from claude_stack_audit.checks.inventory import (
     HookInventory,
     LaunchAgentInventory,
     McpServerInventory,
+    PluginInventory,
 )
 from claude_stack_audit.context import Context
 from claude_stack_audit.external import ToolResult
@@ -161,3 +162,49 @@ def test_INV005_transport_fallback_and_non_dict_guard(  # noqa: N802
     by_name = {f.artifact: f for f in findings}
     assert "unknown" in by_name["mcp:no-transport"].message
     assert "unknown" in by_name["mcp:string-spec"].message
+
+
+def test_INV006_enumerates_plugin_directories_with_versions(  # noqa: N802
+    empty_registry, tmp_path: Path, fake_dotfiles: Path, fake_external_tools
+):
+    plugins = tmp_path / "plugins"
+    plugins.mkdir()
+    (plugins / "alpha").mkdir()
+    (plugins / "alpha" / "package.json").write_text('{"version": "1.0.0"}')
+    (plugins / "beta").mkdir()
+    (plugins / "gamma").mkdir()
+    (plugins / "gamma" / "plugin.json").write_text('{"version": "0.2.3"}')
+    (plugins / "ignored.txt").write_text("not a plugin")
+
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(PluginInventory(plugins_root=plugins).run(ctx))
+
+    names = {f.artifact for f in findings}
+    assert names == {"plugin:alpha", "plugin:beta", "plugin:gamma"}
+    by_name = {f.artifact: f for f in findings}
+    assert "1.0.0" in by_name["plugin:alpha"].message
+    assert "0.2.3" in by_name["plugin:gamma"].message
+    assert by_name["plugin:beta"].message == "beta"
+
+
+def test_INV006_no_findings_when_plugins_root_missing(  # noqa: N802
+    empty_registry, tmp_path: Path, fake_dotfiles: Path, fake_external_tools
+):
+    nonexistent = tmp_path / "nonexistent_plugins_root"
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    assert list(PluginInventory(plugins_root=nonexistent).run(ctx)) == []
+
+
+def test_INV006_handles_malformed_manifest_gracefully(  # noqa: N802
+    empty_registry, tmp_path: Path, fake_dotfiles: Path, fake_external_tools
+):
+    plugins = tmp_path / "plugins"
+    plugins.mkdir()
+    (plugins / "broken").mkdir()
+    (plugins / "broken" / "package.json").write_text("{ not valid json")
+
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(PluginInventory(plugins_root=plugins).run(ctx))
+    assert len(findings) == 1
+    assert findings[0].artifact == "plugin:broken"
+    assert findings[0].message == "broken"

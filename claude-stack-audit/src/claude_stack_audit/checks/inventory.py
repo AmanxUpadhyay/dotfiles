@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Iterable
+from pathlib import Path
 
 from claude_stack_audit.checks.base import register
 from claude_stack_audit.context import Context
@@ -156,3 +158,47 @@ class McpServerInventory:
         if "url" in spec:
             return "http"
         return "unknown"
+
+
+@register
+class PluginInventory:
+    id = "INV006"
+    name = "plugin inventory"
+    criterion = Criterion.INVENTORY
+    layer = Layer.CORE
+
+    def __init__(self, plugins_root: Path | None = None) -> None:
+        self.plugins_root = plugins_root or (Path.home() / ".claude" / "plugins")
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        if not self.plugins_root.is_dir():
+            return
+        for plugin_dir in sorted(p for p in self.plugins_root.iterdir() if p.is_dir()):
+            version = self._read_version(plugin_dir)
+            suffix = f" {version}" if version else ""
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.INFO,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=f"plugin:{plugin_dir.name}",
+                message=f"{plugin_dir.name}{suffix}",
+                details=None,
+                fix_hint=None,
+            )
+
+    @staticmethod
+    def _read_version(plugin_dir: Path) -> str | None:
+        for manifest_name in ("plugin.json", "package.json"):
+            manifest = plugin_dir / manifest_name
+            if not manifest.is_file():
+                continue
+            try:
+                data = json.loads(manifest.read_text())
+            except (OSError, json.JSONDecodeError):
+                continue
+            if isinstance(data, dict):
+                v = data.get("version")
+                if isinstance(v, str):
+                    return v
+        return None
