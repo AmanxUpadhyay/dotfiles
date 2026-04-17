@@ -3,6 +3,7 @@ from pathlib import Path
 from claude_stack_audit.checks.inventory import (
     AgentCommandInventory,
     CronInventory,
+    EnvVarInventory,
     HookInventory,
     LaunchAgentInventory,
     McpServerInventory,
@@ -208,3 +209,39 @@ def test_INV006_handles_malformed_manifest_gracefully(  # noqa: N802
     assert len(findings) == 1
     assert findings[0].artifact == "plugin:broken"
     assert findings[0].message == "broken"
+
+
+def test_INV007_flags_unreferenced_env_vars(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    # Fixture exports OBSIDIAN_VAULT and CLAUDE_LOG_DIR, but session-stop.sh
+    # references neither directly (it uses "$HOME/Library/..." literally).
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(EnvVarInventory().run(ctx))
+
+    names = {f.artifact for f in findings}
+    assert names == {"env:OBSIDIAN_VAULT", "env:CLAUDE_LOG_DIR"}
+    # Both should be unreferenced in the fixture
+    assert all("unreferenced" in f.message for f in findings)
+
+
+def test_INV007_marks_var_referenced_when_used_in_script(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    user_script = fake_dotfiles / "claude" / "hooks" / "uses-vault.sh"
+    user_script.write_text("#!/bin/bash\nset -euo pipefail\necho $OBSIDIAN_VAULT\n")
+    user_script.chmod(0o755)
+
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(EnvVarInventory().run(ctx))
+    by_artifact = {f.artifact: f for f in findings}
+    assert "referenced" in by_artifact["env:OBSIDIAN_VAULT"].message
+    assert "unreferenced" in by_artifact["env:CLAUDE_LOG_DIR"].message
+
+
+def test_INV007_no_findings_when_env_sh_empty(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    (fake_dotfiles / "claude" / "env.sh").write_text("")
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    assert list(EnvVarInventory().run(ctx)) == []

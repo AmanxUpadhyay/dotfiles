@@ -202,3 +202,38 @@ class PluginInventory:
                 if isinstance(v, str):
                     return v
         return None
+
+
+@register
+class EnvVarInventory:
+    id = "INV007"
+    name = "env var inventory"
+    criterion = Criterion.INVENTORY
+    layer = Layer.AUTOMATION
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        env_sh = ctx.claude_root / "env.sh"
+        for var in sorted(ctx.env_vars):
+            pattern = re.compile(rf"\${{?{re.escape(var)}\b}}?")
+            referenced = self._is_referenced(ctx, var, pattern, env_sh)
+            state = "referenced" if referenced else "unreferenced"
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.INFO,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=f"env:{var}",
+                message=f"{var} ({state})",
+                details=None,
+                fix_hint=None,
+            )
+
+    @staticmethod
+    def _is_referenced(ctx: Context, var: str, pattern: re.Pattern[str], env_sh: Path) -> bool:
+        for script in ctx.bash_scripts:
+            if script == env_sh:
+                continue
+            body = ctx.file_cache.read(script)
+            if pattern.search(body):
+                return True
+        return False
