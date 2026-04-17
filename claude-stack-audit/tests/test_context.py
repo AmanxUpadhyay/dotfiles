@@ -34,3 +34,32 @@ def test_context_build_survives_missing_crontab(fake_dotfiles: Path, fake_extern
     (fake_dotfiles / "claude" / "crontab.txt").unlink()
     ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
     assert ctx.crontab == []
+
+
+def test_context_build_handles_malformed_settings_json(fake_dotfiles: Path, fake_external_tools):
+    (fake_dotfiles / "claude" / "settings.json").write_text("{ not valid json")
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    assert ctx.settings.raw == {}
+    assert ctx.settings.hook_events == {}
+    assert ctx.settings.permissions == {}
+
+
+def test_context_build_handles_non_dict_settings_json(fake_dotfiles: Path, fake_external_tools):
+    (fake_dotfiles / "claude" / "settings.json").write_text("[1, 2, 3]")
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    assert ctx.settings.raw == {}
+    assert ctx.settings.hook_events == {}
+
+
+def test_context_build_handles_empty_env_sh(fake_dotfiles: Path, fake_external_tools):
+    (fake_dotfiles / "claude" / "env.sh").write_text("")
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    assert ctx.env_vars == {}
+
+
+def test_parse_env_sh_accepts_empty_export_value(fake_dotfiles: Path, fake_external_tools):
+    env = fake_dotfiles / "claude" / "env.sh"
+    env.write_text("#!/bin/bash\nexport EMPTY_VAR=\nexport NONEMPTY=hello\n")
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    assert ctx.env_vars.get("EMPTY_VAR") == ""
+    assert ctx.env_vars.get("NONEMPTY") == "hello"

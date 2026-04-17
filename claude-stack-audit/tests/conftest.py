@@ -24,8 +24,12 @@ class FakeShellcheck:
         key = str(path)
         if key in self._results:
             return self._results[key]
+        p = Path(path)
         for k, v in self._results.items():
-            if key.endswith(k):
+            if "/" in k:
+                if key == k or key.endswith("/" + k):
+                    return v
+            elif p.name == k:
                 return v
         return ToolResult(returncode=0, stdout="[]", stderr="", duration_ms=1, timed_out=False)
 

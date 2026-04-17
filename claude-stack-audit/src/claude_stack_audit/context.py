@@ -82,12 +82,15 @@ class Context:
 
 
 def _load_settings(path: Path) -> Settings:
+    empty = Settings(raw={}, hook_events={}, permissions={})
     if not path.exists():
-        return Settings(raw={}, hook_events={}, permissions={})
+        return empty
     try:
         raw = json.loads(path.read_text())
     except json.JSONDecodeError:
-        return Settings(raw={}, hook_events={}, permissions={})
+        return empty
+    if not isinstance(raw, dict):
+        return empty
     return Settings(
         raw=raw,
         hook_events=raw.get("hooks", {}),
@@ -95,7 +98,9 @@ def _load_settings(path: Path) -> Settings:
     )
 
 
-_EXPORT_RE = re.compile(r'^\s*export\s+([A-Z_][A-Z0-9_]*)=(?:"([^"]*)"|\'([^\']*)\'|(\S+))')
+_EXPORT_RE = re.compile(
+    r'^\s*export\s+([A-Z_][A-Z0-9_]*)=(?:"([^"]*)"|\'([^\']*)\'|(\S+)|(?=\s|$))'
+)
 
 
 def _parse_env_sh(path: Path) -> dict[str, str]:
@@ -113,12 +118,15 @@ def _parse_env_sh(path: Path) -> dict[str, str]:
 
 
 def _load_org_map(path: Path) -> OrgMap:
+    empty = OrgMap(default_org="", orgs={})
     if not path.exists():
-        return OrgMap(default_org="", orgs={})
+        return empty
     try:
         raw = json.loads(path.read_text())
     except json.JSONDecodeError:
-        return OrgMap(default_org="", orgs={})
+        return empty
+    if not isinstance(raw, dict):
+        return empty
     return OrgMap(
         default_org=raw.get("default_org", ""),
         orgs=raw.get("orgs", {}),
