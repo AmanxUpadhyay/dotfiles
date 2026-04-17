@@ -54,3 +54,29 @@ def test_renders_no_findings_happy_path():
     out = render(_report([]))
     assert "Health score: 1000" in out
     assert "No findings" in out
+
+
+def test_finding_table_escapes_pipe_characters():
+    finding_with_pipe = _mk(
+        Severity.HIGH,
+        check_id="REL001",
+        message="run `shellcheck | grep error` locally",
+    )
+    out = render(_report([finding_with_pipe]))
+    # The pipe inside the message must be escaped so it doesn't create extra columns.
+    assert r"\|" in out
+    # The backticks in the message must be escaped so they don't collide with artifact backticks.
+    assert r"\`" in out
+
+
+def test_info_only_findings_render_no_actionable_message():
+    info = _mk(Severity.INFO, check_id="INV001", message="hook X bound to Stop")
+    out = render(_report([info]))
+    # Summary still shows the Info count.
+    assert "| Info | 1 |" in out
+    # But body shows the happy-path message because nothing is actionable.
+    assert "_No findings. The stack is clean._" in out
+    # And no High/Medium/Low sections appear.
+    assert "## High findings" not in out
+    assert "## Medium findings" not in out
+    assert "## Low findings" not in out
