@@ -132,3 +132,23 @@ def test_DOC005_flags_cron_without_runbook(  # noqa: N802
     flagged = [f for f in findings if "unfdocumented-cron.sh" in f.artifact]
     assert len(flagged) == 1
     assert flagged[0].severity == Severity.HIGH
+
+
+def test_DOC006_passes_when_entry_has_comment(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    # Fixture crontab.txt already has a `# daily retrospective` comment above its entry
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(CrontabCommentsPresent().run(ctx))
+    assert findings == []
+
+
+def test_DOC006_flags_entry_without_comment(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    crontab = fake_dotfiles / "claude" / "crontab.txt"
+    crontab.write_text("0 9 * * * /bin/bash $HOME/.dotfiles/claude/crons/morning.sh\n")
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(CrontabCommentsPresent().run(ctx))
+    assert len(findings) == 1
+    assert findings[0].severity == Severity.MEDIUM

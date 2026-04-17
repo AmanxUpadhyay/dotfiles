@@ -171,3 +171,41 @@ class RunbookPresent:
                     "purpose, inputs, outputs, failure modes, and recovery steps."
                 ),
             )
+
+
+@register
+class CrontabCommentsPresent:
+    id = "DOC006"
+    name = "crontab entries have comments"
+    criterion = Criterion.DOCUMENTATION
+    layer = Layer.AUTOMATION
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        crontab_path = ctx.claude_root / "crontab.txt"
+        if not crontab_path.is_file():
+            return
+        lines = crontab_path.read_text().splitlines()
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+            if not stripped or stripped.startswith("#"):
+                continue
+            # Look up to 2 lines back for a comment
+            has_comment = False
+            for j in range(max(0, i - 2), i):
+                prev = lines[j].strip()
+                if prev.startswith("#"):
+                    has_comment = True
+                    break
+            if has_comment:
+                continue
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.MEDIUM,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=f"crontab.txt:{i + 1}",
+                message="crontab entry has no preceding comment",
+                details=stripped[:120],
+                fix_hint="Add a `# purpose: ...` comment immediately above each cron entry.",
+            )
+
