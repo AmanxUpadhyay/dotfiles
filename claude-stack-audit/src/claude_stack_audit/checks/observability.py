@@ -115,3 +115,35 @@ class NotifyFailureSourced:
                     "near the top and call `notify_failure` from an ERR trap."
                 ),
             )
+
+
+@register
+class DurationStatusMarkers:
+    id = "OBS004"
+    name = "cron emits duration/status markers"
+    criterion = Criterion.OBSERVABILITY
+    layer = Layer.AUTOMATION
+
+    _MARKERS = ("duration_ms", "duration=", "status=done", "status=ok", "status=fail")
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        crons_dir = ctx.claude_root / "crons"
+        if not crons_dir.is_dir():
+            return
+        for script in sorted(crons_dir.glob("*.sh")):
+            body = ctx.file_cache.read(script)
+            if any(marker in body for marker in self._MARKERS):
+                continue
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.MEDIUM,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=str(script.relative_to(ctx.claude_root.parent)),
+                message="cron does not emit duration/status markers",
+                details=None,
+                fix_hint=(
+                    "Log lines like `duration_ms=1234 status=ok` on completion "
+                    "so metrics scrapers can track runs."
+                ),
+            )

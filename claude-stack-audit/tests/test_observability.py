@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from claude_stack_audit.checks.observability import (
+    DurationStatusMarkers,
     LogPathConsistency,
     NotifyFailureSourced,
     StdoutCaptureWithTimestamp,
@@ -93,3 +94,30 @@ def test_OBS003_flags_cron_without_notify(  # noqa: N802
     flagged = [f for f in findings if "silent.sh" in f.artifact]
     assert len(flagged) == 1
     assert flagged[0].severity == Severity.HIGH
+
+
+def test_OBS004_passes_when_cron_emits_duration(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    script = fake_dotfiles / "claude" / "crons" / "with-metrics.sh"
+    script.write_text(
+        "#!/bin/bash\nset -euo pipefail\nstart=$(date +%s)\necho duration_ms=100 status=done\n"
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(DurationStatusMarkers().run(ctx))
+    flagged = [f for f in findings if "with-metrics.sh" in f.artifact]
+    assert flagged == []
+
+
+def test_OBS004_flags_cron_without_metrics(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    script = fake_dotfiles / "claude" / "crons" / "no-metrics.sh"
+    script.write_text("#!/bin/bash\nset -euo pipefail\necho just running\n")
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(DurationStatusMarkers().run(ctx))
+    flagged = [f for f in findings if "no-metrics.sh" in f.artifact]
+    assert len(flagged) == 1
+    assert flagged[0].severity == Severity.MEDIUM
