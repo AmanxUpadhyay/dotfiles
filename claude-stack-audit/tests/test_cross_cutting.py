@@ -1,7 +1,11 @@
 import json as _json
 from pathlib import Path
 
-from claude_stack_audit.checks.cross_cutting import BashPermissionScope, SymlinkIntegrity
+from claude_stack_audit.checks.cross_cutting import (
+    BashPermissionScope,
+    SecretsGrep,
+    SymlinkIntegrity,
+)
 from claude_stack_audit.context import Context
 from claude_stack_audit.models import Severity
 
@@ -64,3 +68,38 @@ def test_CROSS002_flags_broad_bash_wildcard(  # noqa: N802
     assert len(findings) == 2
     assert all(f.severity == Severity.MEDIUM for f in findings)
     assert all(f.check_id == "CROSS002" for f in findings)
+
+
+def test_CROSS003_flags_leaked_openai_key(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    bad = fake_dotfiles / "claude" / "hooks" / "leaky.sh"
+    bad.write_text(
+        '#!/bin/bash\nset -euo pipefail\nexport KEY="sk-abcdefghijklmnopqrstuvwxyz123456"\n'
+    )
+    bad.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(SecretsGrep().run(ctx))
+    flagged = [f for f in findings if "leaky.sh" in f.artifact]
+    assert len(flagged) == 1
+    assert flagged[0].severity == Severity.HIGH
+    assert "openai" in flagged[0].message.lower()
+
+
+def test_CROSS003_skips_example_paths(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    example = fake_dotfiles / "claude" / "env.example.sh"
+    example.write_text('export KEY="sk-abcdefghijklmnopqrstuvwxyz123456"\n')
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(SecretsGrep().run(ctx))
+    flagged = [f for f in findings if "env.example.sh" in f.artifact]
+    assert flagged == []
+
+
+def test_CROSS003_silent_on_clean_tree(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(SecretsGrep().run(ctx))
+    assert findings == []

@@ -14,6 +14,16 @@ _SYMLINKS = ("settings.json", "env.sh", "org-map.json")
 
 _BROAD_BASH_RE = re.compile(r"^Bash\((?:\*|bash:\*|\*:\*)\)$", re.IGNORECASE)
 
+_SECRET_PATTERNS = (
+    ("openai_key", re.compile(r"sk-[A-Za-z0-9]{20,}")),
+    ("github_pat", re.compile(r"ghp_[A-Za-z0-9]{30,}")),
+    ("github_server", re.compile(r"ghs_[A-Za-z0-9]{30,}")),
+    ("bearer", re.compile(r"Bearer\s+[A-Za-z0-9._-]{20,}")),
+    ("slack_bot", re.compile(r"xoxb-[A-Za-z0-9-]+")),
+)
+
+_SKIP_PATH_HINTS = ("example", "template", ".sample")
+
 
 @register
 class SymlinkIntegrity:
@@ -82,5 +92,40 @@ class BashPermissionScope:
                         fix_hint=(
                             "Narrow the pattern to specific commands: "
                             "Bash(npm:*), Bash(git status:*), etc."
+                        ),
+                    )
+
+
+@register
+class SecretsGrep:
+    id = "CROSS003"
+    name = "secrets grep"
+    criterion = Criterion.CROSS_CUTTING
+    layer = Layer.CORE
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        for path in sorted(ctx.claude_root.rglob("*")):
+            if not path.is_file():
+                continue
+            rel = str(path.relative_to(ctx.claude_root))
+            if any(hint in rel for hint in _SKIP_PATH_HINTS):
+                continue
+            try:
+                body = ctx.file_cache.read(path)
+            except (OSError, UnicodeDecodeError):
+                continue
+            for label, pattern in _SECRET_PATTERNS:
+                if pattern.search(body):
+                    yield Finding(
+                        check_id=self.id,
+                        severity=Severity.HIGH,
+                        layer=self.layer,
+                        criterion=self.criterion,
+                        artifact=str(path.relative_to(ctx.claude_root.parent)),
+                        message=f"possible {label} in tracked file",
+                        details=None,
+                        fix_hint=(
+                            "Rotate the leaked credential immediately. Move "
+                            "secrets to env vars or a secret manager."
                         ),
                     )
