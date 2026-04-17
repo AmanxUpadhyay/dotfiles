@@ -1,6 +1,6 @@
 {
   "schema_version": "1",
-  "generated_at": "2026-04-17T22:06:42.125167+00:00",
+  "generated_at": "2026-04-17T22:50:41.185379+00:00",
   "tool_version": "0.1.0",
   "score": 771,
   "severity_counts": {
@@ -8,7 +8,7 @@
     "high": 26,
     "medium": 36,
     "low": 27,
-    "info": 14
+    "info": 39
   },
   "inventory": {
     "hooks": [],
@@ -1047,6 +1047,256 @@
       "criterion": "inventory",
       "artifact": "bash \"$HOME/.claude/hooks/test-fix-detector.sh\"",
       "message": "PostToolUse hook \u2192 bash \"$HOME/.claude/hooks/test-fix-detector.sh\"",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV002",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "/Users/godl1ke/.dotfiles/claude/crons/daily-retro-evening.sh",
+      "message": "cron 30 22 * * * \u2192 /Users/godl1ke/.dotfiles/claude/crons/daily-retro-evening.sh",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV002",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "/Users/godl1ke/.dotfiles/claude/crons/daily-retrospective.sh",
+      "message": "cron 57 8 * * * \u2192 /Users/godl1ke/.dotfiles/claude/crons/daily-retrospective.sh",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV002",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "/Users/godl1ke/.dotfiles/claude/crons/healthcheck.sh postrun",
+      "message": "cron 0 11 * * * \u2192 /Users/godl1ke/.dotfiles/claude/crons/healthcheck.sh postrun",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV002",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "/Users/godl1ke/.dotfiles/claude/crons/healthcheck.sh preflight",
+      "message": "cron 50 8 * * * \u2192 /Users/godl1ke/.dotfiles/claude/crons/healthcheck.sh preflight",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV002",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "/Users/godl1ke/.dotfiles/claude/crons/weekly-finalize.sh",
+      "message": "cron 3 9 * * 1 \u2192 /Users/godl1ke/.dotfiles/claude/crons/weekly-finalize.sh",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV002",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "/Users/godl1ke/.dotfiles/claude/crons/weekly-report-gen.sh",
+      "message": "cron 2 17 * * 5 \u2192 /Users/godl1ke/.dotfiles/claude/crons/weekly-report-gen.sh",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV003",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/launchagents/com.godl1ke.claude-mem-worker.plist",
+      "message": "launchagent com.godl1ke.claude-mem-worker (loaded)",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV003",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/launchagents/com.godl1ke.claude.healthcheck-postrun.plist",
+      "message": "launchagent com.godl1ke.claude.healthcheck-postrun (loaded)",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV003",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/launchagents/com.godl1ke.claude.healthcheck-preflight.plist",
+      "message": "launchagent com.godl1ke.claude.healthcheck-preflight (loaded)",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV003",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/launchagents/com.godl1ke.claude.mac-cleanup-scan.plist",
+      "message": "launchagent com.godl1ke.claude.mac-cleanup-scan (loaded)",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/agents/code-reviewer.md",
+      "message": "agent code-reviewer",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/agents/researcher.md",
+      "message": "agent researcher",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/commands/catchup.md",
+      "message": "command catchup",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/commands/deploy-check.md",
+      "message": "command deploy-check",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/commands/review.md",
+      "message": "command review",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/commands/security-scan.md",
+      "message": "command security-scan",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/commands/session-note.md",
+      "message": "command session-note",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/commands/test-all.md",
+      "message": "command test-all",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV007",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "env:CLAUDE_LOG_DIR",
+      "message": "CLAUDE_LOG_DIR (referenced)",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV007",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "env:OBSIDIAN_VAULT",
+      "message": "OBSIDIAN_VAULT (referenced)",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV007",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "env:ORG_MAP",
+      "message": "ORG_MAP (referenced)",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV007",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "env:PATH",
+      "message": "PATH (unreferenced)",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV006",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "inventory",
+      "artifact": "plugin:cache",
+      "message": "cache",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV006",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "inventory",
+      "artifact": "plugin:data",
+      "message": "data",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV006",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "inventory",
+      "artifact": "plugin:marketplaces",
+      "message": "marketplaces",
       "details": null,
       "fix_hint": null
     }
