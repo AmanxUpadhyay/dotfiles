@@ -1,14 +1,14 @@
 {
   "schema_version": "1",
-  "generated_at": "2026-04-17T23:26:03.500479+00:00",
+  "generated_at": "2026-04-17T23:37:41.083208+00:00",
   "tool_version": "0.1.0",
-  "score": 419,
+  "score": 421,
   "severity_counts": {
     "critical": 0,
     "high": 83,
-    "medium": 69,
+    "medium": 68,
     "low": 28,
-    "info": 39
+    "info": 55
   },
   "inventory": {
     "hooks": [],
@@ -1531,16 +1531,6 @@
       "fix_hint": "Wrap long-running claude calls with `timeout <N>s $CLAUDE_BIN ...` so a hung process can't wedge the cron."
     },
     {
-      "check_id": "DOC004",
-      "severity": "medium",
-      "layer": "core",
-      "criterion": "documentation",
-      "artifact": "/Users/godl1ke/.dotfiles",
-      "message": "no ADRs found under docs/superpowers/adr or docs/decisions",
-      "details": null,
-      "fix_hint": "Capture architectural decisions as dated markdown files in docs/superpowers/adr/YYYY-MM-DD-<topic>.md."
-    },
-    {
       "check_id": "REL001",
       "severity": "low",
       "layer": "automation",
@@ -2085,6 +2075,16 @@
       "severity": "info",
       "layer": "automation",
       "criterion": "inventory",
+      "artifact": "claude/commands/audit.md",
+      "message": "command audit",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
       "artifact": "claude/commands/catchup.md",
       "message": "command catchup",
       "details": null,
@@ -2179,6 +2179,156 @@
       "message": "PATH (unreferenced)",
       "details": null,
       "fix_hint": null
+    },
+    {
+      "check_id": "CROSS004",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "cross_cutting",
+      "artifact": "claude/agents/code-reviewer.md",
+      "message": "uncommitted change (M): claude/agents/code-reviewer.md",
+      "details": null,
+      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
+    },
+    {
+      "check_id": "CROSS004",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "cross_cutting",
+      "artifact": "claude/crons/daily-retro-evening.sh",
+      "message": "uncommitted change (??): claude/crons/daily-retro-evening.sh",
+      "details": null,
+      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
+    },
+    {
+      "check_id": "CROSS004",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "cross_cutting",
+      "artifact": "claude/crons/daily-retrospective.sh",
+      "message": "uncommitted change (M): claude/crons/daily-retrospective.sh",
+      "details": null,
+      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
+    },
+    {
+      "check_id": "CROSS004",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "cross_cutting",
+      "artifact": "claude/crons/weekly-finalize.sh",
+      "message": "uncommitted change (M): claude/crons/weekly-finalize.sh",
+      "details": null,
+      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
+    },
+    {
+      "check_id": "CROSS004",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "cross_cutting",
+      "artifact": "claude/crons/weekly-report-gen.sh",
+      "message": "uncommitted change (M): claude/crons/weekly-report-gen.sh",
+      "details": null,
+      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
+    },
+    {
+      "check_id": "CROSS004",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "cross_cutting",
+      "artifact": "claude/crontab.txt",
+      "message": "uncommitted change (M): claude/crontab.txt",
+      "details": null,
+      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
+    },
+    {
+      "check_id": "CROSS004",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "cross_cutting",
+      "artifact": "claude/env.sh",
+      "message": "uncommitted change (M): claude/env.sh",
+      "details": null,
+      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
+    },
+    {
+      "check_id": "CROSS004",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "cross_cutting",
+      "artifact": "claude/hooks/pr-gate.sh",
+      "message": "uncommitted change (M): claude/hooks/pr-gate.sh",
+      "details": null,
+      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
+    },
+    {
+      "check_id": "CROSS004",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "cross_cutting",
+      "artifact": "claude/hooks/session-start.sh",
+      "message": "uncommitted change (M): claude/hooks/session-start.sh",
+      "details": null,
+      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
+    },
+    {
+      "check_id": "CROSS004",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "cross_cutting",
+      "artifact": "claude/install-launchagents.sh",
+      "message": "uncommitted change (??): claude/install-launchagents.sh",
+      "details": null,
+      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
+    },
+    {
+      "check_id": "CROSS004",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "cross_cutting",
+      "artifact": "claude/prompts/daily-retro-evening.md",
+      "message": "uncommitted change (M): claude/prompts/daily-retro-evening.md",
+      "details": null,
+      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
+    },
+    {
+      "check_id": "CROSS004",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "cross_cutting",
+      "artifact": "claude/prompts/daily-retrospective.md",
+      "message": "uncommitted change (M): claude/prompts/daily-retrospective.md",
+      "details": null,
+      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
+    },
+    {
+      "check_id": "CROSS004",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "cross_cutting",
+      "artifact": "claude/prompts/weekly-finalize.md",
+      "message": "uncommitted change (M): claude/prompts/weekly-finalize.md",
+      "details": null,
+      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
+    },
+    {
+      "check_id": "CROSS004",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "cross_cutting",
+      "artifact": "claude/prompts/weekly-report-gen.md",
+      "message": "uncommitted change (M): claude/prompts/weekly-report-gen.md",
+      "details": null,
+      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
+    },
+    {
+      "check_id": "CROSS004",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "cross_cutting",
+      "artifact": "claude/settings.json",
+      "message": "uncommitted change (M): claude/settings.json",
+      "details": null,
+      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
     },
     {
       "check_id": "INV006",
