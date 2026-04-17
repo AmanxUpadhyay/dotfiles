@@ -3,6 +3,7 @@ from pathlib import Path
 
 from claude_stack_audit.checks.cross_cutting import (
     BashPermissionScope,
+    GitCleanStatus,
     SecretsGrep,
     SymlinkIntegrity,
 )
@@ -103,3 +104,50 @@ def test_CROSS003_silent_on_clean_tree(  # noqa: N802
     ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
     findings = list(SecretsGrep().run(ctx))
     assert findings == []
+
+
+def test_CROSS004_returns_silently_when_git_fails(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    from claude_stack_audit.external import ToolResult
+
+    original = fake_external_tools.run
+
+    def patched(argv, **kw):
+        if argv and argv[0] == "git":
+            return ToolResult(
+                returncode=128, stdout="", stderr="not a git repo", duration_ms=1, timed_out=False
+            )
+        return original(argv, **kw)
+
+    fake_external_tools.run = patched  # type: ignore[method-assign]
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    assert list(GitCleanStatus().run(ctx)) == []
+
+
+def test_CROSS004_emits_info_per_uncommitted_entry(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    from claude_stack_audit.external import ToolResult
+
+    original = fake_external_tools.run
+
+    def patched(argv, **kw):
+        if argv and argv[0] == "git":
+            return ToolResult(
+                returncode=0,
+                stdout=" M claude/hooks/session-stop.sh\n?? claude/new-file.sh\n",
+                stderr="",
+                duration_ms=1,
+                timed_out=False,
+            )
+        return original(argv, **kw)
+
+    fake_external_tools.run = patched  # type: ignore[method-assign]
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(GitCleanStatus().run(ctx))
+    assert len(findings) == 2
+    assert all(f.severity == Severity.INFO for f in findings)
+    paths = {f.artifact for f in findings}
+    assert "claude/hooks/session-stop.sh" in paths
+    assert "claude/new-file.sh" in paths

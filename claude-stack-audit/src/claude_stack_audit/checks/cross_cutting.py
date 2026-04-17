@@ -129,3 +129,46 @@ class SecretsGrep:
                             "secrets to env vars or a secret manager."
                         ),
                     )
+
+
+@register
+class GitCleanStatus:
+    id = "CROSS004"
+    name = "git status clean in claude/"
+    criterion = Criterion.CROSS_CUTTING
+    layer = Layer.CORE
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        result = ctx.external.run(
+            [
+                "git",
+                "-C",
+                str(ctx.dotfiles_root),
+                "status",
+                "--porcelain",
+                "--",
+                str(ctx.claude_root),
+            ],
+            timeout=5.0,
+        )
+        if result.returncode != 0:
+            return
+        for line in result.stdout.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            # Format: "XY path" where XY is 2-char status code
+            parts = line.split(maxsplit=1)
+            if len(parts) != 2:
+                continue
+            status, path = parts
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.INFO,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=path,
+                message=f"uncommitted change ({status}): {path}",
+                details=None,
+                fix_hint="Commit or stash the change to keep the dotfiles tree clean.",
+            )
