@@ -1,6 +1,7 @@
+import json as _json
 from pathlib import Path
 
-from claude_stack_audit.checks.cross_cutting import SymlinkIntegrity
+from claude_stack_audit.checks.cross_cutting import BashPermissionScope, SymlinkIntegrity
 from claude_stack_audit.context import Context
 from claude_stack_audit.models import Severity
 
@@ -38,3 +39,28 @@ def test_CROSS001_emits_critical_for_broken_symlink(  # noqa: N802
     assert findings[0].severity == Severity.CRITICAL
     assert "env.sh" in findings[0].artifact
     assert findings[0].check_id == "CROSS001"
+
+
+def test_CROSS002_passes_when_permissions_are_narrow(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    settings_path = fake_dotfiles / "claude" / "settings.json"
+    data = _json.loads(settings_path.read_text())
+    data["permissions"] = {"allow": ["Bash(npm:*)", "Read"], "deny": []}
+    settings_path.write_text(_json.dumps(data))
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    assert list(BashPermissionScope().run(ctx)) == []
+
+
+def test_CROSS002_flags_broad_bash_wildcard(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    settings_path = fake_dotfiles / "claude" / "settings.json"
+    data = _json.loads(settings_path.read_text())
+    data["permissions"] = {"allow": ["Bash(bash:*)", "Bash(*)"], "deny": []}
+    settings_path.write_text(_json.dumps(data))
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(BashPermissionScope().run(ctx))
+    assert len(findings) == 2
+    assert all(f.severity == Severity.MEDIUM for f in findings)
+    assert all(f.check_id == "CROSS002" for f in findings)
