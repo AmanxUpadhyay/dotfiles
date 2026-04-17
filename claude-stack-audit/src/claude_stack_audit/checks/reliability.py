@@ -247,3 +247,33 @@ class CronHealthcheckMarker:
                     "healthcheck can detect staleness."
                 ),
             )
+
+
+@register
+class LongOpTimeout:
+    id = "REL008"
+    name = "long-running ops have timeouts"
+    criterion = Criterion.RELIABILITY
+    layer = Layer.AUTOMATION
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        for script in ctx.bash_scripts:
+            body = ctx.file_cache.read(script)
+            invokes_claude = "$CLAUDE_BIN" in body or "${CLAUDE_BIN" in body
+            if not invokes_claude:
+                continue
+            if "timeout " in body:
+                continue
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.MEDIUM,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=str(script.relative_to(ctx.claude_root.parent)),
+                message="claude invocation without timeout",
+                details=None,
+                fix_hint=(
+                    "Wrap long-running claude calls with `timeout <N>s "
+                    "$CLAUDE_BIN ...` so a hung process can't wedge the cron."
+                ),
+            )

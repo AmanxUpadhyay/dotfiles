@@ -7,6 +7,7 @@ from claude_stack_audit.checks.reliability import (
     CronHealthcheckMarker,
     CronIdempotencyGuard,
     ErrOrExitTrap,
+    LongOpTimeout,
     SetEuoPipefail,
     ShellcheckClean,
 )
@@ -230,3 +231,28 @@ def test_REL007_skips_healthcheck_itself(  # noqa: N802
     findings = list(CronHealthcheckMarker().run(ctx))
     flagged = [f for f in findings if "healthcheck.sh" in f.artifact]
     assert flagged == []
+
+
+def test_REL008_passes_when_timeout_present(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    script = fake_dotfiles / "claude" / "crons" / "safe-claude-call.sh"
+    script.write_text("#!/bin/bash\nset -euo pipefail\ntimeout 120s $CLAUDE_BIN --help\n")
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LongOpTimeout().run(ctx))
+    flagged = [f for f in findings if "safe-claude-call.sh" in f.artifact]
+    assert flagged == []
+
+
+def test_REL008_flags_claude_call_without_timeout(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    script = fake_dotfiles / "claude" / "crons" / "unbounded-claude.sh"
+    script.write_text("#!/bin/bash\nset -euo pipefail\n$CLAUDE_BIN --help\n")
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LongOpTimeout().run(ctx))
+    flagged = [f for f in findings if "unbounded-claude.sh" in f.artifact]
+    assert len(flagged) == 1
+    assert flagged[0].severity == Severity.MEDIUM
