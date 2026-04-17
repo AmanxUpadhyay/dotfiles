@@ -54,3 +54,34 @@ class LogPathConsistency:
                         "or ~/.claude/logs/ instead of ad-hoc paths."
                     ),
                 )
+
+
+@register
+class StdoutCaptureWithTimestamp:
+    id = "OBS002"
+    name = "stdout capture with timestamp"
+    criterion = Criterion.OBSERVABILITY
+    layer = Layer.AUTOMATION
+
+    _TIMESTAMP_MARKERS = ("date ", "%F", "%T", "%s", " ts ", " ts\n", "iso")
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        for script in ctx.bash_scripts:
+            body = ctx.file_cache.read(script)
+            if "$CLAUDE_BIN" not in body and "${CLAUDE_BIN" not in body:
+                continue
+            if any(m in body for m in self._TIMESTAMP_MARKERS):
+                continue
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.MEDIUM,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=str(script.relative_to(ctx.claude_root.parent)),
+                message="claude invocation without timestamped output capture",
+                details=None,
+                fix_hint=(
+                    "Pipe stdout/stderr through `ts '%Y-%m-%dT%H:%M:%S%z'` "
+                    "(moreutils) or prepend `date -u +%FT%TZ` to log lines."
+                ),
+            )
