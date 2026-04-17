@@ -3,6 +3,7 @@ from pathlib import Path
 from claude_stack_audit.checks.observability import (
     DurationStatusMarkers,
     LogPathConsistency,
+    LogRotationPolicy,
     NotifyFailureSourced,
     StdoutCaptureWithTimestamp,
 )
@@ -121,3 +122,29 @@ def test_OBS004_flags_cron_without_metrics(  # noqa: N802
     flagged = [f for f in findings if "no-metrics.sh" in f.artifact]
     assert len(flagged) == 1
     assert flagged[0].severity == Severity.MEDIUM
+
+
+def test_OBS005_passes_when_rotation_script_exists(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    script = fake_dotfiles / "claude" / "crons" / "rotate-logs.sh"
+    script.write_text(
+        "#!/bin/bash\n"
+        "set -euo pipefail\n"
+        'find "$HOME/Library/Logs/claude-crons" -mtime +30 -delete\n'
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogRotationPolicy().run(ctx))
+    assert findings == []
+
+
+def test_OBS005_flags_when_no_rotation_exists(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    # Fixture has no rotation markers
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogRotationPolicy().run(ctx))
+    assert len(findings) == 1
+    assert findings[0].severity == Severity.MEDIUM
+    assert findings[0].check_id == "OBS005"

@@ -147,3 +147,33 @@ class DurationStatusMarkers:
                     "so metrics scrapers can track runs."
                 ),
             )
+
+
+@register
+class LogRotationPolicy:
+    id = "OBS005"
+    name = "log rotation policy exists"
+    criterion = Criterion.OBSERVABILITY
+    layer = Layer.AUTOMATION
+
+    _ROTATION_MARKERS = ("logrotate", "rotate_logs", "-mtime", "gzip")
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        for script in ctx.bash_scripts:
+            body = ctx.file_cache.read(script)
+            if any(m in body for m in self._ROTATION_MARKERS):
+                return  # at least one script handles rotation; no finding
+        yield Finding(
+            check_id=self.id,
+            severity=Severity.MEDIUM,
+            layer=self.layer,
+            criterion=self.criterion,
+            artifact=str(ctx.claude_root),
+            message="no log rotation script found in dotfiles",
+            details=None,
+            fix_hint=(
+                "Add a cron script that rotates logs in "
+                "~/Library/Logs/claude-crons/ (e.g. `find -mtime +30 -delete` "
+                "or gzip/logrotate)."
+            ),
+        )
