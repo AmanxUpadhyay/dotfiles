@@ -1,5 +1,6 @@
 """Subprocess adapter. Wraps subprocess.run with timeouts and returns ToolResult.
-Never raises on non-zero or missing binaries — check code reads ToolResult fields."""
+Never raises on non-zero, missing binaries, permission errors, or timeouts —
+check code reads ToolResult fields and classifies outcomes."""
 
 from __future__ import annotations
 
@@ -18,6 +19,14 @@ class ToolResult:
     timed_out: bool
 
 
+def _decode(val: bytes | str | None) -> str:
+    if val is None:
+        return ""
+    if isinstance(val, bytes):
+        return val.decode(errors="replace")
+    return val
+
+
 class ExternalTools:
     """Wraps subprocess.run with a default timeout and safe error handling."""
 
@@ -32,12 +41,13 @@ class ExternalTools:
         cwd: str | Path | None = None,
     ) -> ToolResult:
         start = time.monotonic()
+        effective_timeout = self.default_timeout if timeout is None else timeout
         try:
             proc = subprocess.run(
                 argv,
                 capture_output=True,
                 text=True,
-                timeout=timeout or self.default_timeout,
+                timeout=effective_timeout,
                 cwd=cwd,
                 check=False,
             )
@@ -45,23 +55,26 @@ class ExternalTools:
                 returncode=proc.returncode,
                 stdout=proc.stdout,
                 stderr=proc.stderr,
-                duration_ms=int((time.monotonic() - start) * 1000),
+                duration_ms=_elapsed_ms(start),
                 timed_out=False,
             )
         except subprocess.TimeoutExpired as exc:
             return ToolResult(
                 returncode=-1,
-                stdout=exc.stdout or "",
-                stderr=(exc.stderr or "") + f"\n[timeout after {exc.timeout}s]",
-                duration_ms=int((time.monotonic() - start) * 1000),
+                stdout=_decode(exc.stdout),
+                stderr=_decode(exc.stderr) + f"\n[timeout after {exc.timeout}s]",
+                duration_ms=_elapsed_ms(start),
                 timed_out=True,
             )
-        except FileNotFoundError as exc:
+        except OSError as exc:
+            # Covers FileNotFoundError (127), PermissionError (126),
+            # NotADirectoryError (126), and similar OS-level failures.
+            returncode = 127 if isinstance(exc, FileNotFoundError) else 126
             return ToolResult(
-                returncode=127,
+                returncode=returncode,
                 stdout="",
                 stderr=str(exc),
-                duration_ms=int((time.monotonic() - start) * 1000),
+                duration_ms=_elapsed_ms(start),
                 timed_out=False,
             )
 
@@ -72,4 +85,10 @@ class ExternalTools:
         r = self.run(argv, timeout=5.0)
         if r.returncode != 0:
             return None
-        return (r.stdout or r.stderr).strip().splitlines()[0] if (r.stdout or r.stderr) else None
+        combined = (r.stdout or r.stderr).strip()
+        lines = combined.splitlines()
+        return lines[0] if lines else None
+
+
+def _elapsed_ms(start: float) -> int:
+    return int((time.monotonic() - start) * 1000)
