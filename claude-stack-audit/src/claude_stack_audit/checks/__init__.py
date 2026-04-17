@@ -2,5 +2,6 @@
 
 from claude_stack_audit.checks import (
     inventory,  # noqa: F401
+    observability,  # noqa: F401
     reliability,  # noqa: F401
 )
