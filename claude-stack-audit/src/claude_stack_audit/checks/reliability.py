@@ -154,3 +154,36 @@ class ClaudeBinResolved:
                     "/opt/homebrew/bin) handles installer changes."
                 ),
             )
+
+
+_IDEMPOTENCY_MARKERS = ("flock", "last-success", "last-run", "skip-if-done")
+
+
+@register
+class CronIdempotencyGuard:
+    id = "REL005"
+    name = "cron idempotency guard"
+    criterion = Criterion.RELIABILITY
+    layer = Layer.AUTOMATION
+
+    def run(self, ctx: Context) -> Iterable[Finding]:
+        crons_dir = ctx.claude_root / "crons"
+        if not crons_dir.is_dir():
+            return
+        for script in sorted(crons_dir.glob("*.sh")):
+            body = ctx.file_cache.read(script)
+            if any(marker in body for marker in _IDEMPOTENCY_MARKERS):
+                continue
+            yield Finding(
+                check_id=self.id,
+                severity=Severity.MEDIUM,
+                layer=self.layer,
+                criterion=self.criterion,
+                artifact=str(script.relative_to(ctx.claude_root.parent)),
+                message="cron script has no idempotency guard",
+                details=None,
+                fix_hint=(
+                    "Add a guard: flock to prevent concurrent runs, or "
+                    "check a last-success marker to skip redundant runs."
+                ),
+            )

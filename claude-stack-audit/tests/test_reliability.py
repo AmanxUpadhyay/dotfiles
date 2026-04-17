@@ -3,6 +3,7 @@ from pathlib import Path
 
 from claude_stack_audit.checks.reliability import (
     ClaudeBinResolved,
+    CronIdempotencyGuard,
     ErrOrExitTrap,
     SetEuoPipefail,
     ShellcheckClean,
@@ -133,3 +134,28 @@ def test_REL004_flags_hardcoded_npm_path(  # noqa: N802
     assert len(flagged) == 1
     assert flagged[0].severity == Severity.HIGH
     assert "npm-packages" in flagged[0].details
+
+
+def test_REL005_passes_when_cron_has_flock(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    script = fake_dotfiles / "claude" / "crons" / "locked-cron.sh"
+    script.write_text("#!/bin/bash\nset -euo pipefail\nflock -n /tmp/x.lock -c 'echo running'\n")
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(CronIdempotencyGuard().run(ctx))
+    flagged = [f for f in findings if "locked-cron.sh" in f.artifact]
+    assert flagged == []
+
+
+def test_REL005_flags_cron_without_guard(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    script = fake_dotfiles / "claude" / "crons" / "no-guard.sh"
+    script.write_text("#!/bin/bash\nset -euo pipefail\necho running unconditionally\n")
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(CronIdempotencyGuard().run(ctx))
+    flagged = [f for f in findings if "no-guard.sh" in f.artifact]
+    assert len(flagged) == 1
+    assert flagged[0].severity == Severity.MEDIUM
