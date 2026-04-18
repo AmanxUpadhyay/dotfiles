@@ -1,11 +1,11 @@
 {
   "schema_version": "1",
-  "generated_at": "2026-04-18T15:56:13.615119+00:00",
+  "generated_at": "2026-04-18T18:18:24.025396+00:00",
   "tool_version": "0.1.0",
-  "score": 812,
+  "score": 862,
   "severity_counts": {
     "critical": 0,
-    "high": 10,
+    "high": 0,
     "medium": 54,
     "low": 30,
     "info": 39
@@ -20,106 +20,6 @@
     "mcp_servers": []
   },
   "findings": [
-    {
-      "check_id": "DOC005",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/crons/claude-mem-worker.sh",
-      "message": "no runbook at docs/superpowers/runbooks/claude-mem-worker.md",
-      "details": null,
-      "fix_hint": "Create docs/superpowers/runbooks/claude-mem-worker.md documenting purpose, inputs, outputs, failure modes, and recovery steps."
-    },
-    {
-      "check_id": "DOC005",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/crons/daily-retro-evening.sh",
-      "message": "no runbook at docs/superpowers/runbooks/daily-retro-evening.md",
-      "details": null,
-      "fix_hint": "Create docs/superpowers/runbooks/daily-retro-evening.md documenting purpose, inputs, outputs, failure modes, and recovery steps."
-    },
-    {
-      "check_id": "DOC005",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/crons/daily-retrospective.sh",
-      "message": "no runbook at docs/superpowers/runbooks/daily-retrospective.md",
-      "details": null,
-      "fix_hint": "Create docs/superpowers/runbooks/daily-retrospective.md documenting purpose, inputs, outputs, failure modes, and recovery steps."
-    },
-    {
-      "check_id": "DOC005",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/crons/healthcheck.sh",
-      "message": "no runbook at docs/superpowers/runbooks/healthcheck.md",
-      "details": null,
-      "fix_hint": "Create docs/superpowers/runbooks/healthcheck.md documenting purpose, inputs, outputs, failure modes, and recovery steps."
-    },
-    {
-      "check_id": "DOC005",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/crons/mac-cleanup-scan.sh",
-      "message": "no runbook at docs/superpowers/runbooks/mac-cleanup-scan.md",
-      "details": null,
-      "fix_hint": "Create docs/superpowers/runbooks/mac-cleanup-scan.md documenting purpose, inputs, outputs, failure modes, and recovery steps."
-    },
-    {
-      "check_id": "DOC005",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/crons/notify-failure.sh",
-      "message": "no runbook at docs/superpowers/runbooks/notify-failure.md",
-      "details": null,
-      "fix_hint": "Create docs/superpowers/runbooks/notify-failure.md documenting purpose, inputs, outputs, failure modes, and recovery steps."
-    },
-    {
-      "check_id": "DOC005",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/crons/weekly-finalize.sh",
-      "message": "no runbook at docs/superpowers/runbooks/weekly-finalize.md",
-      "details": null,
-      "fix_hint": "Create docs/superpowers/runbooks/weekly-finalize.md documenting purpose, inputs, outputs, failure modes, and recovery steps."
-    },
-    {
-      "check_id": "DOC005",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/crons/weekly-report-gen.sh",
-      "message": "no runbook at docs/superpowers/runbooks/weekly-report-gen.md",
-      "details": null,
-      "fix_hint": "Create docs/superpowers/runbooks/weekly-report-gen.md documenting purpose, inputs, outputs, failure modes, and recovery steps."
-    },
-    {
-      "check_id": "REL001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/refresh.sh",
-      "message": "SC1071: ShellCheck only supports sh/bash/dash/ksh/'busybox sh' scripts. Sorry!",
-      "details": "line 1, column 1",
-      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
-    },
-    {
-      "check_id": "DOC003",
-      "severity": "high",
-      "layer": "core",
-      "criterion": "documentation",
-      "artifact": "claude/README.md",
-      "message": "claude/ directory missing README.md",
-      "details": null,
-      "fix_hint": "Create claude/README.md documenting install flow, component map, hooks/crons inventory, and common troubleshooting."
-    },
     {
       "check_id": "DOC007",
       "severity": "medium",
