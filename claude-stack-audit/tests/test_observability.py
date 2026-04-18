@@ -181,3 +181,65 @@ def test_OBS006_flags_missing_hook_handler(  # noqa: N802
     flagged = [f for f in findings if "does-not-exist.sh" in f.artifact]
     assert len(flagged) == 1
     assert flagged[0].severity == Severity.HIGH
+
+
+def test_OBS006_accepts_production_command_format(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools, monkeypatch
+):
+    """Real Claude Code settings.json wraps the path in a bash command with $HOME, like
+    `bash "$HOME/.claude/hooks/X.sh"`. The check must strip the wrapper, expand $HOME,
+    and verify the underlying script exists."""
+    import json as _json
+
+    fake_home = fake_dotfiles.parent
+    monkeypatch.setenv("HOME", str(fake_home))
+
+    dotclaude_hooks = fake_home / ".claude" / "hooks"
+    dotclaude_hooks.mkdir(parents=True)
+    script = dotclaude_hooks / "session-end-note.sh"
+    script.write_text("#!/bin/bash\necho hi\n")
+    script.chmod(0o755)
+
+    settings_path = fake_dotfiles / "claude" / "settings.json"
+    data = _json.loads(settings_path.read_text())
+    data["hooks"]["SessionEnd"] = [
+        {
+            "matcher": "",
+            "hooks": [
+                {
+                    "type": "command",
+                    "command": 'bash "$HOME/.claude/hooks/session-end-note.sh"',
+                }
+            ],
+        }
+    ]
+    settings_path.write_text(_json.dumps(data))
+
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(HookHandlerExists().run(ctx))
+    flagged = [f for f in findings if "session-end-note.sh" in f.artifact]
+    assert flagged == [], f"expected no findings but got: {flagged}"
+
+
+def test_OBS006_flags_missing_production_command(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools, monkeypatch
+):
+    import json as _json
+
+    monkeypatch.setenv("HOME", str(fake_dotfiles.parent))
+
+    settings_path = fake_dotfiles / "claude" / "settings.json"
+    data = _json.loads(settings_path.read_text())
+    data["hooks"]["SessionEnd"] = [
+        {
+            "matcher": "",
+            "hooks": [{"type": "command", "command": 'bash "$HOME/.claude/hooks/nope.sh"'}],
+        }
+    ]
+    settings_path.write_text(_json.dumps(data))
+
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(HookHandlerExists().run(ctx))
+    flagged = [f for f in findings if "nope.sh" in f.artifact]
+    assert len(flagged) == 1
+    assert flagged[0].severity == Severity.HIGH

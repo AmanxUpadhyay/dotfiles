@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import os
 import re
+import shlex
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -194,9 +196,8 @@ class HookHandlerExists:
                     cmd = hook.get("command", "")
                     if not cmd:
                         continue
-                    # Resolve relative paths against claude_root
-                    path = ctx.claude_root / cmd if not cmd.startswith("/") else Path(cmd)
-                    if path.is_file():
+                    resolved = self._resolve(cmd, ctx)
+                    if resolved is None or resolved.is_file():
                         continue
                     yield Finding(
                         check_id=self.id,
@@ -205,8 +206,28 @@ class HookHandlerExists:
                         criterion=self.criterion,
                         artifact=cmd,
                         message=f"{event_name} hook command does not resolve",
-                        details=f"expected: {path}",
+                        details=f"expected: {resolved}",
                         fix_hint=(
                             "Fix the command path in settings.json or create the handler script."
                         ),
                     )
+
+    @staticmethod
+    def _resolve(cmd: str, ctx: Context) -> Path | None:
+        """Extract the script path from a hook command and resolve it.
+
+        Claude Code settings.json stores the full shell invocation, e.g.
+        `bash "$HOME/.claude/hooks/X.sh"`. We extract the .sh argument, expand
+        $HOME/~ vars, and return the resolved Path. Returns None when the
+        command doesn't invoke a .sh script (inline bash — nothing to verify)."""
+        try:
+            parts = shlex.split(cmd)
+        except ValueError:
+            parts = [cmd]
+        script_arg = next((p for p in reversed(parts) if p.endswith(".sh")), None)
+        if script_arg is None:
+            return None
+        expanded = os.path.expandvars(os.path.expanduser(script_arg))
+        if expanded.startswith("/"):
+            return Path(expanded)
+        return ctx.claude_root / expanded
