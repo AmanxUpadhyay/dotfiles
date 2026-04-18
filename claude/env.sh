@@ -6,6 +6,10 @@
 # Symlinked at ~/.claude/env.sh -> ~/.dotfiles/claude/env.sh
 # =============================================================================
 
+# Centralized PATH — applies to all consumers (cron, launchd, hooks).
+# Must come first so CLAUDE_BIN resolution and child processes find all binaries.
+export PATH="$HOME/.local/bin:$HOME/.bun/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin"
+
 export OBSIDIAN_VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/GODL1KE"
 export CLAUDE_LOG_DIR="$HOME/Library/Logs/claude-crons"
 export ORG_MAP="$HOME/.claude/org-map.json"
