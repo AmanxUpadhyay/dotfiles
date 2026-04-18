@@ -1,20 +1,12 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
-# GODL1KE pr-gate.sh — Hard Gate Before PR Creation
+# pr-gate.sh — Hard Gate Before PR Creation
 # =============================================================================
-# WHY: This is your quality firewall. Before Claude can create a PR or push
-# to a remote branch, this hook runs:
-#   1. Ruff format check (is code formatted?)
-#   2. Ruff lint check (are there lint errors?)
-#   3. pytest (do tests pass?)
-#   4. Secrets scan (are there leaked credentials?)
-#   5. pip-audit (are there known vulnerabilities?)
-#
-# ALL checks must pass. If ANY fail, the PR/push is BLOCKED (exit 2).
-# This ensures every PR is code-reviewed and security-scanned automatically.
-#
-# Location: ~/.claude/hooks/pr-gate.sh
-# Triggered by: PreToolUse → Bash (only activates for PR/push commands)
+# purpose: blocks PR creation and remote pushes until ruff format, ruff lint, pytest, secrets scan, and pip-audit all pass
+# inputs: stdin JSON with tool_input.command and cwd from PreToolUse event; triggers only on gh pr or git push commands
+# outputs: exit 2 with stderr error list if any check fails; exit 0 if all pass
+# side-effects: runs ruff, pytest/npm test, pip-audit subprocesses in cwd; reads changed files via git diff
 # =============================================================================
 
 INPUT=$(cat)

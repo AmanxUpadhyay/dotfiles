@@ -1,5 +1,13 @@
 #!/bin/bash
-# Stop hook — macOS notification when Claude finishes a task. Runs async.
+set -euo pipefail
+# =============================================================================
+# stop-notification.sh — macOS Notification When Claude Finishes a Task
+# =============================================================================
+# purpose: fires a macOS notification via osascript when Claude completes a non-trivial task, providing audio and visual feedback to the user
+# inputs: stdin JSON with stop_reason and cwd from Stop event; CLAUDE_AUTOMATED env var
+# outputs: macOS notification with task name and Glass sound via osascript
+# side-effects: invokes osascript; skips in automated sessions, non-Darwin systems, and tool_use stops
+# =============================================================================
 
 INPUT=$(cat)
 

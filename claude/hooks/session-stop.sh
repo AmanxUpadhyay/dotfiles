@@ -1,13 +1,12 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
-# session-stop.sh — Block Claude to write Session Ledger note
+# session-stop.sh — Block Claude to Write Session Ledger Note
 # =============================================================================
-# Fires on Stop hook. BLOCKS Claude from finishing until it writes a session
-# summary note to Obsidian. This keeps Claude in the authenticated session
-# so MCP tools work (unlike SessionEnd which spawns an unauthenticated process).
-#
-# Loop prevention: uses stop_hook_active from official Stop hook input schema.
-# Threshold: skips for trivial sessions (< 3 tool uses, no edits).
+# purpose: fires on Stop hook and blocks Claude from finishing until it writes a session summary note to Obsidian; keeps Claude in-session so MCP tools remain authenticated
+# inputs: stdin JSON with stop_hook_active, transcript_path from Stop event; OBSIDIAN_VAULT, ORG_MAP from env.sh; sources detect-org.sh
+# outputs: JSON decision=block with instructions for writing the session note; exit 0 to pass through
+# side-effects: reads transcript file to count edits; skips for trivial sessions (<1 edit) and automated sessions; skips if stop_hook_active=true to prevent infinite loop
 # =============================================================================
 
 INPUT=$(cat)

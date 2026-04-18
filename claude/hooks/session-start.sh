@@ -1,12 +1,12 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
-# GODL1KE session-start.sh — Inject Git + Obsidian Context at Session Start
+# session-start.sh — Inject Git + Obsidian Context at Session Start
 # =============================================================================
-# Injects:
-#   1. Git context (branch, recent commits, changed files)
-#   2. Org detection (maps working directory to client/startup)
-#   3. Obsidian context (most recent session note + org context file)
-#   4. Breadcrumb from repo (if exists)
+# purpose: injects git context, org detection, recent Obsidian session notes, org context file, and repo breadcrumbs into the session as additionalContext
+# inputs: OBSIDIAN_VAULT, ORG_MAP from env.sh; CLAUDE_PROJECT_DIR or PWD; git repo state; Obsidian vault files
+# outputs: JSON hookSpecificOutput with SessionStart additionalContext block printed to stdout
+# side-effects: self-heals plugin symlinks in ~/.claude/plugins/cache if broken; reads vault files and git state
 # =============================================================================
 
 source "$HOME/.claude/env.sh"

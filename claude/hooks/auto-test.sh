@@ -1,16 +1,12 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
-# GODL1KE auto-test.sh — Auto-Run Related Tests After Python Edits
+# auto-test.sh — Auto-Run Related Tests After Python Edits
 # =============================================================================
-# WHY: Immediate feedback loop. When Claude edits a Python file, this hook
-# looks for a corresponding test file and runs it. If tests fail, Claude
-# gets the error output as context (via stdout) and can fix it immediately.
-# This is Boris Cherny's #1 tip: "Give Claude a way to verify its work."
-#
-# Runs ASYNC to avoid blocking Claude while tests execute.
-#
-# Location: ~/.claude/hooks/auto-test.sh
-# Triggered by: PostToolUse → Write|Edit|MultiEdit (async)
+# purpose: provides immediate test feedback when Claude edits a Python file by finding and running the corresponding test file
+# inputs: stdin JSON with tool_name, cwd, and file path(s); requires pytest or uv on PATH
+# outputs: JSON hookSpecificOutput with additionalContext containing test failures (stdout); silent on pass
+# side-effects: runs pytest subprocess; does not modify any files
 # =============================================================================
 
 INPUT=$(cat)

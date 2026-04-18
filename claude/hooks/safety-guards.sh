@@ -1,17 +1,12 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
-# GODL1KE safety-guards.sh — Block Dangerous Bash Commands
+# safety-guards.sh — Block Dangerous Bash Commands
 # =============================================================================
-# WHY: This hook fires BEFORE every Bash command Claude runs. It pattern-
-# matches against known destructive operations and blocks them with exit 2.
-# Exit 2 = hard block. Stderr is sent back to Claude as feedback.
-# Exit 0 = allow. Exit 1 = warning only (DOES NOT BLOCK — never use for safety).
-#
-# Performance: uses bash [[ =~ ]] builtins instead of echo | grep forks.
-# Each Bash command invocation previously spawned ~20 subprocesses; now 0.
-#
-# Location: ~/.claude/hooks/safety-guards.sh
-# Triggered by: PreToolUse → Bash
+# purpose: pattern-matches every Bash command Claude runs before execution and hard-blocks destructive operations via exit 2
+# inputs: stdin JSON with tool_input.command from PreToolUse event; operates on Bash commands only
+# outputs: exit 2 with stderr explanation if blocked; exit 0 to allow; stderr is returned to Claude as feedback
+# side-effects: none; uses bash builtins for performance (zero subprocesses per check)
 # =============================================================================
 
 INPUT=$(cat)
