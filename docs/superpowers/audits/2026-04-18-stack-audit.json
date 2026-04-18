@@ -1,14 +1,14 @@
 {
   "schema_version": "1",
-  "generated_at": "2026-04-17T23:37:41.083208+00:00",
+  "generated_at": "2026-04-18T15:56:13.615119+00:00",
   "tool_version": "0.1.0",
-  "score": 421,
+  "score": 812,
   "severity_counts": {
     "critical": 0,
-    "high": 83,
-    "medium": 68,
-    "low": 28,
-    "info": 55
+    "high": 10,
+    "medium": 54,
+    "low": 30,
+    "info": 39
   },
   "inventory": {
     "hooks": [],
@@ -20,256 +20,6 @@
     "mcp_servers": []
   },
   "findings": [
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/crons/claude-mem-worker.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/crons/daily-retro-evening.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/crons/daily-retrospective.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/crons/healthcheck.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/crons/mac-cleanup-scan.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/crons/notify-failure.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/crons/weekly-finalize.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/crons/weekly-report-gen.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/env.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/hooks/auto-format.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/hooks/auto-test.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/hooks/breadcrumb-writer.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/hooks/detect-org.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/hooks/permission-auto-approve.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/hooks/permission-denied.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/hooks/pr-gate.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/hooks/prompt-injection-guard.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/hooks/protect-files.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/hooks/safety-guards.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/hooks/session-start.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/hooks/session-stop.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/hooks/stop-notification.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/hooks/test-fix-detector.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/install-launchagents.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
-    {
-      "check_id": "DOC001",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "claude/refresh.sh",
-      "message": "script header missing: purpose, inputs, outputs, side-effects",
-      "details": null,
-      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
-    },
     {
       "check_id": "DOC005",
       "severity": "high",
@@ -351,156 +101,6 @@
       "fix_hint": "Create docs/superpowers/runbooks/weekly-report-gen.md documenting purpose, inputs, outputs, failure modes, and recovery steps."
     },
     {
-      "check_id": "OBS003",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "claude/crons/claude-mem-worker.sh",
-      "message": "cron does not source notify-failure.sh",
-      "details": null,
-      "fix_hint": "Add `source \"$HOME/.dotfiles/claude/crons/notify-failure.sh\"` near the top and call `notify_failure` from an ERR trap."
-    },
-    {
-      "check_id": "OBS006",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "bash \"$HOME/.claude/hooks/auto-format.sh\"",
-      "message": "PostToolUse hook command does not resolve",
-      "details": "expected: /Users/godl1ke/.dotfiles/claude/bash \"$HOME/.claude/hooks/auto-format.sh\"",
-      "fix_hint": "Fix the command path in settings.json or create the handler script."
-    },
-    {
-      "check_id": "OBS006",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "bash \"$HOME/.claude/hooks/auto-test.sh\"",
-      "message": "PostToolUse hook command does not resolve",
-      "details": "expected: /Users/godl1ke/.dotfiles/claude/bash \"$HOME/.claude/hooks/auto-test.sh\"",
-      "fix_hint": "Fix the command path in settings.json or create the handler script."
-    },
-    {
-      "check_id": "OBS006",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "bash \"$HOME/.claude/hooks/breadcrumb-writer.sh\"",
-      "message": "SessionEnd hook command does not resolve",
-      "details": "expected: /Users/godl1ke/.dotfiles/claude/bash \"$HOME/.claude/hooks/breadcrumb-writer.sh\"",
-      "fix_hint": "Fix the command path in settings.json or create the handler script."
-    },
-    {
-      "check_id": "OBS006",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "bash \"$HOME/.claude/hooks/permission-auto-approve.sh\"",
-      "message": "PermissionRequest hook command does not resolve",
-      "details": "expected: /Users/godl1ke/.dotfiles/claude/bash \"$HOME/.claude/hooks/permission-auto-approve.sh\"",
-      "fix_hint": "Fix the command path in settings.json or create the handler script."
-    },
-    {
-      "check_id": "OBS006",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "bash \"$HOME/.claude/hooks/permission-denied.sh\"",
-      "message": "PermissionDenied hook command does not resolve",
-      "details": "expected: /Users/godl1ke/.dotfiles/claude/bash \"$HOME/.claude/hooks/permission-denied.sh\"",
-      "fix_hint": "Fix the command path in settings.json or create the handler script."
-    },
-    {
-      "check_id": "OBS006",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "bash \"$HOME/.claude/hooks/pr-gate.sh\"",
-      "message": "PreToolUse hook command does not resolve",
-      "details": "expected: /Users/godl1ke/.dotfiles/claude/bash \"$HOME/.claude/hooks/pr-gate.sh\"",
-      "fix_hint": "Fix the command path in settings.json or create the handler script."
-    },
-    {
-      "check_id": "OBS006",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "bash \"$HOME/.claude/hooks/prompt-injection-guard.sh\"",
-      "message": "UserPromptSubmit hook command does not resolve",
-      "details": "expected: /Users/godl1ke/.dotfiles/claude/bash \"$HOME/.claude/hooks/prompt-injection-guard.sh\"",
-      "fix_hint": "Fix the command path in settings.json or create the handler script."
-    },
-    {
-      "check_id": "OBS006",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "bash \"$HOME/.claude/hooks/protect-files.sh\"",
-      "message": "PreToolUse hook command does not resolve",
-      "details": "expected: /Users/godl1ke/.dotfiles/claude/bash \"$HOME/.claude/hooks/protect-files.sh\"",
-      "fix_hint": "Fix the command path in settings.json or create the handler script."
-    },
-    {
-      "check_id": "OBS006",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "bash \"$HOME/.claude/hooks/safety-guards.sh\"",
-      "message": "PreToolUse hook command does not resolve",
-      "details": "expected: /Users/godl1ke/.dotfiles/claude/bash \"$HOME/.claude/hooks/safety-guards.sh\"",
-      "fix_hint": "Fix the command path in settings.json or create the handler script."
-    },
-    {
-      "check_id": "OBS006",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "bash \"$HOME/.claude/hooks/session-end-note.sh\"",
-      "message": "SessionEnd hook command does not resolve",
-      "details": "expected: /Users/godl1ke/.dotfiles/claude/bash \"$HOME/.claude/hooks/session-end-note.sh\"",
-      "fix_hint": "Fix the command path in settings.json or create the handler script."
-    },
-    {
-      "check_id": "OBS006",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "bash \"$HOME/.claude/hooks/session-start.sh\"",
-      "message": "SessionStart hook command does not resolve",
-      "details": "expected: /Users/godl1ke/.dotfiles/claude/bash \"$HOME/.claude/hooks/session-start.sh\"",
-      "fix_hint": "Fix the command path in settings.json or create the handler script."
-    },
-    {
-      "check_id": "OBS006",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "bash \"$HOME/.claude/hooks/session-stop.sh\"",
-      "message": "Stop hook command does not resolve",
-      "details": "expected: /Users/godl1ke/.dotfiles/claude/bash \"$HOME/.claude/hooks/session-stop.sh\"",
-      "fix_hint": "Fix the command path in settings.json or create the handler script."
-    },
-    {
-      "check_id": "OBS006",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "bash \"$HOME/.claude/hooks/stop-notification.sh\"",
-      "message": "Stop hook command does not resolve",
-      "details": "expected: /Users/godl1ke/.dotfiles/claude/bash \"$HOME/.claude/hooks/stop-notification.sh\"",
-      "fix_hint": "Fix the command path in settings.json or create the handler script."
-    },
-    {
-      "check_id": "OBS006",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "bash \"$HOME/.claude/hooks/test-fix-detector.sh\"",
-      "message": "PostToolUse hook command does not resolve",
-      "details": "expected: /Users/godl1ke/.dotfiles/claude/bash \"$HOME/.claude/hooks/test-fix-detector.sh\"",
-      "fix_hint": "Fix the command path in settings.json or create the handler script."
-    },
-    {
       "check_id": "REL001",
       "severity": "high",
       "layer": "automation",
@@ -511,336 +111,6 @@
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/claude-mem-worker.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/daily-retro-evening.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/daily-retrospective.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/healthcheck.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/mac-cleanup-scan.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/notify-failure.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/weekly-finalize.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/weekly-report-gen.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/env.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/auto-format.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/auto-test.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/breadcrumb-writer.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/detect-org.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/permission-auto-approve.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/permission-denied.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/pr-gate.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/prompt-injection-guard.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/protect-files.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/safety-guards.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/session-start.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/session-stop.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/stop-notification.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/test-fix-detector.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL002",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/refresh.sh",
-      "message": "missing `set -euo pipefail` in first 10 lines",
-      "details": null,
-      "fix_hint": "Add `set -euo pipefail` as the second line after the shebang."
-    },
-    {
-      "check_id": "REL004",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/claude-mem-worker.sh",
-      "message": "hardcoded claude binary path",
-      "details": "found: /cache/thedotmack/claude",
-      "fix_hint": "Replace with $CLAUDE_BIN and source env.sh so the dynamic resolution chain (~/.local/bin \u2192 ~/.npm-packages/bin \u2192 /opt/homebrew/bin) handles installer changes."
-    },
-    {
-      "check_id": "REL004",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/mac-cleanup-scan.sh",
-      "message": "hardcoded claude binary path",
-      "details": "found: ~/.dotfiles/claude",
-      "fix_hint": "Replace with $CLAUDE_BIN and source env.sh so the dynamic resolution chain (~/.local/bin \u2192 ~/.npm-packages/bin \u2192 /opt/homebrew/bin) handles installer changes."
-    },
-    {
-      "check_id": "REL004",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/permission-auto-approve.sh",
-      "message": "hardcoded claude binary path",
-      "details": "found: /en/docs/claude",
-      "fix_hint": "Replace with $CLAUDE_BIN and source env.sh so the dynamic resolution chain (~/.local/bin \u2192 ~/.npm-packages/bin \u2192 /opt/homebrew/bin) handles installer changes."
-    },
-    {
-      "check_id": "REL004",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/permission-denied.sh",
-      "message": "hardcoded claude binary path",
-      "details": "found: /en/docs/claude",
-      "fix_hint": "Replace with $CLAUDE_BIN and source env.sh so the dynamic resolution chain (~/.local/bin \u2192 ~/.npm-packages/bin \u2192 /opt/homebrew/bin) handles installer changes."
-    },
-    {
-      "check_id": "REL004",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/install-launchagents.sh",
-      "message": "hardcoded claude binary path",
-      "details": "found: $HOME/.dotfiles/claude",
-      "fix_hint": "Replace with $CLAUDE_BIN and source env.sh so the dynamic resolution chain (~/.local/bin \u2192 ~/.npm-packages/bin \u2192 /opt/homebrew/bin) handles installer changes."
-    },
-    {
-      "check_id": "REL004",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/refresh.sh",
-      "message": "hardcoded claude binary path",
-      "details": "found: ~/.dotfiles/claude",
-      "fix_hint": "Replace with $CLAUDE_BIN and source env.sh so the dynamic resolution chain (~/.local/bin \u2192 ~/.npm-packages/bin \u2192 /opt/homebrew/bin) handles installer changes."
-    },
-    {
-      "check_id": "REL007",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/claude-mem-worker.sh",
-      "message": "cron script missing last-success marker write",
-      "details": null,
-      "fix_hint": "On successful completion, touch ~/Library/Logs/claude-crons/.last-success-<name> so the healthcheck can detect staleness."
-    },
-    {
-      "check_id": "REL007",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/mac-cleanup-scan.sh",
-      "message": "cron script missing last-success marker write",
-      "details": null,
-      "fix_hint": "On successful completion, touch ~/Library/Logs/claude-crons/.last-success-<name> so the healthcheck can detect staleness."
-    },
-    {
-      "check_id": "REL007",
-      "severity": "high",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/notify-failure.sh",
-      "message": "cron script missing last-success marker write",
-      "details": null,
-      "fix_hint": "On successful completion, touch ~/Library/Logs/claude-crons/.last-success-<name> so the healthcheck can detect staleness."
-    },
-    {
       "check_id": "DOC003",
       "severity": "high",
       "layer": "core",
@@ -849,36 +119,6 @@
       "message": "claude/ directory missing README.md",
       "details": null,
       "fix_hint": "Create claude/README.md documenting install flow, component map, hooks/crons inventory, and common troubleshooting."
-    },
-    {
-      "check_id": "DOC002",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "env.sh:14",
-      "message": "export CLAUDE_LOG_DIR has no preceding comment",
-      "details": null,
-      "fix_hint": "Add a `# purpose: ...` comment immediately above the export."
-    },
-    {
-      "check_id": "DOC002",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "env.sh:15",
-      "message": "export ORG_MAP has no preceding comment",
-      "details": null,
-      "fix_hint": "Add a `# purpose: ...` comment immediately above the export."
-    },
-    {
-      "check_id": "DOC002",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "documentation",
-      "artifact": "env.sh:30",
-      "message": "export CLAUDE_BIN has no preceding comment",
-      "details": null,
-      "fix_hint": "Add a `# purpose: ...` comment immediately above the export."
     },
     {
       "check_id": "DOC007",
@@ -1195,16 +435,6 @@
       "severity": "medium",
       "layer": "automation",
       "criterion": "observability",
-      "artifact": "claude/env.sh",
-      "message": "log write to non-approved path: ~/.dotfiles/claude/env.sh",
-      "details": null,
-      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
-    },
-    {
-      "check_id": "OBS001",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "observability",
       "artifact": "claude/hooks/breadcrumb-writer.sh",
       "message": "log write to non-approved path: $BREADCRUMB_DIR/breadcrumbs.md",
       "details": null,
@@ -1327,7 +557,7 @@
       "criterion": "reliability",
       "artifact": "claude/crons/healthcheck.sh",
       "message": "SC2034: MARKER_DIR appears unused. Verify use (or export if used externally).",
-      "details": "line 24, column 1",
+      "details": "line 26, column 1",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1341,121 +571,11 @@
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
-      "check_id": "REL003",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/claude-mem-worker.sh",
-      "message": "cron script has no ERR or EXIT trap",
-      "details": null,
-      "fix_hint": "Add `trap 'notify-failure.sh' ERR` near the top of the script."
-    },
-    {
-      "check_id": "REL003",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/daily-retro-evening.sh",
-      "message": "cron script has no ERR or EXIT trap",
-      "details": null,
-      "fix_hint": "Add `trap 'notify-failure.sh' ERR` near the top of the script."
-    },
-    {
-      "check_id": "REL003",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/daily-retrospective.sh",
-      "message": "cron script has no ERR or EXIT trap",
-      "details": null,
-      "fix_hint": "Add `trap 'notify-failure.sh' ERR` near the top of the script."
-    },
-    {
-      "check_id": "REL003",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/healthcheck.sh",
-      "message": "cron script has no ERR or EXIT trap",
-      "details": null,
-      "fix_hint": "Add `trap 'notify-failure.sh' ERR` near the top of the script."
-    },
-    {
-      "check_id": "REL003",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/mac-cleanup-scan.sh",
-      "message": "cron script has no ERR or EXIT trap",
-      "details": null,
-      "fix_hint": "Add `trap 'notify-failure.sh' ERR` near the top of the script."
-    },
-    {
-      "check_id": "REL003",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/notify-failure.sh",
-      "message": "cron script has no ERR or EXIT trap",
-      "details": null,
-      "fix_hint": "Add `trap 'notify-failure.sh' ERR` near the top of the script."
-    },
-    {
-      "check_id": "REL003",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/weekly-finalize.sh",
-      "message": "cron script has no ERR or EXIT trap",
-      "details": null,
-      "fix_hint": "Add `trap 'notify-failure.sh' ERR` near the top of the script."
-    },
-    {
-      "check_id": "REL003",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/weekly-report-gen.sh",
-      "message": "cron script has no ERR or EXIT trap",
-      "details": null,
-      "fix_hint": "Add `trap 'notify-failure.sh' ERR` near the top of the script."
-    },
-    {
-      "check_id": "REL005",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/claude-mem-worker.sh",
-      "message": "cron script has no idempotency guard",
-      "details": null,
-      "fix_hint": "Add a guard: flock to prevent concurrent runs, or check a last-success marker to skip redundant runs."
-    },
-    {
       "check_id": "REL005",
       "severity": "medium",
       "layer": "automation",
       "criterion": "reliability",
       "artifact": "claude/crons/healthcheck.sh",
-      "message": "cron script has no idempotency guard",
-      "details": null,
-      "fix_hint": "Add a guard: flock to prevent concurrent runs, or check a last-success marker to skip redundant runs."
-    },
-    {
-      "check_id": "REL005",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/mac-cleanup-scan.sh",
-      "message": "cron script has no idempotency guard",
-      "details": null,
-      "fix_hint": "Add a guard: flock to prevent concurrent runs, or check a last-success marker to skip redundant runs."
-    },
-    {
-      "check_id": "REL005",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/notify-failure.sh",
       "message": "cron script has no idempotency guard",
       "details": null,
       "fix_hint": "Add a guard: flock to prevent concurrent runs, or check a last-success marker to skip redundant runs."
@@ -1531,13 +651,43 @@
       "fix_hint": "Wrap long-running claude calls with `timeout <N>s $CLAUDE_BIN ...` so a hung process can't wedge the cron."
     },
     {
+      "check_id": "DOC004",
+      "severity": "medium",
+      "layer": "core",
+      "criterion": "documentation",
+      "artifact": "/Users/godl1ke/.dotfiles",
+      "message": "no ADRs found under docs/superpowers/adr or docs/decisions",
+      "details": null,
+      "fix_hint": "Capture architectural decisions as dated markdown files in docs/superpowers/adr/YYYY-MM-DD-<topic>.md."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/crons/claude-mem-worker.sh",
+      "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
+      "details": "line 12, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/crons/claude-mem-worker.sh",
+      "message": "SC1091: Not following: ./.dotfiles/claude/crons/notify-failure.sh was not specified as input (see shellcheck -x).",
+      "details": "line 13, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
       "check_id": "REL001",
       "severity": "low",
       "layer": "automation",
       "criterion": "reliability",
       "artifact": "claude/crons/claude-mem-worker.sh",
       "message": "SC2012: Use find instead of ls to better handle non-alphanumeric filenames.",
-      "details": "line 22, column 12",
+      "details": "line 27, column 12",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1547,7 +697,7 @@
       "criterion": "reliability",
       "artifact": "claude/crons/daily-retro-evening.sh",
       "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
-      "details": "line 11, column 8",
+      "details": "line 12, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1557,7 +707,7 @@
       "criterion": "reliability",
       "artifact": "claude/crons/daily-retro-evening.sh",
       "message": "SC1091: Not following: ./.dotfiles/claude/crons/notify-failure.sh was not specified as input (see shellcheck -x).",
-      "details": "line 12, column 8",
+      "details": "line 13, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1567,7 +717,7 @@
       "criterion": "reliability",
       "artifact": "claude/crons/daily-retrospective.sh",
       "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
-      "details": "line 10, column 8",
+      "details": "line 12, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1577,7 +727,7 @@
       "criterion": "reliability",
       "artifact": "claude/crons/daily-retrospective.sh",
       "message": "SC1091: Not following: ./.dotfiles/claude/crons/notify-failure.sh was not specified as input (see shellcheck -x).",
-      "details": "line 11, column 8",
+      "details": "line 13, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1587,7 +737,7 @@
       "criterion": "reliability",
       "artifact": "claude/crons/healthcheck.sh",
       "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
-      "details": "line 11, column 8",
+      "details": "line 12, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1597,6 +747,16 @@
       "criterion": "reliability",
       "artifact": "claude/crons/healthcheck.sh",
       "message": "SC1091: Not following: ./.dotfiles/claude/crons/notify-failure.sh was not specified as input (see shellcheck -x).",
+      "details": "line 13, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/crons/mac-cleanup-scan.sh",
+      "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
       "details": "line 12, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
@@ -1606,18 +766,8 @@
       "layer": "automation",
       "criterion": "reliability",
       "artifact": "claude/crons/mac-cleanup-scan.sh",
-      "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
-      "details": "line 18, column 8",
-      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
-    },
-    {
-      "check_id": "REL001",
-      "severity": "low",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/crons/mac-cleanup-scan.sh",
       "message": "SC1091: Not following: ./.dotfiles/claude/crons/notify-failure.sh was not specified as input (see shellcheck -x).",
-      "details": "line 19, column 8",
+      "details": "line 13, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1627,7 +777,7 @@
       "criterion": "reliability",
       "artifact": "claude/crons/weekly-finalize.sh",
       "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
-      "details": "line 9, column 8",
+      "details": "line 12, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1637,7 +787,7 @@
       "criterion": "reliability",
       "artifact": "claude/crons/weekly-finalize.sh",
       "message": "SC1091: Not following: ./.dotfiles/claude/crons/notify-failure.sh was not specified as input (see shellcheck -x).",
-      "details": "line 10, column 8",
+      "details": "line 13, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1647,7 +797,7 @@
       "criterion": "reliability",
       "artifact": "claude/crons/weekly-report-gen.sh",
       "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
-      "details": "line 10, column 8",
+      "details": "line 12, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1657,7 +807,7 @@
       "criterion": "reliability",
       "artifact": "claude/crons/weekly-report-gen.sh",
       "message": "SC1091: Not following: ./.dotfiles/claude/crons/notify-failure.sh was not specified as input (see shellcheck -x).",
-      "details": "line 11, column 8",
+      "details": "line 13, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1667,7 +817,7 @@
       "criterion": "reliability",
       "artifact": "claude/hooks/auto-test.sh",
       "message": "SC2295: Expansions inside ${..} need to be quoted separately, otherwise they match as patterns.",
-      "details": "line 51, column 34",
+      "details": "line 47, column 34",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1677,7 +827,7 @@
       "criterion": "reliability",
       "artifact": "claude/hooks/breadcrumb-writer.sh",
       "message": "SC1091: Not following: ./.claude/hooks/detect-org.sh was not specified as input (see shellcheck -x).",
-      "details": "line 21, column 8",
+      "details": "line 24, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1697,7 +847,7 @@
       "criterion": "reliability",
       "artifact": "claude/hooks/pr-gate.sh",
       "message": "SC2181: Check exit code directly with e.g. 'if ! mycmd;', not indirectly with $?.",
-      "details": "line 50, column 8",
+      "details": "line 42, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1707,7 +857,7 @@
       "criterion": "reliability",
       "artifact": "claude/hooks/pr-gate.sh",
       "message": "SC2181: Check exit code directly with e.g. 'if ! mycmd;', not indirectly with $?.",
-      "details": "line 59, column 8",
+      "details": "line 51, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1717,7 +867,7 @@
       "criterion": "reliability",
       "artifact": "claude/hooks/pr-gate.sh",
       "message": "SC2181: Check exit code directly with e.g. 'if ! mycmd;', not indirectly with $?.",
-      "details": "line 69, column 8",
+      "details": "line 61, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1727,7 +877,7 @@
       "criterion": "reliability",
       "artifact": "claude/hooks/pr-gate.sh",
       "message": "SC2181: Check exit code directly with e.g. 'if ! mycmd;', not indirectly with $?.",
-      "details": "line 90, column 8",
+      "details": "line 82, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1777,7 +927,7 @@
       "criterion": "reliability",
       "artifact": "claude/hooks/session-stop.sh",
       "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
-      "details": "line 39, column 8",
+      "details": "line 38, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1787,7 +937,7 @@
       "criterion": "reliability",
       "artifact": "claude/hooks/session-stop.sh",
       "message": "SC1091: Not following: ./.claude/hooks/detect-org.sh was not specified as input (see shellcheck -x).",
-      "details": "line 40, column 8",
+      "details": "line 39, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -1797,7 +947,7 @@
       "criterion": "reliability",
       "artifact": "claude/hooks/test-fix-detector.sh",
       "message": "SC1091: Not following: ./.claude/hooks/detect-org.sh was not specified as input (see shellcheck -x).",
-      "details": "line 33, column 8",
+      "details": "line 36, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -2075,16 +1225,6 @@
       "severity": "info",
       "layer": "automation",
       "criterion": "inventory",
-      "artifact": "claude/commands/audit.md",
-      "message": "command audit",
-      "details": null,
-      "fix_hint": null
-    },
-    {
-      "check_id": "INV004",
-      "severity": "info",
-      "layer": "automation",
-      "criterion": "inventory",
       "artifact": "claude/commands/catchup.md",
       "message": "command catchup",
       "details": null,
@@ -2179,156 +1319,6 @@
       "message": "PATH (unreferenced)",
       "details": null,
       "fix_hint": null
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/agents/code-reviewer.md",
-      "message": "uncommitted change (M): claude/agents/code-reviewer.md",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/crons/daily-retro-evening.sh",
-      "message": "uncommitted change (??): claude/crons/daily-retro-evening.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/crons/daily-retrospective.sh",
-      "message": "uncommitted change (M): claude/crons/daily-retrospective.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/crons/weekly-finalize.sh",
-      "message": "uncommitted change (M): claude/crons/weekly-finalize.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/crons/weekly-report-gen.sh",
-      "message": "uncommitted change (M): claude/crons/weekly-report-gen.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/crontab.txt",
-      "message": "uncommitted change (M): claude/crontab.txt",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/env.sh",
-      "message": "uncommitted change (M): claude/env.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/hooks/pr-gate.sh",
-      "message": "uncommitted change (M): claude/hooks/pr-gate.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/hooks/session-start.sh",
-      "message": "uncommitted change (M): claude/hooks/session-start.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/install-launchagents.sh",
-      "message": "uncommitted change (??): claude/install-launchagents.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/prompts/daily-retro-evening.md",
-      "message": "uncommitted change (M): claude/prompts/daily-retro-evening.md",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/prompts/daily-retrospective.md",
-      "message": "uncommitted change (M): claude/prompts/daily-retrospective.md",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/prompts/weekly-finalize.md",
-      "message": "uncommitted change (M): claude/prompts/weekly-finalize.md",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/prompts/weekly-report-gen.md",
-      "message": "uncommitted change (M): claude/prompts/weekly-report-gen.md",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/settings.json",
-      "message": "uncommitted change (M): claude/settings.json",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
     },
     {
       "check_id": "INV006",
