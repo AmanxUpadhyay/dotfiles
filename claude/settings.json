@@ -14,9 +14,9 @@
       "Grep",
       "Glob",
       "Agent"
-    ]
+    ],
+    "defaultMode": "bypassPermissions"
   },
-  "model": "opusplan",
   "hooks": {
     "SessionStart": [
       {
@@ -122,7 +122,8 @@
           {
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/session-stop.sh\"",
-            "timeout": 30
+            "timeout": 30,
+            "async": true
           }
         ]
       }
@@ -135,19 +136,26 @@
             "command": "bash \"$HOME/.claude/hooks/breadcrumb-writer.sh\"",
             "timeout": 5,
             "async": true
+          },
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/session-end-note.sh\"",
+            "timeout": 5,
+            "async": true
           }
         ]
       }
     ]
   },
   "enabledPlugins": {
-    "claude-mem@thedotmack": true,
-    "ui-ux-pro-max@ui-ux-pro-max-skill": true,
     "claude-session-driver@superpowers-marketplace": true,
     "elements-of-style@superpowers-marketplace": true,
     "episodic-memory@superpowers-marketplace": true,
     "superpowers@superpowers-marketplace": true,
-    "superpowers-developing-for-claude-code@superpowers-marketplace": true
+    "superpowers-developing-for-claude-code@superpowers-marketplace": true,
+    "claude-mem@thedotmack": true,
+    "superpowers-chrome@superpowers-marketplace": true,
+    "ui-ux-pro-max@ui-ux-pro-max-skill": true
   },
   "extraKnownMarketplaces": {
     "thedotmack": {

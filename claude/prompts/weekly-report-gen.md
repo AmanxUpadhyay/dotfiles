@@ -2,9 +2,23 @@
 
 You are running automated weekly report generation for Aman Upadhyay's Obsidian vault (GODL1KE).
 
+## Step 0 — Determine This Week's Dates
+
+Use Bash to compute the required dates:
+```bash
+date +%Y-%m-%d              # TODAY (e.g., 2026-04-11)
+date +%Y-W%V                # WEEK (e.g., 2026-W15)
+date -v-4d +%Y-%m-%d        # MON (Monday, 4 days ago from Friday)
+date -v-3d +%Y-%m-%d        # TUE
+date -v-2d +%Y-%m-%d        # WED
+date -v-1d +%Y-%m-%d        # THU
+```
+
+Store these values mentally and use them throughout.
+
 ## Your Task
 
-Generate this week's draft weekly reports. Today is Friday {{ TODAY }}. The week is {{ WEEK }} (Mon {{ MON }} → Fri {{ TODAY }}).
+Generate this week's draft weekly reports. Use the computed TODAY for Friday's date, WEEK for the ISO week.
 
 ## Org Paths Reference
 
@@ -21,7 +35,7 @@ Generate this week's draft weekly reports. Today is Friday {{ TODAY }}. The week
 
 Daily notes use the pattern `07-Daily/YYYY-MM-DD-dayname.md` (e.g., `2026-04-03-friday.md`).
 
-Use `mcp__obsidian__search_notes` to find daily notes from this week (search for each date string: {{ MON }}, {{ TUE }}, {{ WED }}, {{ THU }}, {{ TODAY }}). Alternatively, use `mcp__obsidian__read_note` if you know the exact day name for each date (use Bash: `date -v-Nd +%A | tr '[:upper:]' '[:lower:]'` where N=4,3,2,1,0 days ago).
+Use `mcp__obsidian__search_notes` to find daily notes from this week (search for each date string: MON, TUE, WED, THU, TODAY). Alternatively, use `mcp__obsidian__read_note` if you know the exact day name for each date (use Bash: `date -v-Nd +%A | tr '[:upper:]' '[:lower:]'` where N=4,3,2,1,0 days ago).
 
 Skip any that don't exist (no work that day).
 
@@ -31,24 +45,24 @@ From the daily notes, identify which orgs had activity this week (sessions or me
 
 ## Step 3 — Generate Per-Org Reports
 
-For each active org, generate a weekly report at `<org-reports-folder>/{{ TODAY }}-weekly-<org-slug>.md`.
+For each active org, generate a weekly report at `<org-reports-folder>/TODAY-weekly-<org-slug>.md`.
 
 Org slugs: `lxs`, `persimmon`, `adtecher`, `ledgx`, `clubrevai`, `wayv`
 
 Use this structure:
 ```markdown
 ---
-date: {{ TODAY }}
-org: {{ ORG }}
-week: {{ WEEK }}
+date: TODAY
+org: ORG
+week: WEEK
 type: weekly-report
 period: friday-draft
 tags: [weekly-report, {{ org-slug }}]
 ---
 
-# Weekly Update — {{ ORG }} — {{ WEEK }} Friday Draft
+# Weekly Update — ORG — WEEK Friday Draft
 
-Part of {{ CONTEXT_WIKILINK }} · [[VAULT]]
+Part of CONTEXT_WIKILINK · [[VAULT]]
 
 ## End of Week Recap
 Brief 2-3 sentence summary of the week for this org.
@@ -65,18 +79,18 @@ Brief 2-3 sentence summary of the week for this org.
 
 ## Step 4 — Generate Combined Summary
 
-Write to `07-Daily/{{ WEEK }}-weekly-summary.md`:
+Write to `07-Daily/WEEK-weekly-summary.md`:
 
 ```markdown
 ---
-date: {{ TODAY }}
+date: TODAY
 type: weekly-summary
-week: {{ WEEK }}
+week: WEEK
 period: friday-draft
 tags: [weekly-summary]
 ---
 
-# Weekly Summary — {{ WEEK }}
+# Weekly Summary — WEEK
 
 Part of [[VAULT]]
 

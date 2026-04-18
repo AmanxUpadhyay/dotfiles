@@ -2,17 +2,28 @@
 
 You are running the Monday morning weekly report finalization for Aman Upadhyay's Obsidian vault (GODL1KE).
 
+## Step 0 — Determine Dates
+
+Use Bash to compute the required dates:
+```bash
+date +%Y-%m-%d              # TODAY (e.g., 2026-04-14)
+date -v-7d +%Y-W%V          # LAST_WEEK (e.g., 2026-W15) — the week being finalized
+date +%Y-W%V                # THIS_WEEK (e.g., 2026-W16) — the new week starting
+```
+
+Store these values mentally and use them throughout.
+
 ## Your Task
 
-Finalize last week's draft weekly reports. Today is Monday {{ TODAY }}. Last week was {{ LAST_WEEK }}.
+Finalize last week's draft weekly reports. Use the computed TODAY and LAST_WEEK values.
 
 ## Step 1 — Find Friday Draft Reports
 
 Use `mcp__obsidian__search_notes` to find notes with:
-- frontmatter `week: {{ LAST_WEEK }}` AND `period: friday-draft`
+- frontmatter `week: LAST_WEEK` AND `period: friday-draft`
 
 These should be in:
-- `07-Daily/{{ LAST_WEEK }}-weekly-summary.md` — combined summary
+- `07-Daily/LAST_WEEK-weekly-summary.md` — combined summary
 - Per-org folders: `<org>/reports/weekly/` — check LXS, Persimmon, AdTecher, Ledgx, ClubRevAI, Wayv Telcom
 
 ## Step 2 — Check for Weekend Sessions
@@ -32,12 +43,12 @@ Use `mcp__obsidian__patch_note` to make targeted updates rather than rewriting e
 
 ## Step 4 — Update Combined Summary
 
-For `07-Daily/{{ LAST_WEEK }}-weekly-summary.md`:
+For `07-Daily/LAST_WEEK-weekly-summary.md`:
 1. Update `period: friday-draft` → `period: final`
 2. Add a "## Week Start Focus" section at the bottom summarizing the top 3-5 priorities across all orgs for this new week (infer from per-org "Focus for Next 5 Working Days")
 
 ```markdown
-## Week Start Focus — {{ THIS_WEEK }}
+## Week Start Focus — THIS_WEEK
 - (top 3-5 cross-org priorities for the new week)
 ```
 
