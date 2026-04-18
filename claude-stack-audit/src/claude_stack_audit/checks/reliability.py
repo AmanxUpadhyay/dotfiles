@@ -121,7 +121,7 @@ class ErrOrExitTrap:
 
 
 _HARDCODED_CLAUDE_RE = re.compile(
-    r"(?P<path>(?:/[\w.-]+)+/claude|~/[\w./-]+/claude|\$HOME/[\w./-]+/claude)\b"
+    r"(?P<path>(?:/[\w.-]+)+/claude|~/[\w./-]+/claude|\$HOME/[\w./-]+/claude)(?![\w/-])"
 )
 
 

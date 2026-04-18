@@ -140,6 +140,45 @@ def test_REL004_flags_hardcoded_npm_path(  # noqa: N802
     assert "npm-packages" in flagged[0].details
 
 
+def test_REL004_does_not_flag_path_prefix_to_dotfiles_claude_dir(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    """`$HOME/.dotfiles/claude/crons/X.sh` is a directory path, not a binary.
+    Prior regex incorrectly matched it as a hardcoded claude path."""
+    script = fake_dotfiles / "claude" / "crons" / "source-only.sh"
+    script.write_text(
+        "#!/bin/bash\n"
+        "set -euo pipefail\n"
+        'source "$HOME/.dotfiles/claude/crons/notify-failure.sh"\n'
+        'echo "$HOME/.dotfiles/claude/settings.json"\n'
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(ClaudeBinResolved().run(ctx))
+    flagged = [f for f in findings if "source-only.sh" in f.artifact]
+    assert flagged == [], f"expected no findings but got: {flagged}"
+
+
+def test_REL004_does_not_flag_hyphenated_claude_name(  # noqa: N802
+    empty_registry, fake_dotfiles, fake_external_tools
+):
+    """`/claude-code/` and `/claude-mem` are hyphenated names, not the claude
+    binary. Prior regex matched them because `\\b` fires between 'e' and '-'."""
+    script = fake_dotfiles / "claude" / "crons" / "doc-references.sh"
+    script.write_text(
+        "#!/bin/bash\n"
+        "set -euo pipefail\n"
+        "# Docs: docs.anthropic.com/en/docs/claude-code/hooks\n"
+        'PLUGIN_ROOT="$HOME/.claude/plugins/cache/thedotmack/claude-mem"\n'
+        'echo "check /tmp/claude-mem.log"\n'
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(ClaudeBinResolved().run(ctx))
+    flagged = [f for f in findings if "doc-references.sh" in f.artifact]
+    assert flagged == [], f"expected no findings but got: {flagged}"
+
+
 def test_REL005_passes_when_cron_has_flock(  # noqa: N802
     empty_registry, fake_dotfiles, fake_external_tools
 ):
