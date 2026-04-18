@@ -66,6 +66,44 @@ def test_REL001_emits_high_for_errors_medium_for_warnings(  # noqa: N802
     assert Severity.MEDIUM in severities
 
 
+def test_REL001_skips_zsh_scripts(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """shellcheck doesn't support zsh (SC1071) — the check should skip
+    zsh-shebanged scripts rather than yield a High finding that the user
+    can't fix without rewriting the script in bash."""
+    script = fake_dotfiles / "claude" / "refresh.sh"
+    script.write_text("#!/bin/zsh\nset -euo pipefail\necho hi\n")
+    script.chmod(0o755)
+    # If shellcheck WERE called on this, it would return SC1071. Register that
+    # so we can assert the check never reaches the shellcheck call.
+    fake_external_tools.shellcheck.register(
+        "refresh.sh",
+        ToolResult(
+            returncode=1,
+            stdout=json.dumps(
+                [
+                    {
+                        "file": "refresh.sh",
+                        "level": "error",
+                        "line": 1,
+                        "column": 1,
+                        "code": 1071,
+                        "message": "ShellCheck only supports sh/bash/dash/ksh",
+                    }
+                ]
+            ),
+            stderr="",
+            duration_ms=5,
+            timed_out=False,
+        ),
+    )
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(ShellcheckClean().run(ctx))
+    flagged = [f for f in findings if "refresh.sh" in f.artifact]
+    assert flagged == [], f"expected zsh script to be skipped, got: {flagged}"
+
+
 def test_REL002_passes_for_scripts_with_set_euo_pipefail(  # noqa: N802
     empty_registry, fake_dotfiles: Path, fake_external_tools
 ):

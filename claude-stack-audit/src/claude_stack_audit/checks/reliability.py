@@ -18,6 +18,9 @@ _LEVEL_TO_SEVERITY = {
 }
 
 
+_SHELLCHECK_SUPPORTED_SHELLS = ("bash", "sh", "dash", "ksh")
+
+
 @register
 class ShellcheckClean:
     id = "REL001"
@@ -27,6 +30,8 @@ class ShellcheckClean:
 
     def run(self, ctx: Context) -> Iterable[Finding]:
         for script in ctx.bash_scripts:
+            if not self._shellcheck_supports(script, ctx):
+                continue
             result = ctx.external.shellcheck(script)
             if result.timed_out:
                 yield Finding(
@@ -60,6 +65,27 @@ class ShellcheckClean:
                         "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
                     ),
                 )
+
+    @staticmethod
+    def _shellcheck_supports(script: Path, ctx: Context) -> bool:
+        """Return False if the script's shebang names a shell shellcheck can't
+        analyse (e.g. zsh). Without this, shellcheck yields SC1071 and REL001
+        becomes unfixable — you can't clear it without rewriting the script
+        in a supported shell."""
+        body = ctx.file_cache.read(script)
+        lines = body.splitlines()
+        if not lines:
+            return True
+        first = lines[0].strip()
+        if not first.startswith("#!"):
+            return True
+        parts = first[2:].strip().split()
+        if not parts:
+            return True
+        interpreter = parts[0].rsplit("/", 1)[-1]
+        if interpreter == "env" and len(parts) > 1:
+            interpreter = parts[1]
+        return interpreter in _SHELLCHECK_SUPPORTED_SHELLS
 
 
 @register
