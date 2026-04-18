@@ -10,6 +10,32 @@
 # =============================================================================
 
 source "$HOME/.claude/env.sh"
+
+# ---------------------------------------------------------------------------
+# 0. Self-heal: ensure all cached plugins have their marketplaces/ symlink
+#    Fixes the thedotmack/claude-mem pattern where upgrades delete the old
+#    symlink but fail to recreate it, causing stop-hook errors next session.
+# ---------------------------------------------------------------------------
+PLUGIN_CACHE="$HOME/.claude/plugins/cache"
+PLUGIN_MKT="$HOME/.claude/plugins/marketplaces"
+if [[ -d "$PLUGIN_CACHE" ]]; then
+  for author_dir in "$PLUGIN_CACHE"/*/; do
+    author=$(basename "$author_dir")
+    for plugin_dir in "$author_dir"*/; do
+      plugin=$(basename "$plugin_dir")
+      target="$PLUGIN_MKT/$author/plugin"
+      if [[ ! -e "$target" ]]; then
+        # Find the latest version in cache (sort -V for semantic versioning)
+        latest=$(ls -d "$plugin_dir"*/ 2>/dev/null | sort -V | tail -1)
+        if [[ -n "$latest" ]]; then
+          mkdir -p "$PLUGIN_MKT/$author"
+          ln -sf "$latest" "$target"
+        fi
+      fi
+    done
+  done
+fi
+
 VAULT="$OBSIDIAN_VAULT"
 CONTEXT=""
 

@@ -20,8 +20,10 @@
 INPUT=$(cat)
 COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
 
-# Only activate for PR creation or push to remote
-if ! echo "$COMMAND" | grep -qE '(gh\s+pr\s+create|git\s+push\s+origin)'; then
+# Belt-and-suspenders guard — sessions where the `if` field in settings.json
+# is not yet active will fall through to here. The `if` field prevents the
+# process from spawning at all in new sessions; this is the in-session fallback.
+if ! echo "$COMMAND" | grep -qE '(gh\s+pr\s+|git\s+push\s+)'; then
   exit 0
 fi
 
@@ -51,7 +53,14 @@ if command -v ruff &>/dev/null; then
 fi
 
 # --- Check 3: Tests ---
-if [ -f "pyproject.toml" ] || [ -f "pytest.ini" ] || [ -d "tests" ]; then
+if [ -f "package.json" ] && node -e "const p=require('./package.json'); process.exit(p.scripts && p.scripts.test ? 0 : 1)" 2>/dev/null; then
+  # Node.js project — run npm test
+  TEST_OUTPUT=$(npm test 2>&1)
+  if [ $? -ne 0 ]; then
+    ERRORS="${ERRORS}\n❌ TESTS: Tests failed:\n$(echo "$TEST_OUTPUT" | tail -20)"
+  fi
+elif [ -f "pyproject.toml" ] || [ -f "pytest.ini" ] || [ -f "setup.cfg" ]; then
+  # Python project — run pytest
   if command -v uv &>/dev/null; then
     TEST_OUTPUT=$(uv run pytest --tb=short -q 2>&1)
   else
