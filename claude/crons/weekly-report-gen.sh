@@ -1,14 +1,17 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
 # weekly-report-gen.sh — Generate Friday weekly reports in Obsidian
 # =============================================================================
-# Fires at 5:02pm every Friday. Generates per-org reports + combined summary.
-# Reads Mon-Fri daily notes from Obsidian MCP.
-# Output: per-org reports + 07-Daily/YYYY-WNN-weekly-summary.md
+# purpose: fires at 5:02pm every Friday to generate per-org weekly reports and a combined summary from Mon-Fri daily notes
+# inputs: CLAUDE_BIN, CLAUDE_LOG_DIR, OBSIDIAN_VAULT from env.sh; prompt from weekly-report-gen.md; optional DATE_HINT env override
+# outputs: per-org report notes + 07-Daily/YYYY-WNN-weekly-summary.md written to Obsidian vault
+# side-effects: invokes claude CLI with dangerously-skip-permissions; sends macOS notification on failure
 # =============================================================================
 
 source "$HOME/.claude/env.sh"
 source "$HOME/.dotfiles/claude/crons/notify-failure.sh"
+trap 'notify_failure weekly-report-gen "$LOGFILE"' ERR
 
 LOGFILE="$CLAUDE_LOG_DIR/weekly-gen-$(date +%Y-%m-%d).log"
 PROMPT_FILE="$HOME/.dotfiles/claude/prompts/weekly-report-gen.md"

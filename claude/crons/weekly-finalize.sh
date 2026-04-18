@@ -1,13 +1,17 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
 # weekly-finalize.sh — Finalize last week's draft reports
 # =============================================================================
-# Fires at 9:03am every Monday. Updates period: friday-draft → final.
-# Adds "Week Start Focus" section to combined summary.
+# purpose: fires at 9:03am every Monday to update last week's period from friday-draft to final and add a Week Start Focus section
+# inputs: CLAUDE_BIN, CLAUDE_LOG_DIR, OBSIDIAN_VAULT from env.sh; prompt from weekly-finalize.md; optional DATE_HINT env override
+# outputs: weekly report notes updated in Obsidian vault
+# side-effects: invokes claude CLI with dangerously-skip-permissions; sends macOS notification on failure
 # =============================================================================
 
 source "$HOME/.claude/env.sh"
 source "$HOME/.dotfiles/claude/crons/notify-failure.sh"
+trap 'notify_failure weekly-finalize "$LOGFILE"' ERR
 
 LOGFILE="$CLAUDE_LOG_DIR/weekly-final-$(date +%Y-%m-%d).log"
 PROMPT_FILE="$HOME/.dotfiles/claude/prompts/weekly-finalize.md"

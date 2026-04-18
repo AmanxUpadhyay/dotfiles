@@ -1,15 +1,17 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
 # healthcheck.sh — Validate cron environment + verify recent run markers
 # =============================================================================
-# Usage:
-#   healthcheck.sh preflight   — validate env/binary/files (run at 08:50)
-#   healthcheck.sh postrun     — check run markers for freshness (run at 11:00)
-#   healthcheck.sh             — run both phases
+# purpose: pre-flight checks env/binary/files before crons run; post-run checks vault for recent output files
+# inputs: optional positional arg (preflight|postrun|both); CLAUDE_LOG_DIR, OBSIDIAN_VAULT, ORG_MAP from env.sh
+# outputs: status lines appended to healthcheck.log; macOS notification on failure
+# side-effects: notifies on failure via notify_failure; rotates healthcheck.log when > 100 KB
 # =============================================================================
 
 source "$HOME/.claude/env.sh"
 source "$HOME/.dotfiles/claude/crons/notify-failure.sh"
+trap 'notify_failure healthcheck "$LOGFILE"' ERR
 
 MODE="${1:-both}"
 LOGFILE="$CLAUDE_LOG_DIR/healthcheck.log"

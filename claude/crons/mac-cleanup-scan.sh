@@ -1,22 +1,17 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
 # mac-cleanup-scan.sh — Weekly Mac disk cleanup scanner
 # =============================================================================
-# Runs every Sunday at 10:00 AM via launchd. Scans known cleanup targets.
-# If total recoverable space >= 1 GB, writes a report to the Obsidian vault
-# with a summary table and ready-to-run commands. No automatic deletion.
-#
-# Protected paths (never scanned):
-#   ~/.claude-mem/                              — claude-mem SQLite database
-#   ~/.claude/projects/-Users-godl1ke/memory/  — auto-memory markdown files
-#
-# Location: ~/.dotfiles/claude/crons/mac-cleanup-scan.sh
+# purpose: scans known cleanup targets every Sunday at 10:00 AM; writes an Obsidian report if recoverable space >= 1 GB
+# inputs: CLAUDE_LOG_DIR, OBSIDIAN_VAULT from env.sh; optional THRESHOLD_BYTES env override (default 1 GB)
+# outputs: 04-Knowledge/Mac-Maintenance/YYYY-MM-DD-cleanup-scan.md written to Obsidian vault when threshold met; .last-success marker touched on success
+# side-effects: no automatic deletion; notifies on failure via notify_failure
 # =============================================================================
-
-set -euo pipefail
 
 source "$HOME/.claude/env.sh"
 source "$HOME/.dotfiles/claude/crons/notify-failure.sh"
+trap 'notify_failure mac-cleanup-scan ""' ERR
 
 if ! preflight_check "mac-cleanup-scan"; then
     notify_failure "mac-cleanup-scan-preflight" ""
@@ -150,6 +145,7 @@ for key in "${KEYS[@]+"${KEYS[@]}"}"; do
 done
 
 if (( TOTAL_BYTES < THRESHOLD_BYTES )); then
+    touch "$CLAUDE_LOG_DIR/.last-success-mac-cleanup-scan"
     exit 0
 fi
 
@@ -208,5 +204,7 @@ COMMANDS_HEADER
 Last cleaned: never
 FOOTER
 } > "$NOTE_PATH"
+
+touch "$CLAUDE_LOG_DIR/.last-success-mac-cleanup-scan"
 
 exit 0

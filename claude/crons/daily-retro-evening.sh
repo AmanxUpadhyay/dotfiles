@@ -1,15 +1,17 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
 # daily-retro-evening.sh — Generate/patch today's daily note in Obsidian
 # =============================================================================
-# Fires at 10:30pm every day. Catches sessions created after the 8:57am run.
-# If today's note already exists, patches it with any new sessions.
-# If it doesn't exist yet, creates it fresh.
-# Output: 07-Daily/YYYY-MM-DD-dayname.md
+# purpose: runs at 10:30pm to catch sessions created after the morning run; patches or creates today's daily note
+# inputs: CLAUDE_BIN, CLAUDE_LOG_DIR, OBSIDIAN_VAULT from env.sh; prompt from daily-retrospective.md
+# outputs: 07-Daily/YYYY-MM-DD-dayname.md created or patched in Obsidian vault
+# side-effects: invokes claude CLI with dangerously-skip-permissions; sends macOS notification on failure
 # =============================================================================
 
 source "$HOME/.claude/env.sh"
 source "$HOME/.dotfiles/claude/crons/notify-failure.sh"
+trap 'notify_failure daily-retro-evening "$LOGFILE"' ERR
 
 LOGFILE="$CLAUDE_LOG_DIR/daily-retro-evening-$(date +%Y-%m-%d).log"
 PROMPT_FILE="$HOME/.dotfiles/claude/prompts/daily-retrospective.md"

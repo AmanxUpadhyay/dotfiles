@@ -1,14 +1,17 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
 # daily-retrospective.sh — Generate yesterday's daily note in Obsidian
 # =============================================================================
-# Fires at 8:57am every day. Saturday firing captures Friday's work.
-# Reads sessions from Obsidian MCP + meetings from Granola MCP.
-# Output: 07-Daily/YYYY-MM-DD.md
+# purpose: fires at 8:57am every day to write yesterday's daily note; Saturday captures Friday's work
+# inputs: CLAUDE_BIN, CLAUDE_LOG_DIR, OBSIDIAN_VAULT from env.sh; prompt from daily-retrospective.md; optional DATE_HINT env override
+# outputs: 07-Daily/YYYY-MM-DD.md created in Obsidian vault
+# side-effects: invokes claude CLI with dangerously-skip-permissions; sends macOS notification on failure
 # =============================================================================
 
 source "$HOME/.claude/env.sh"
 source "$HOME/.dotfiles/claude/crons/notify-failure.sh"
+trap 'notify_failure daily-retrospective "$LOGFILE"' ERR
 
 LOGFILE="$CLAUDE_LOG_DIR/daily-retro-$(date +%Y-%m-%d).log"
 PROMPT_FILE="$HOME/.dotfiles/claude/prompts/daily-retrospective.md"

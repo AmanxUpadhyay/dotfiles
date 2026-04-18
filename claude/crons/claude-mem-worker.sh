@@ -1,15 +1,20 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
 # claude-mem-worker.sh — Stable entrypoint for claude-mem worker service
 # =============================================================================
-# The LaunchAgent points here instead of directly into the plugin cache.
-# This wrapper resolves the active worker script at launch time, so the
-# plist doesn't need updating when the claude-mem plugin version changes.
-#
-# Priority:
-#   1. Installed (active) version at marketplaces/thedotmack/plugin/
-#   2. Latest cached version (sorted by semver directory name)
+# purpose: resolve and launch the active claude-mem worker-service.cjs via bun
+# inputs: none (reads CLAUDE_LOG_DIR from env.sh; plugin paths are hardcoded)
+# outputs: none (exec replaces the process; success marker written on clean exit)
+# side-effects: starts long-running bun process; touches .last-success-claude-mem-worker on success
 # =============================================================================
+
+source "$HOME/.claude/env.sh"
+source "$HOME/.dotfiles/claude/crons/notify-failure.sh"
+trap 'notify_failure claude-mem-worker "$LOGFILE"' ERR
+
+LOGFILE="$CLAUDE_LOG_DIR/claude-mem-worker-$(date +%Y-%m-%d).log"
+mkdir -p "$CLAUDE_LOG_DIR"
 
 BUN="/opt/homebrew/bin/bun"
 PLUGIN_BASE="$HOME/.claude/plugins"
@@ -26,5 +31,7 @@ if [[ -z "$WORKER" || ! -f "$WORKER" ]]; then
   echo "[$(date)] ERROR: claude-mem worker-service.cjs not found" >&2
   exit 1
 fi
+
+touch "$CLAUDE_LOG_DIR/.last-success-claude-mem-worker"
 
 exec "$BUN" "$WORKER"
