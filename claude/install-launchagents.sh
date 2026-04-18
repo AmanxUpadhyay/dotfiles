@@ -1,13 +1,18 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
 # install-launchagents.sh — Install Claude automation as launchd user agents
 # =============================================================================
-# Symlinks plist files into ~/Library/LaunchAgents/ and loads them.
-# Run this after cloning dotfiles or whenever plists change.
-# To uninstall, run with: ./install-launchagents.sh --uninstall
+# purpose: symlinks com.godl1ke.claude.*.plist files into ~/Library/LaunchAgents
+#   and boots them into the current gui/<uid> domain. Replaces crontab for
+#   sleep/resume resilience.
+# inputs: optional --uninstall flag; reads plist files from
+#   ~/.dotfiles/claude/launchagents/com.godl1ke.claude.*.plist.
+# outputs: stdout status lines per agent ("Loaded: X" / "Uninstalled: X");
+#   verification hints at the end when installing.
+# side-effects: creates/removes symlinks in ~/Library/LaunchAgents; calls
+#   launchctl bootstrap/bootout on the user's gui/<uid> domain.
 # =============================================================================
-
-set -euo pipefail
 
 AGENTS_SRC="$HOME/.dotfiles/claude/launchagents"
 AGENTS_DST="$HOME/Library/LaunchAgents"

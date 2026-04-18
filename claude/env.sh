@@ -1,17 +1,25 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
 # env.sh — Shared environment variables for Claude Code hooks and cron scripts
 # =============================================================================
-# Source this file from any hook or cron script that needs these variables.
-# Symlinked at ~/.claude/env.sh -> ~/.dotfiles/claude/env.sh
+# purpose: centralises PATH, CLAUDE_BIN resolution, vault + log paths, and the
+#   preflight_check() helper. Every hook/cron sources this first.
+# inputs: none (reads $HOME; may read pre-existing CLAUDE_BIN env override).
+# outputs: exports PATH, OBSIDIAN_VAULT, CLAUDE_LOG_DIR, ORG_MAP, CLAUDE_BIN.
+# side-effects: none (idempotent — safe to re-source). preflight_check logs to
+#   stderr when validation fails but makes no filesystem writes itself.
 # =============================================================================
 
 # Centralized PATH — applies to all consumers (cron, launchd, hooks).
 # Must come first so CLAUDE_BIN resolution and child processes find all binaries.
 export PATH="$HOME/.local/bin:$HOME/.bun/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin"
 
+# purpose: vault root for Obsidian notes written by retros and session hooks
 export OBSIDIAN_VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/GODL1KE"
+# purpose: canonical log directory for all claude automation output
 export CLAUDE_LOG_DIR="$HOME/Library/Logs/claude-crons"
+# purpose: JSON map of org-keyword -> vault folder; used by detect-org.sh
 export ORG_MAP="$HOME/.claude/org-map.json"
 
 # Resolve CLAUDE_BIN: respect env override, fall back to known install paths in priority order
@@ -27,6 +35,7 @@ if [[ -z "${CLAUDE_BIN:-}" ]] || [[ ! -x "${CLAUDE_BIN:-}" ]]; then
   done
   unset _candidate
 fi
+# purpose: absolute path to the claude CLI binary, resolved via the chain above
 export CLAUDE_BIN
 
 # Validate critical environment variables before any cron script proceeds.

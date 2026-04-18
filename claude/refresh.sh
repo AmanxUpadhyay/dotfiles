@@ -1,7 +1,18 @@
 #!/bin/zsh
-# refresh.sh — reload all Claude Code config changes
+set -euo pipefail
+# =============================================================================
+# refresh.sh — Reload all Claude Code config changes in the current shell
+# =============================================================================
+# purpose: one-shot diagnostic + reload for the Claude Code toolchain. Reloads
+#   the shell, checks claude CLI, repairs hook executability, verifies MCP
+#   servers, confirms claude-mem worker is running, and prints settings.
+# inputs: none. Must be *sourced* (not executed) so zshrc reloads affect the
+#   caller's shell.
+# outputs: human-readable progress + final summary on stdout with emoji status.
+# side-effects: sources ~/.zshrc; may chmod +x broken hook files; may start the
+#   claude-mem worker via bun if it isn't running; performs curl to localhost.
+# =============================================================================
 # Usage: source ~/.dotfiles/claude/refresh.sh
-# (must be sourced, not executed, for zshrc changes to take effect)
 
 echo "🔄 Reloading Claude Code environment...\n"
 
