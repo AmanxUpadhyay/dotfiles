@@ -48,6 +48,13 @@ preflight_check() {
   [[ ! -d "$OBSIDIAN_VAULT" ]]  && errors+=("OBSIDIAN_VAULT not accessible: $OBSIDIAN_VAULT")
   [[ ! -f "$ORG_MAP" ]]         && errors+=("ORG_MAP not found: $ORG_MAP")
 
+  # Verify binary responds within a short timeout (catches hung/broken installs)
+  if [[ -x "${CLAUDE_BIN:-}" ]]; then
+    if ! timeout 10s "$CLAUDE_BIN" --version &>/dev/null; then
+      errors+=("CLAUDE_BIN did not respond to --version within 10s: $CLAUDE_BIN")
+    fi
+  fi
+
   if [[ ${#errors[@]} -gt 0 ]]; then
     echo "[$(date)] PREFLIGHT FAILED for $caller:" >&2
     printf '  - %s\n' "${errors[@]}" >&2

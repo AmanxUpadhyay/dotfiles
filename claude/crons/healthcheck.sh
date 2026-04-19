@@ -9,10 +9,18 @@ set -euo pipefail
 # side-effects: notifies on failure via notify_failure; rotates healthcheck.log when > 100 KB
 # =============================================================================
 
+# Idempotency guard: only one instance may run at a time
+exec 9>/tmp/claude-healthcheck.lock
+if ! flock -n 9; then
+  echo "[$(date)] healthcheck already running — skipping" >&2
+  exit 0
+fi
+
 source "$HOME/.claude/env.sh"
 source "$HOME/.dotfiles/claude/crons/notify-failure.sh"
 trap 'notify_failure healthcheck "$LOGFILE"' ERR
 
+_START_EPOCH=$(date +%s)
 MODE="${1:-both}"
 LOGFILE="$CLAUDE_LOG_DIR/healthcheck.log"
 mkdir -p "$CLAUDE_LOG_DIR"
@@ -23,7 +31,6 @@ if [[ -f "$LOGFILE" ]] && (( $(stat -f %z "$LOGFILE" 2>/dev/null || echo 0) > 10
 fi
 
 PROMPTS_DIR="$HOME/.dotfiles/claude/prompts"
-MARKER_DIR="$CLAUDE_LOG_DIR"
 
 FAILURES=()
 
@@ -37,9 +44,9 @@ run_preflight() {
   if [[ ! -x "${CLAUDE_BIN:-}" ]]; then
     errors+=("CLAUDE_BIN not executable: ${CLAUDE_BIN:-<unset>}")
   else
-    "$CLAUDE_BIN" --version &>/dev/null || errors+=("CLAUDE_BIN --version failed: $CLAUDE_BIN")
+    timeout 10s "$CLAUDE_BIN" --version &>/dev/null || errors+=("CLAUDE_BIN --version failed: $CLAUDE_BIN")
     # Audit log: record which binary and version will be used by crons today
-    _claude_version=$("$CLAUDE_BIN" --version 2>/dev/null | head -1)
+    _claude_version=$(timeout 10s "$CLAUDE_BIN" --version 2>/dev/null | head -1)
     echo "  CLAUDE_BIN: $CLAUDE_BIN ($_claude_version)" >> "$LOGFILE"
     unset _claude_version
   fi
@@ -133,12 +140,15 @@ run_postrun() {
 # ---------------------------------------------------------------------------
 # Report results
 # ---------------------------------------------------------------------------
+_DURATION_MS=$(( ($(date +%s) - _START_EPOCH) * 1000 ))
 if [[ ${#FAILURES[@]} -gt 0 ]]; then
   echo "[$(date)] HEALTHCHECK FAILED ($MODE): ${#FAILURES[@]} issue(s)" >> "$LOGFILE"
   printf '  - %s\n' "${FAILURES[@]}" >> "$LOGFILE"
+  echo "duration_ms=$_DURATION_MS status=fail" >> "$LOGFILE"
   notify_failure "healthcheck-$MODE" "$LOGFILE"
   exit 1
 else
   echo "[$(date)] HEALTHCHECK OK ($MODE)" >> "$LOGFILE"
+  echo "duration_ms=$_DURATION_MS status=ok" >> "$LOGFILE"
   exit 0
 fi

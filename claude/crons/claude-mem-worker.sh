@@ -13,6 +13,7 @@ source "$HOME/.claude/env.sh"
 source "$HOME/.dotfiles/claude/crons/notify-failure.sh"
 trap 'notify_failure claude-mem-worker "$LOGFILE"' ERR
 
+_START_EPOCH=$(date +%s)
 LOGFILE="$CLAUDE_LOG_DIR/claude-mem-worker-$(date +%Y-%m-%d).log"
 mkdir -p "$CLAUDE_LOG_DIR"
 
@@ -29,9 +30,14 @@ fi
 
 if [[ -z "$WORKER" || ! -f "$WORKER" ]]; then
   echo "[$(date)] ERROR: claude-mem worker-service.cjs not found" >&2
+  _DURATION_MS=$(( ($(date +%s) - _START_EPOCH) * 1000 ))
+  echo "duration_ms=$_DURATION_MS status=fail" >> "$LOGFILE"
   exit 1
 fi
 
 touch "$CLAUDE_LOG_DIR/.last-success-claude-mem-worker"
+
+_DURATION_MS=$(( ($(date +%s) - _START_EPOCH) * 1000 ))
+echo "duration_ms=$_DURATION_MS status=ok" >> "$LOGFILE"
 
 exec "$BUN" "$WORKER"

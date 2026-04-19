@@ -13,8 +13,13 @@ source "$HOME/.claude/env.sh"
 source "$HOME/.dotfiles/claude/crons/notify-failure.sh"
 trap 'notify_failure mac-cleanup-scan ""' ERR
 
+_START_EPOCH=$(date +%s)
+LOGFILE="$CLAUDE_LOG_DIR/mac-cleanup-scan-$(date +%Y-%m-%d).log"
+
 if ! preflight_check "mac-cleanup-scan"; then
     notify_failure "mac-cleanup-scan-preflight" ""
+    _DURATION_MS=$(( ($(date +%s) - _START_EPOCH) * 1000 ))
+    echo "duration_ms=$_DURATION_MS status=fail" >> "$LOGFILE"
     exit 1
 fi
 
@@ -146,6 +151,8 @@ done
 
 if (( TOTAL_BYTES < THRESHOLD_BYTES )); then
     touch "$CLAUDE_LOG_DIR/.last-success-mac-cleanup-scan"
+    _DURATION_MS=$(( ($(date +%s) - _START_EPOCH) * 1000 ))
+    echo "duration_ms=$_DURATION_MS status=ok" >> "$LOGFILE"
     exit 0
 fi
 
@@ -207,4 +214,6 @@ FOOTER
 
 touch "$CLAUDE_LOG_DIR/.last-success-mac-cleanup-scan"
 
+_DURATION_MS=$(( ($(date +%s) - _START_EPOCH) * 1000 ))
+echo "duration_ms=$_DURATION_MS status=ok" >> "$LOGFILE"
 exit 0

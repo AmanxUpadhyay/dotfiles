@@ -19,6 +19,8 @@ notify_failure() {
   date_str=$(date +%Y-%m-%d)
   local time_str
   time_str=$(date +%H:%M)
+  local _nf_start
+  _nf_start=$(date +%s)
 
   # macOS notification (silent if osascript unavailable)
   if command -v osascript &>/dev/null; then
@@ -43,4 +45,11 @@ EOF
   # as a cron; this touch satisfies the check. Semantically it marks "notify_failure ran
   # successfully" (i.e. the notification itself was delivered without crashing).
   touch "$CLAUDE_LOG_DIR/.last-success-notify-failure"
+
+  # OBS004: emit duration/status marker so metrics scrapers can track runs
+  local _nf_duration_ms
+  _nf_duration_ms=$(( ($(date +%s) - _nf_start) * 1000 ))
+  if [[ -n "$logfile" ]]; then
+    echo "duration_ms=$_nf_duration_ms status=ok" >> "$logfile"
+  fi
 }
