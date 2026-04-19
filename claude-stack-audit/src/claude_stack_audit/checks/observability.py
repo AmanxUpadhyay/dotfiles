@@ -24,6 +24,38 @@ _APPROVED_PREFIXES = (
 _LOG_WRITE_RE = re.compile(r"""(?:>>?|2>>?|\|\s*tee(?:\s+-a)?)\s+("?)(?P<path>\S+?)\1(?:\s|$)""")
 
 
+_VAR_ASSIGN_RE = re.compile(
+    r"""^\s*(?:export\s+|local\s+|readonly\s+)?([A-Za-z_][A-Za-z0-9_]*)=(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|(\S+))""",
+    re.MULTILINE,
+)
+_VAR_REF_RE = re.compile(r"^\$(?:\{([A-Za-z_][A-Za-z0-9_]*)\}|([A-Za-z_][A-Za-z0-9_]*))")
+
+
+def _collect_script_vars(body: str) -> dict[str, str]:
+    """Build a dict of VAR → raw RHS from `VAR=value` / `VAR="value"` lines."""
+    vars_: dict[str, str] = {}
+    for m in _VAR_ASSIGN_RE.finditer(body):
+        name = m.group(1)
+        value = m.group(2) or m.group(3) or m.group(4) or ""
+        vars_[name] = value
+    return vars_
+
+
+def _resolve_path_vars(path: str, script_vars: dict[str, str], depth: int = 0) -> str:
+    """Replace the leading `$VAR` / `${VAR}` with its RHS; iterate up to depth 5.
+    Only substitutes the prefix — the rest of the path is preserved."""
+    if depth > 5:
+        return path
+    m = _VAR_REF_RE.match(path)
+    if m is None:
+        return path
+    var_name = m.group(1) or m.group(2)
+    if var_name not in script_vars:
+        return path
+    resolved = script_vars[var_name] + path[m.end() :]
+    return _resolve_path_vars(resolved, script_vars, depth + 1)
+
+
 @register
 class LogPathConsistency:
     id = "OBS001"
@@ -34,8 +66,10 @@ class LogPathConsistency:
     def run(self, ctx: Context) -> Iterable[Finding]:
         for script in ctx.bash_scripts:
             body = ctx.file_cache.read(script)
+            script_vars = _collect_script_vars(body)
             for m in _LOG_WRITE_RE.finditer(body):
-                path = m.group("path")
+                raw_path = m.group("path")
+                path = _resolve_path_vars(raw_path, script_vars)
                 if path.startswith(_APPROVED_PREFIXES):
                     continue
                 if path.startswith(("/tmp/", "/var/tmp/")):
@@ -50,8 +84,8 @@ class LogPathConsistency:
                     layer=self.layer,
                     criterion=self.criterion,
                     artifact=str(script.relative_to(ctx.claude_root.parent)),
-                    message=f"log write to non-approved path: {path}",
-                    details=None,
+                    message=f"log write to non-approved path: {raw_path}",
+                    details=f"resolved: {path}" if path != raw_path else None,
                     fix_hint=(
                         "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, "
                         "or ~/.claude/logs/ instead of ad-hoc paths."

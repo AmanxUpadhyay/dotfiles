@@ -37,6 +37,44 @@ def test_OBS001_flags_tmp_log_paths(  # noqa: N802
     assert all(f.check_id == "OBS001" for f in flagged)
 
 
+def test_OBS001_resolves_script_local_var_assignments(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """Real crons write to `$LOGFILE` where LOGFILE is assigned to an
+    approved path at the top of the script (e.g. `$CLAUDE_LOG_DIR/<name>.log`).
+    The check must resolve the assignment and see that the resolved path is
+    approved — otherwise 30+ legitimate log writes get flagged as ad-hoc."""
+    good = fake_dotfiles / "claude" / "crons" / "resolved-logger.sh"
+    good.write_text(
+        "#!/bin/bash\n"
+        "set -euo pipefail\n"
+        'LOGFILE="$CLAUDE_LOG_DIR/my-cron.log"\n'
+        'echo hi >> "$LOGFILE"\n'
+        'echo again >> "$LOGFILE.tmp"\n'
+    )
+    good.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogPathConsistency().run(ctx))
+    flagged = [f for f in findings if "resolved-logger.sh" in f.artifact]
+    assert flagged == [], f"expected no findings but got: {flagged}"
+
+
+def test_OBS001_still_flags_var_resolving_to_bad_path(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """If the resolved variable points at /tmp or /var/tmp, still flag it."""
+    bad = fake_dotfiles / "claude" / "crons" / "bad-resolved.sh"
+    bad.write_text(
+        '#!/bin/bash\nset -euo pipefail\nLOGFILE="/tmp/sneaky.log"\necho hi >> "$LOGFILE"\n'
+    )
+    bad.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogPathConsistency().run(ctx))
+    flagged = [f for f in findings if "bad-resolved.sh" in f.artifact]
+    assert len(flagged) >= 1
+    assert all(f.severity == Severity.HIGH for f in flagged)
+
+
 def test_OBS002_passes_when_script_uses_date(  # noqa: N802
     empty_registry, fake_dotfiles, fake_external_tools
 ):
