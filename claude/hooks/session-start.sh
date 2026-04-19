@@ -22,7 +22,7 @@ if [[ -d "$PLUGIN_CACHE" ]]; then
   for author_dir in "$PLUGIN_CACHE"/*/; do
     author=$(basename "$author_dir")
     for plugin_dir in "$author_dir"*/; do
-      plugin=$(basename "$plugin_dir")
+      _plugin=$(basename "$plugin_dir")  # intentionally unused: loop iterates dirs, target path uses author
       target="$PLUGIN_MKT/$author/plugin"
       if [[ ! -e "$target" ]]; then
         # Find the latest version in cache (sort -V for semantic versioning)
