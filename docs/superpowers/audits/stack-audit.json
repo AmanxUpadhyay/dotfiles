@@ -1,14 +1,14 @@
 {
   "schema_version": "1",
-  "generated_at": "2026-04-19T14:11:14.644392+00:00",
+  "generated_at": "2026-04-20T20:40:00.606841+00:00",
   "tool_version": "0.1.0",
-  "score": 959,
+  "score": 961,
   "severity_counts": {
     "critical": 0,
     "high": 0,
-    "medium": 4,
-    "low": 33,
-    "info": 52
+    "medium": 5,
+    "low": 29,
+    "info": 42
   },
   "inventory": {
     "hooks": [],
@@ -48,6 +48,16 @@
       "artifact": "claude/crons/notify-failure.sh",
       "message": "log write to non-approved path: $logfile",
       "details": "resolved: ${2:-}",
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/hooks/auto-format.sh",
+      "message": "log write to non-approved path: $DRIFT_LOG",
+      "details": "resolved: ${AUTO_FORMAT_DRIFT_LOG:-$HOME/.claude/logs/auto-format-drift.log}",
       "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
     },
     {
@@ -268,46 +278,6 @@
       "artifact": "claude/hooks/detect-org.sh",
       "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
       "details": "line 12, column 8",
-      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
-    },
-    {
-      "check_id": "REL001",
-      "severity": "low",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/pr-gate.sh",
-      "message": "SC2181: Check exit code directly with e.g. 'if ! mycmd;', not indirectly with $?.",
-      "details": "line 42, column 8",
-      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
-    },
-    {
-      "check_id": "REL001",
-      "severity": "low",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/pr-gate.sh",
-      "message": "SC2181: Check exit code directly with e.g. 'if ! mycmd;', not indirectly with $?.",
-      "details": "line 51, column 8",
-      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
-    },
-    {
-      "check_id": "REL001",
-      "severity": "low",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/pr-gate.sh",
-      "message": "SC2181: Check exit code directly with e.g. 'if ! mycmd;', not indirectly with $?.",
-      "details": "line 61, column 8",
-      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
-    },
-    {
-      "check_id": "REL001",
-      "severity": "low",
-      "layer": "automation",
-      "criterion": "reliability",
-      "artifact": "claude/hooks/pr-gate.sh",
-      "message": "SC2181: Check exit code directly with e.g. 'if ! mycmd;', not indirectly with $?.",
-      "details": "line 82, column 8",
       "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
     },
     {
@@ -665,6 +635,16 @@
       "severity": "info",
       "layer": "automation",
       "criterion": "inventory",
+      "artifact": "claude/commands/audit.md",
+      "message": "command audit",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
       "artifact": "claude/commands/catchup.md",
       "message": "command catchup",
       "details": null,
@@ -765,118 +745,8 @@
       "severity": "info",
       "layer": "core",
       "criterion": "cross_cutting",
-      "artifact": "claude/crons/claude-mem-worker.sh",
-      "message": "uncommitted change (M): claude/crons/claude-mem-worker.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/crons/daily-retro-evening.sh",
-      "message": "uncommitted change (M): claude/crons/daily-retro-evening.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/crons/daily-retrospective.sh",
-      "message": "uncommitted change (M): claude/crons/daily-retrospective.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/crons/healthcheck.sh",
-      "message": "uncommitted change (M): claude/crons/healthcheck.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/crons/log-rotate.sh",
-      "message": "uncommitted change (??): claude/crons/log-rotate.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/crons/mac-cleanup-scan.sh",
-      "message": "uncommitted change (M): claude/crons/mac-cleanup-scan.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/crons/notify-failure.sh",
-      "message": "uncommitted change (M): claude/crons/notify-failure.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/crons/weekly-finalize.sh",
-      "message": "uncommitted change (M): claude/crons/weekly-finalize.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/crons/weekly-report-gen.sh",
-      "message": "uncommitted change (M): claude/crons/weekly-report-gen.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/env.sh",
-      "message": "uncommitted change (M): claude/env.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/hooks/session-start.sh",
-      "message": "uncommitted change (M): claude/hooks/session-start.sh",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/launchagents/com.godl1ke.claude.log-rotate.plist",
-      "message": "uncommitted change (??): claude/launchagents/com.godl1ke.claude.log-rotate.plist",
+      "artifact": "claude/commands/audit.md",
+      "message": "uncommitted change (M): claude/commands/audit.md",
       "details": null,
       "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
     },
@@ -912,6 +782,7 @@
     }
   ],
   "external_tool_versions": {
-    "shellcheck": "ShellCheck - shell script analysis tool"
+    "shellcheck": "ShellCheck - shell script analysis tool",
+    "jq": "jq-1.8.1"
   }
 }

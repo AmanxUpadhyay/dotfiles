@@ -20,7 +20,7 @@ cstack-audit list-checks                     # enumerate registered checks
 cstack-audit validate                        # env preflight
 ```
 
-Reports land in `~/.dotfiles/docs/superpowers/audits/YYYY-MM-DD-stack-audit.{md,json}`.
+Reports land in `~/.dotfiles/docs/superpowers/audits/stack-audit.{md,json}` — single canonical path, always overwritten. `--tag <slug>` writes `stack-audit--<slug>.{md,json}` for A/B comparison. See `docs/superpowers/adr/2026-04-20-audit-snapshot-policy.md`.
 
 ## Design
 

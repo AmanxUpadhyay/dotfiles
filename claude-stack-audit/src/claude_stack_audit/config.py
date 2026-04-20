@@ -18,19 +18,17 @@ class Config:
     selection: Selection = field(default_factory=Selection)
     tag: str | None = None
 
+    # Filename policy pinned by docs/superpowers/adr/2026-04-20-audit-snapshot-policy.md:
+    # single canonical path, always overwritten, no date prefix. Date is git metadata.
     @property
     def output_md(self) -> Path:
-        from datetime import date
-
         suffix = f"--{self.tag}" if self.tag else ""
-        return self.output_dir / f"{date.today().isoformat()}-stack-audit{suffix}.md"
+        return self.output_dir / f"stack-audit{suffix}.md"
 
     @property
     def output_json(self) -> Path:
-        from datetime import date
-
         suffix = f"--{self.tag}" if self.tag else ""
-        return self.output_dir / f"{date.today().isoformat()}-stack-audit{suffix}.json"
+        return self.output_dir / f"stack-audit{suffix}.json"
 
 
 def parse_criteria(s: str | None) -> set[Criterion] | None:

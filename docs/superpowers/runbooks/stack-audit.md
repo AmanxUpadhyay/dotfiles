@@ -17,8 +17,12 @@ maps to a fix.
 | List all checks | `cstack-audit list-checks` |
 | Validate env | `cstack-audit validate` |
 
-**Reports land in** `~/.dotfiles/docs/superpowers/audits/YYYY-MM-DD-stack-audit.{md,json}`.
-Git-tracked. Use `git log --oneline -- docs/superpowers/audits/` to see score trend.
+**Reports land in** `~/.dotfiles/docs/superpowers/audits/stack-audit.{md,json}` —
+single canonical path, always overwritten (no date prefix). Tagged runs
+(`cstack-audit run --tag <slug>`) write `stack-audit--<slug>.{md,json}` with
+the same overwrite semantics. Git-tracked. Use `git log -p docs/superpowers/audits/stack-audit.md`
+to walk the score trend. Policy pinned by
+`docs/superpowers/adr/2026-04-20-audit-snapshot-policy.md`.
 
 ---
 
