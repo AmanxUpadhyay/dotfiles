@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import typer
+
 from claude_stack_audit.checks.base import Selection
 from claude_stack_audit.models import Criterion
 
@@ -37,4 +39,10 @@ def parse_criteria(s: str | None) -> set[Criterion] | None:
     parts = [x.strip() for x in s.split(",") if x.strip()]
     if not parts:
         return None
+    valid = {c.value for c in Criterion}
+    invalid = [p for p in parts if p not in valid]
+    if invalid:
+        raise typer.BadParameter(
+            f"unknown criterion(s): {', '.join(invalid)}. Valid names: {', '.join(sorted(valid))}."
+        )
     return {Criterion(p) for p in parts}

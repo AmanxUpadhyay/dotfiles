@@ -78,6 +78,32 @@ def test_validate_environment_raises_when_shellcheck_missing(tmp_path):
         validate_environment(dotfiles_root=tmp_path, external=NoTools())
 
 
+def test_runner_captures_preflighted_tool_versions_in_report(
+    empty_registry, fake_dotfiles, fake_external_tools, tmp_path
+):
+    # Any tool preflighted by validate_environment should be captured in the
+    # report's external_tool_versions so audit snapshots are reproducible.
+    cfg = _mk_config(fake_dotfiles, tmp_path / "out")
+    report = run(cfg, external=fake_external_tools)
+    assert "shellcheck" in report.external_tool_versions
+    assert "jq" in report.external_tool_versions
+
+
+def test_validate_environment_raises_when_jq_missing(tmp_path):
+    class JqMissing:
+        def run(self, argv, **_):
+            if argv[0] == "shellcheck":
+                return ToolResult(
+                    returncode=0, stdout="", stderr="", duration_ms=0, timed_out=False
+                )
+            return ToolResult(
+                returncode=127, stdout="", stderr="not found", duration_ms=0, timed_out=False
+            )
+
+    with pytest.raises(ValidationError, match="jq"):
+        validate_environment(dotfiles_root=tmp_path, external=JqMissing())
+
+
 def test_runner_sorts_findings_by_severity_desc(
     empty_registry, fake_dotfiles, fake_external_tools, tmp_path
 ):

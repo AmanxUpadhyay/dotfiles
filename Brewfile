@@ -16,6 +16,7 @@ brew "tmux"             # Terminal multiplexer — parallel sessions
 brew "starship"         # Cross-shell prompt — fast, customisable
 brew "pre-commit"       # Git pre-commit hook framework
 brew "shellcheck"       # Shell script linter — used by claude-stack-audit
+brew "bats-core"        # Bash test runner — used by tests/crons_smoke.bats
 brew "curl"             # HTTP client (macOS ships an older version)
 brew "wget"             # File downloads
 brew "tree"             # Directory visualisation

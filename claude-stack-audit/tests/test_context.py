@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from claude_stack_audit.context import Context
+from claude_stack_audit.context import Context, FileCache
 
 
 def test_context_build_parses_settings_and_env_and_orgmap(fake_dotfiles: Path, fake_external_tools):
@@ -63,3 +63,26 @@ def test_parse_env_sh_accepts_empty_export_value(fake_dotfiles: Path, fake_exter
     ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
     assert ctx.env_vars.get("EMPTY_VAR") == ""
     assert ctx.env_vars.get("NONEMPTY") == "hello"
+
+
+def test_file_cache_reads_with_explicit_utf8_encoding(tmp_path: Path, monkeypatch):
+    # Without encoding="utf-8", Python falls back to locale.getpreferredencoding();
+    # on CI Linux with LANG=C this is ASCII and crashes on non-ASCII script content.
+    target = tmp_path / "unicode.sh"
+    content = "#!/bin/bash\necho '— é ñ 中文'\n"
+    target.write_text(content, encoding="utf-8")
+
+    captured_kwargs: list[dict] = []
+    original = Path.read_text
+
+    def spy(self, *args, **kwargs):
+        captured_kwargs.append(kwargs)
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", spy)
+    cache = FileCache()
+    result = cache.read(target)
+
+    assert captured_kwargs, "read_text was not called"
+    assert captured_kwargs[0].get("encoding") == "utf-8"
+    assert result == content

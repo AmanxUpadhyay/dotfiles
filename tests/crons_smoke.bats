@@ -6,6 +6,13 @@
 
 DOTFILES="$BATS_TEST_DIRNAME/.."
 
+# Local fail helper — bats-core 1.x ships without `fail`; bats-assert would add a
+# submodule dependency that isn't worth it for ten smoke assertions.
+fail() {
+  echo "$@" >&2
+  return 1
+}
+
 @test "healthcheck.sh is executable" {
   [ -x "$DOTFILES/claude/crons/healthcheck.sh" ]
 }
@@ -38,7 +45,7 @@ DOTFILES="$BATS_TEST_DIRNAME/.."
 @test "claude-mem-worker: success marker touched after bun runs, not before" {
   script="$DOTFILES/claude/crons/claude-mem-worker.sh"
   bun_line=$(grep -n '"\$BUN" "\$WORKER"' "$script" | head -1 | cut -d: -f1)
-  touch_line=$(grep -n 'touch.*\.last-success-claude-mem-worker' "$script" | head -1 | cut -d: -f1)
+  touch_line=$(grep -nE '^[[:space:]]*touch .*\.last-success-claude-mem-worker' "$script" | head -1 | cut -d: -f1)
   [ -n "$bun_line" ] || fail "bun invocation line not found"
   [ -n "$touch_line" ] || fail "last-success touch not found"
   [ "$bun_line" -lt "$touch_line" ] || fail "marker touched at line $touch_line before bun at line $bun_line"
@@ -54,8 +61,17 @@ DOTFILES="$BATS_TEST_DIRNAME/.."
   script="$DOTFILES/claude/crons/notify-failure.sh"
   run grep -qE 'status=notify_sent' "$script"
   [ "$status" -eq 0 ] || fail "Expected status=notify_sent marker in notify-failure.sh"
-  run grep -qE 'status=ok' "$script"
-  [ "$status" -ne 0 ] || fail "status=ok inside notify_failure causes last-line-wins metric flip"
+  if grep -vE '^[[:space:]]*#' "$script" | grep -qE 'status=ok'; then
+    fail "status=ok inside notify_failure causes last-line-wins metric flip"
+  fi
+}
+
+@test "mac-cleanup-scan: ERR trap passes \$LOGFILE for log context" {
+  script="$DOTFILES/claude/crons/mac-cleanup-scan.sh"
+  # Trap must reference LOGFILE (optionally with :- default) so notify_failure
+  # gets log context on failure, not an empty placeholder.
+  run grep -nE "^trap .*notify_failure mac-cleanup-scan .*LOGFILE" "$script"
+  [ "$status" -eq 0 ] || fail "ERR trap must pass \$LOGFILE (found: $(grep -n '^trap' "$script"))"
 }
 
 @test "stop-notification: no unsafe \$PROJECT interpolation in osascript -e" {

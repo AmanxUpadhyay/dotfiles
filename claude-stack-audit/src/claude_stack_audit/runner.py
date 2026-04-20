@@ -43,6 +43,9 @@ def validate_environment(*, dotfiles_root: Path, external: ExternalTools) -> Non
         raise ValidationError(
             "shellcheck not found or not executable. Install via: brew install shellcheck"
         )
+    result = external.run(["jq", "--version"], timeout=5.0)
+    if result.returncode != 0:
+        raise ValidationError("jq not found or not executable. Install via: brew install jq")
 
 
 def run(
@@ -67,6 +70,7 @@ def run(
         scorecard=Scorecard.from_findings(findings),
         external_tool_versions={
             "shellcheck": external.version(["shellcheck", "--version"]) or "unknown",
+            "jq": external.version(["jq", "--version"]) or "unknown",
         },
     )
 
