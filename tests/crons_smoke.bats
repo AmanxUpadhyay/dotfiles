@@ -66,6 +66,14 @@ fail() {
   fi
 }
 
+@test "mac-cleanup-scan: ERR trap passes \$LOGFILE for log context" {
+  script="$DOTFILES/claude/crons/mac-cleanup-scan.sh"
+  # Trap must reference LOGFILE (optionally with :- default) so notify_failure
+  # gets log context on failure, not an empty placeholder.
+  run grep -nE "^trap .*notify_failure mac-cleanup-scan .*LOGFILE" "$script"
+  [ "$status" -eq 0 ] || fail "ERR trap must pass \$LOGFILE (found: $(grep -n '^trap' "$script"))"
+}
+
 @test "stop-notification: no unsafe \$PROJECT interpolation in osascript -e" {
   script="$DOTFILES/claude/hooks/stop-notification.sh"
   run grep -qE 'osascript -e .*\$PROJECT' "$script"

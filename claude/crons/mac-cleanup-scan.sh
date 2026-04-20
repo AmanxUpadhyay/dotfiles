@@ -11,10 +11,10 @@ set -euo pipefail
 
 source "$HOME/.claude/env.sh"
 source "$HOME/.dotfiles/claude/crons/notify-failure.sh"
-trap 'notify_failure mac-cleanup-scan ""' ERR
 
 _START_EPOCH=$(date +%s)
 LOGFILE="$CLAUDE_LOG_DIR/mac-cleanup-scan-$(date +%Y-%m-%d).log"
+trap 'notify_failure mac-cleanup-scan "${LOGFILE:-}"' ERR
 
 if ! preflight_check "mac-cleanup-scan"; then
     notify_failure "mac-cleanup-scan-preflight" ""
