@@ -185,6 +185,75 @@ the current heuristic can't disambiguate.
 
 ---
 
+## Hooks behaviour
+
+Observed behaviour of `claude/hooks/safety-guards.sh` — a PreToolUse
+hook that pattern-matches every Bash command Claude runs and blocks
+destructive operations via exit 2. Documented here so future sessions
+can distinguish working-as-intended blocks from actual bugs before
+weakening the guard.
+
+### Known good: blocks destructive commands
+
+The hook correctly blocks:
+
+- `git reset --hard` (any ref).
+- `git push --force` / `-f` without `--force-with-lease`.
+- `git push origin main|master` — direct push to the default branch.
+- `rm -rf` targeting critical paths (`/`, `~/`, `$HOME`, `/usr`,
+  `/etc`, `/var`, `/opt`, `/bin`, `/sbin`, `/lib`, `..`, `*`) —
+  case-insensitive variants for macOS's case-insensitive filesystem.
+- `curl ... | bash|sh|zsh` pipe-to-shell patterns.
+- `chmod 777`, fork bombs, destructive SQL (`DROP TABLE`, `TRUNCATE`,
+  unguarded `DELETE FROM`), Alembic downgrades against `prod`, and
+  direct production DB connections (`psql`/`mysql`/`mongo`/`redis-cli`
+  with `prod`/`production` in the target).
+
+**Concrete incident — PR #107/#108 merge-cleanup session.** An agent
+attempting to align local `main` with `origin/main` after a messy
+add/add merge issued `git reset --hard origin/main`. The hook fired
+(`BLOCKED: git reset --hard destroys uncommitted work. Use git stash
+instead.`) and returned exit 2. The agent's working tree held
+uncommitted in-progress work at the time; a silent `--hard` would
+have overwritten it. Correct outcome.
+
+**Treat as working as intended.** If a future session finds the guard
+annoying and wants to weaken it, pause — the canonical reason it
+exists is that it caught a real destructive-command attempt during an
+agent session. The fix for any single firing is almost always "use
+the non-destructive alternative the error message recommends" (`git
+stash`, `--force-with-lease`, feature branch + PR) rather than
+relaxing the pattern.
+
+### Known false positive: literal-string matching in prose
+
+The matcher substring-matches command strings regardless of token
+position (e.g. line 58 of `safety-guards.sh` is
+`[[ "$COMMAND" =~ git[[:space:]]+reset[[:space:]]+--hard ]]`). That
+means it fires on strings like `git reset --hard` or `rm -rf /` when
+they appear as *argument* content to a non-destructive command —
+most commonly PR body text passed to `gh pr create --body "..."`, or
+heredoc-composed PR bodies whose fenced code blocks illustrate
+destructive commands.
+
+Not a critical issue — the hook stays fail-closed, so false positives
+cost an iteration but never silently let a real destructive command
+through. **Workaround:** write the body to a file
+(`cat > /tmp/pr-body.md <<'EOF' ... EOF`) and call
+`gh pr create --body-file /tmp/pr-body.md`; the substring then lives
+in file content the hook never inspects.
+
+**Suggested future fix** (not in scope for this runbook entry): scope
+matching to actual command position — tokenize the command string on
+shell delimiters (`;`, `&&`, `||`, `|`) and match only on the first
+word of each statement, rather than substring-matching the full line.
+Kills the prose false positive without narrowing the guard's
+blast radius for real destructive commands. Tracked here; a future
+session can pick it up as its own brainstorm → spec → plan → execute
+cycle.
+
+---
+
 ## Design principles
 
 Rules of thumb that have emerged from the audit tool's own incident
