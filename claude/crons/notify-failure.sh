@@ -46,10 +46,14 @@ EOF
   # successfully" (i.e. the notification itself was delivered without crashing).
   touch "$CLAUDE_LOG_DIR/.last-success-notify-failure"
 
-  # OBS004: emit duration/status marker so metrics scrapers can track runs
+  # OBS004: emit duration marker for the notification call itself so metrics
+  # scrapers can track notify_failure latency. Use `status=notify_sent` (not
+  # `status=ok`) so the marker is unambiguous: a last-line-wins reader would
+  # otherwise see `status=fail` from the caller followed by `status=ok` here
+  # and flip every failure into a false success.
   local _nf_duration_ms
   _nf_duration_ms=$(( ($(date +%s) - _nf_start) * 1000 ))
   if [[ -n "$logfile" ]]; then
-    echo "duration_ms=$_nf_duration_ms status=ok" >> "$logfile"
+    echo "duration_ms=$_nf_duration_ms status=notify_sent" >> "$logfile"
   fi
 }

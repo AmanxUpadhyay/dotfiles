@@ -35,9 +35,19 @@ if [[ -z "$WORKER" || ! -f "$WORKER" ]]; then
   exit 1
 fi
 
-touch "$CLAUDE_LOG_DIR/.last-success-claude-mem-worker"
-
-_DURATION_MS=$(( ($(date +%s) - _START_EPOCH) * 1000 ))
-echo "duration_ms=$_DURATION_MS status=ok" >> "$LOGFILE"
-
-exec "$BUN" "$WORKER"
+# Run the worker in the foreground (no `exec`) so we can observe its exit
+# status and record an accurate `.last-success-*` marker only on clean exit.
+# The `if` form suppresses the ERR trap on non-zero, letting us handle the
+# failure path explicitly below.
+if "$BUN" "$WORKER"; then
+  _DURATION_MS=$(( ($(date +%s) - _START_EPOCH) * 1000 ))
+  touch "$CLAUDE_LOG_DIR/.last-success-claude-mem-worker"
+  echo "duration_ms=$_DURATION_MS status=ok" >> "$LOGFILE"
+  exit 0
+else
+  _WORKER_EXIT=$?
+  _DURATION_MS=$(( ($(date +%s) - _START_EPOCH) * 1000 ))
+  echo "duration_ms=$_DURATION_MS status=fail" >> "$LOGFILE"
+  notify_failure claude-mem-worker "$LOGFILE"
+  exit "$_WORKER_EXIT"
+fi

@@ -23,5 +23,14 @@ CWD=$(echo "$INPUT" | jq -r '.cwd // ""')
 
 PROJECT=$(basename "$CWD" 2>/dev/null || echo "Claude Code")
 
-osascript -e "display notification \"Task complete in $PROJECT\" with title \"Claude Code\" sound name \"Glass\"" 2>/dev/null || true
+# Pass $PROJECT as an AppleScript argv value rather than interpolating it
+# into the source. String-literal breakout via a crafted directory name
+# (e.g. `foo" & do shell script "..." &`) is otherwise exploitable because
+# $CWD → basename → $PROJECT is ultimately sourced from filesystem state.
+osascript - "$PROJECT" <<'APPLESCRIPT' 2>/dev/null || true
+on run argv
+  set projectName to item 1 of argv
+  display notification ("Task complete in " & projectName) with title "Claude Code" sound name "Glass"
+end run
+APPLESCRIPT
 exit 0
