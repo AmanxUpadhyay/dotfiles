@@ -16,7 +16,7 @@ Run the stack audit and summarise findings.
 
    Exit codes: 0 = clean, 1 = Critical/High present, 2 = env validation failed, 3 = check crashed.
 
-2. Read the top of the latest markdown report at `~/.dotfiles/docs/superpowers/audits/YYYY-MM-DD-stack-audit.md` to get the score, severity counts, and the Critical/High findings tables.
+2. Read the top of the canonical markdown report at `~/.dotfiles/docs/superpowers/audits/stack-audit.md` to get the score, severity counts, and the Critical/High findings tables.
 
 3. Summarise for the user:
    - Health score out of 1000 (include delta vs previous report via `git diff` on the report file if one exists)
@@ -30,10 +30,10 @@ Run the stack audit and summarise findings.
 
 ## Notes
 
-- The tool writes both `.md` and `.json` reports to `~/.dotfiles/docs/superpowers/audits/`. Git-tracked, so the score trend is visible via `git log --oneline -- docs/superpowers/audits/`.
+- The tool writes both `.md` and `.json` reports to the canonical path `~/.dotfiles/docs/superpowers/audits/stack-audit.{md,json}` — always overwritten, no date prefix. Git-tracked, so the score trend is visible via `git log -p docs/superpowers/audits/stack-audit.md`.
 - Use `cstack-audit run --quick` for a subset (inventory + cross_cutting only, sub-second).
 - Use `cstack-audit run --only reliability,documentation` to narrow by criterion.
-- Use `cstack-audit run --tag before-fix` for A/B tagged filenames.
+- Use `cstack-audit run --tag before-fix` for A/B tagged output: writes `stack-audit--before-fix.{md,json}` alongside the canonical file.
 
 ## Related
 
