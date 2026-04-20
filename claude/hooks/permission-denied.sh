@@ -1,7 +1,13 @@
 #!/bin/bash
-# PermissionDenied hook (v2.1.89+) — fires after auto mode classifier denials.
-# Return {"retry": true} to let the model retry. Exit 0 silently accepts the denial.
-# Does NOT support exit 2 — this is post-denial only.
+set -euo pipefail
+# =============================================================================
+# permission-denied.sh — Log and Optionally Retry Denied Permissions
+# =============================================================================
+# purpose: fires after auto mode classifier denials; logs all denials to a rotating file and returns retry=true for safe read-only operations that were over-denied
+# inputs: stdin JSON with tool_name, tool_input.command, session_id from PermissionDenied event
+# outputs: JSON with retry=true for approved retries; appends to ~/.claude/logs/permission-denied.log
+# side-effects: writes to permission-denied.log with rotation at 2000 lines (keeps last 1000); does not support exit 2
+# =============================================================================
 
 INPUT=$(cat)
 TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty')

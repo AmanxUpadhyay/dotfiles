@@ -1,9 +1,12 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
-# test-fix-detector.sh — Bug Jar: detect test file modifications
+# test-fix-detector.sh — Bug Jar: Detect Test File Modifications
 # =============================================================================
-# PostToolUse hook on Edit|Write|MultiEdit. When a test/spec file is modified,
-# reminds Claude (via additionalContext) to document the bug fix in Bug Jar.
+# purpose: detects when Claude modifies a test or spec file and reminds it via additionalContext to document any bug fix in the Bug Jar at session end
+# inputs: stdin JSON with tool_name and file path(s) from PostToolUse event; sources detect-org.sh for org name
+# outputs: JSON hookSpecificOutput with additionalContext reminder if a test file is matched; silent otherwise
+# side-effects: none; sources detect-org.sh to resolve org name for the reminder path
 # =============================================================================
 
 INPUT=$(cat)

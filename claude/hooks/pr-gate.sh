@@ -1,27 +1,21 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
-# GODL1KE pr-gate.sh — Hard Gate Before PR Creation
+# pr-gate.sh — Hard Gate Before PR Creation
 # =============================================================================
-# WHY: This is your quality firewall. Before Claude can create a PR or push
-# to a remote branch, this hook runs:
-#   1. Ruff format check (is code formatted?)
-#   2. Ruff lint check (are there lint errors?)
-#   3. pytest (do tests pass?)
-#   4. Secrets scan (are there leaked credentials?)
-#   5. pip-audit (are there known vulnerabilities?)
-#
-# ALL checks must pass. If ANY fail, the PR/push is BLOCKED (exit 2).
-# This ensures every PR is code-reviewed and security-scanned automatically.
-#
-# Location: ~/.claude/hooks/pr-gate.sh
-# Triggered by: PreToolUse → Bash (only activates for PR/push commands)
+# purpose: blocks PR creation and remote pushes until ruff format, ruff lint, pytest, secrets scan, and pip-audit all pass
+# inputs: stdin JSON with tool_input.command and cwd from PreToolUse event; triggers only on gh pr or git push commands
+# outputs: exit 2 with stderr error list if any check fails; exit 0 if all pass
+# side-effects: runs ruff, pytest/npm test, pip-audit subprocesses in cwd; reads changed files via git diff
 # =============================================================================
 
 INPUT=$(cat)
 COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
 
-# Only activate for PR creation or push to remote
-if ! echo "$COMMAND" | grep -qE '(gh\s+pr\s+create|git\s+push\s+origin)'; then
+# Belt-and-suspenders guard — sessions where the `if` field in settings.json
+# is not yet active will fall through to here. The `if` field prevents the
+# process from spawning at all in new sessions; this is the in-session fallback.
+if ! echo "$COMMAND" | grep -qE '(gh\s+pr\s+|git\s+push\s+)'; then
   exit 0
 fi
 
@@ -51,7 +45,14 @@ if command -v ruff &>/dev/null; then
 fi
 
 # --- Check 3: Tests ---
-if [ -f "pyproject.toml" ] || [ -f "pytest.ini" ] || [ -d "tests" ]; then
+if [ -f "package.json" ] && node -e "const p=require('./package.json'); process.exit(p.scripts && p.scripts.test ? 0 : 1)" 2>/dev/null; then
+  # Node.js project — run npm test
+  TEST_OUTPUT=$(npm test 2>&1)
+  if [ $? -ne 0 ]; then
+    ERRORS="${ERRORS}\n❌ TESTS: Tests failed:\n$(echo "$TEST_OUTPUT" | tail -20)"
+  fi
+elif [ -f "pyproject.toml" ] || [ -f "pytest.ini" ] || [ -f "setup.cfg" ]; then
+  # Python project — run pytest
   if command -v uv &>/dev/null; then
     TEST_OUTPUT=$(uv run pytest --tb=short -q 2>&1)
   else

@@ -1,7 +1,13 @@
 #!/bin/bash
-# PermissionRequest hook — auto-approve safe read-only operations.
-# IMPORTANT: PermissionRequest uses decision.behavior, NOT permissionDecision.
-# Exit 0 + JSON = structured decision. Anything else = show normal dialog.
+set -euo pipefail
+# =============================================================================
+# permission-auto-approve.sh — Auto-Approve Safe Read-Only Operations
+# =============================================================================
+# purpose: intercepts PermissionRequest events and auto-approves known-safe read-only tools and commands without showing the user a dialog
+# inputs: stdin JSON with tool_name and tool_input.command from PermissionRequest event
+# outputs: JSON decision with behavior=allow for approved operations; exit 0 (no output) to fall through to normal dialog
+# side-effects: none; guards against shell injection by rejecting chained operators before auto-approving Bash commands
+# =============================================================================
 
 INPUT=$(cat)
 TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty')

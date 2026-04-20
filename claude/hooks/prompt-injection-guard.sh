@@ -1,6 +1,13 @@
 #!/bin/bash
-# UserPromptSubmit hook — reject obvious injection attempts before they reach Claude.
-# Exit 2 = reject prompt (stderr shown to user). Exit 0 = allow.
+set -euo pipefail
+# =============================================================================
+# prompt-injection-guard.sh — Reject Obvious Prompt Injection Attempts
+# =============================================================================
+# purpose: scans each user prompt against a pattern list of known injection attempts and blocks them before they reach Claude
+# inputs: stdin JSON with prompt field from UserPromptSubmit event
+# outputs: exit 2 with stderr message if injection detected; exit 0 to allow prompt through
+# side-effects: none; case-insensitive pattern matching only
+# =============================================================================
 
 INPUT=$(cat)
 PROMPT=$(echo "$INPUT" | jq -r '.prompt // empty')

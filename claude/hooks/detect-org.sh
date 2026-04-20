@@ -1,12 +1,12 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
 # detect-org.sh — Maps working directory to org identifier
 # =============================================================================
-# Source this file in other hooks. Sets $DETECTED_ORG, $DETECTED_ORG_FOLDER,
-# and $DETECTED_WIKILINK from the orgs section of org-map.json.
-#
-# Longest-match-wins: if /lxs/persimmon is the cwd, "persimmon" (7 chars)
-# wins over "/lxs" (4 chars), so org is Persimmon not LXS.
+# purpose: resolves the current working directory to an org name, vault folder, and wikilink using org-map.json; longest-match-wins so /lxs/persimmon resolves to Persimmon not LXS
+# inputs: CLAUDE_PROJECT_DIR or PWD; ORG_MAP path from env.sh; sourced by other hooks
+# outputs: exports DETECTED_ORG, DETECTED_ORG_FOLDER, DETECTED_WIKILINK
+# side-effects: none; safe to source multiple times
 # =============================================================================
 
 source "$HOME/.claude/env.sh"

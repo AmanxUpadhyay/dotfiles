@@ -1,13 +1,12 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
-# GODL1KE protect-files.sh — Block Edits to Sensitive Files
+# protect-files.sh — Block Edits to Sensitive Files
 # =============================================================================
-# WHY: Some files should NEVER be edited by Claude — credentials, keys,
-# SSH configs. This hook checks the file path against protected patterns
-# and blocks with exit 2 if matched.
-#
-# Location: ~/.claude/hooks/protect-files.sh
-# Triggered by: PreToolUse → Write|Edit|MultiEdit
+# purpose: intercepts Write/Edit/MultiEdit tool calls and blocks any targeting credential files, SSH/AWS configs, or secret key material
+# inputs: stdin JSON with tool_name and tool_input.file_path (or edits[].file_path for MultiEdit) from PreToolUse event
+# outputs: exit 2 with stderr block message if a protected path is matched; exit 0 to allow
+# side-effects: none; pattern matching only; .env.example/.env.sample/.env.template are explicitly allowed
 # =============================================================================
 
 INPUT=$(cat)

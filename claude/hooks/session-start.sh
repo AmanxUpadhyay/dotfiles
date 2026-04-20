@@ -1,15 +1,41 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
-# GODL1KE session-start.sh — Inject Git + Obsidian Context at Session Start
+# session-start.sh — Inject Git + Obsidian Context at Session Start
 # =============================================================================
-# Injects:
-#   1. Git context (branch, recent commits, changed files)
-#   2. Org detection (maps working directory to client/startup)
-#   3. Obsidian context (most recent session note + org context file)
-#   4. Breadcrumb from repo (if exists)
+# purpose: injects git context, org detection, recent Obsidian session notes, org context file, and repo breadcrumbs into the session as additionalContext
+# inputs: OBSIDIAN_VAULT, ORG_MAP from env.sh; CLAUDE_PROJECT_DIR or PWD; git repo state; Obsidian vault files
+# outputs: JSON hookSpecificOutput with SessionStart additionalContext block printed to stdout
+# side-effects: self-heals plugin symlinks in ~/.claude/plugins/cache if broken; reads vault files and git state
 # =============================================================================
 
 source "$HOME/.claude/env.sh"
+
+# ---------------------------------------------------------------------------
+# 0. Self-heal: ensure all cached plugins have their marketplaces/ symlink
+#    Fixes the thedotmack/claude-mem pattern where upgrades delete the old
+#    symlink but fail to recreate it, causing stop-hook errors next session.
+# ---------------------------------------------------------------------------
+PLUGIN_CACHE="$HOME/.claude/plugins/cache"
+PLUGIN_MKT="$HOME/.claude/plugins/marketplaces"
+if [[ -d "$PLUGIN_CACHE" ]]; then
+  for author_dir in "$PLUGIN_CACHE"/*/; do
+    author=$(basename "$author_dir")
+    for plugin_dir in "$author_dir"*/; do
+      _plugin=$(basename "$plugin_dir")  # intentionally unused: loop iterates dirs, target path uses author
+      target="$PLUGIN_MKT/$author/plugin"
+      if [[ ! -e "$target" ]]; then
+        # Find the latest version in cache (sort -V for semantic versioning)
+        latest=$(ls -d "$plugin_dir"*/ 2>/dev/null | sort -V | tail -1)
+        if [[ -n "$latest" ]]; then
+          mkdir -p "$PLUGIN_MKT/$author"
+          ln -sf "$latest" "$target"
+        fi
+      fi
+    done
+  done
+fi
+
 VAULT="$OBSIDIAN_VAULT"
 CONTEXT=""
 

@@ -1,8 +1,21 @@
-# Claude Code Automation — Obsidian Vault
-# Install: crontab ~/.dotfiles/claude/crontab.txt
+# DEPRECATED — Migrated to launchd on 2026-04-07
+# These jobs now live in ~/.dotfiles/claude/launchagents/
+# Install with: bash ~/.dotfiles/claude/install-launchagents.sh
+# Kept for reference only — do NOT re-install this crontab.
+#
+# Claude Code Automation — Obsidian Vault (CRON VERSION, RETIRED)
+
+# Healthcheck: pre-flight env validation (7 min before daily retro)
+50 8 * * * /Users/godl1ke/.dotfiles/claude/crons/healthcheck.sh preflight
 
 # Daily retrospective (8:57am every day)
 57 8 * * * /Users/godl1ke/.dotfiles/claude/crons/daily-retrospective.sh
+
+# Healthcheck: verify today's daily retro succeeded (2h after fire time)
+0 11 * * * /Users/godl1ke/.dotfiles/claude/crons/healthcheck.sh postrun
+
+# Evening daily retrospective (10:30pm — catches sessions created after morning run)
+30 22 * * * /Users/godl1ke/.dotfiles/claude/crons/daily-retro-evening.sh
 
 # Weekly report draft (5:02pm Friday)
 2 17 * * 5 /Users/godl1ke/.dotfiles/claude/crons/weekly-report-gen.sh

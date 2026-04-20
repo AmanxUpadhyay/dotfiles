@@ -1,9 +1,12 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
 # breadcrumb-writer.sh — Write session breadcrumb to project repo
 # =============================================================================
-# SessionEnd hook (async). Writes a lightweight .claude/breadcrumbs.md into
-# the project repo so the next session can find the relevant vault notes.
+# purpose: writes a lightweight .claude/breadcrumbs.md into the project repo at session end so the next session can locate relevant vault notes
+# inputs: stdin JSON with session_id; CLAUDE_PROJECT_DIR or PWD; CLAUDE_AUTOMATED env var; sources detect-org.sh
+# outputs: .claude/breadcrumbs.md written to the project repo root
+# side-effects: creates .claude/ directory if absent; skips if not inside a git repo or if CLAUDE_AUTOMATED=1
 # =============================================================================
 
 INPUT=$(cat)

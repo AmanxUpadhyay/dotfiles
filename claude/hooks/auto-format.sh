@@ -1,14 +1,12 @@
 #!/bin/bash
+set -euo pipefail
 # =============================================================================
-# GODL1KE auto-format.sh — Auto-Format Python Files After Edit
+# auto-format.sh — Auto-Format Python Files After Edit
 # =============================================================================
-# WHY: Deterministic formatting via hooks, not CLAUDE.md instructions.
-# Claude might ignore a "use ruff" instruction in CLAUDE.md. This hook
-# GUARANTEES every edited Python file gets formatted. Runs ruff format
-# on the specific file that was just edited — fast and non-blocking.
-#
-# Location: ~/.claude/hooks/auto-format.sh
-# Triggered by: PostToolUse → Write|Edit|MultiEdit
+# purpose: deterministically formats every Python file Claude edits via ruff, guaranteeing formatting even if CLAUDE.md instructions are ignored
+# inputs: stdin JSON with tool_name and tool_input.file_path (or edits[].file_path for MultiEdit); requires ruff on PATH
+# outputs: ruff format and ruff check --fix applied in-place to edited .py files
+# side-effects: modifies .py files on disk; suppresses ruff errors to avoid blocking Claude
 # =============================================================================
 
 INPUT=$(cat)
