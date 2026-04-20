@@ -39,7 +39,7 @@ class FileCache:
     def read(self, path: Path) -> str:
         key = path.resolve()
         if key not in self._cache:
-            self._cache[key] = path.read_text()
+            self._cache[key] = path.read_text(encoding="utf-8")
         return self._cache[key]
 
 
