@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 from collections.abc import Iterable
+from pathlib import Path
 
 from claude_stack_audit.checks.base import register
 from claude_stack_audit.context import Context
