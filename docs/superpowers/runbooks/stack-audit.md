@@ -181,9 +181,47 @@ the current heuristic can't disambiguate.
 
 ---
 
+## Design principles
+
+Rules of thumb that have emerged from the audit tool's own incident
+history and should guide any future hardening work on the Claude stack
+(hooks, crons, audit checks, subagent reports):
+
+1. **Transcript-visible verification beats unseen checks.** Reports must
+   paste literal gate output, not summaries. A claim of "gates passed"
+   without the pasted command output is unverifiable and therefore
+   untrustworthy. See
+   `docs/superpowers/adr/2026-04-20-subagent-self-verification.md`.
+2. **Gates should be tamper-evident.** A gate that can silently exit
+   under `set -e` (PR #111) or be bypassed by a stale cache is worse
+   than no gate — it creates false confidence. Use EXIT traps, not
+   silent exits. Capture exit codes explicitly. See
+   `docs/superpowers/adr/2026-04-20-pre-pr-gate-consistency.md`.
+3. **Silent code mutation is a bug.** Tooling that rewrites user code
+   (e.g. `ruff check --fix` inside `claude/hooks/auto-format.sh`) must
+   surface what it changed as an actionable warning. Discarding
+   diagnostics via `2>/dev/null` is a silent-mutation vector. Capture
+   output, filter for `F401`/`F403`-class fixes, and emit warnings.
+4. **Snapshots should be git-tracked, not ephemeral.** Audit reports
+   live under `docs/superpowers/audits/` and are committed. Score
+   trend is recoverable from `git log`. Ephemeral snapshots in
+   `$TMPDIR` or unversioned paths make regressions invisible.
+5. **If a reader can't reproduce what happened from the artifact, the
+   artifact isn't enough.** This is the unifying constraint behind the
+   four rules above. Artifacts (PR bodies, audit reports, subagent
+   reports, hook logs) must be self-contained evidence — not pointers
+   to state that may have already changed.
+
+These principles apply to every layer of the stack the audit tool
+inventories. They are the "why" behind the specific check IDs above.
+
+---
+
 ## Related
 
 - Tool source: `~/.dotfiles/claude-stack-audit/`
 - ADR (why Python): `docs/superpowers/adr/2026-04-18-python-audit-tool.md`
+- ADR (pre-PR gate bypass): `docs/superpowers/adr/2026-04-20-pre-pr-gate-consistency.md`
+- ADR (subagent self-verification): `docs/superpowers/adr/2026-04-20-subagent-self-verification.md`
 - Spec: `docs/superpowers/specs/2026-04-17-claude-stack-audit-tool-design.md`
 - Phase plans: `docs/superpowers/plans/2026-04-*-claude-stack-audit-*.md`

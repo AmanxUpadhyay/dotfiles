@@ -23,3 +23,44 @@ Steps:
 5. Give a clear verdict: SAFE TO MERGE or NEEDS FIXES
 
 Be thorough. This is the last check before code reaches a PR.
+
+---
+
+## Self-verification — mandatory before reporting
+
+Before returning your final verdict, re-run the project gates against the
+**final staged state** (post any edits you made during the review) and paste
+the **literal output** — not a summary. This makes the report tamper-evident.
+
+Run and paste the last ~20 lines of each, including exit code:
+
+```
+$ uv run ruff check .
+<literal output>
+```
+
+```
+$ uv run pytest -q
+<literal output>
+```
+
+```
+$ git status --short
+<literal output>
+```
+
+**Rules:**
+
+- Literal output, not paraphrase. "All checks passed" without the pasted
+  output is not acceptable.
+- Run **after** the last edit. Any edit invalidates the previous run —
+  re-run and re-paste.
+- If output says "unchanged" or is implausibly fast, cache-bust with
+  `--no-cache` (ruff) or `--cache-clear` (pytest) and paste that output.
+- Never edit the pasted output. Truncating past 20 lines is fine;
+  redacting error lines is not.
+
+If you skip this section, the orchestrator must reject the report and
+re-request verification. See
+`docs/superpowers/adr/2026-04-20-subagent-self-verification.md` for the
+full pattern and rationale.
