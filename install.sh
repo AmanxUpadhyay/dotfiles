@@ -133,6 +133,15 @@ echo "uv version: $(uv --version)"
 # Global Python tools
 uv tool install pip-audit 2>/dev/null || echo "✅ pip-audit already installed"
 
+# ---------- claude-stack-audit ----------
+if command -v uv >/dev/null 2>&1; then
+  if [[ -d "$HOME/.dotfiles/claude-stack-audit" ]]; then
+    uv tool install -e "$HOME/.dotfiles/claude-stack-audit" --force
+  fi
+else
+  echo "warning: uv not found; skipping claude-stack-audit install" >&2
+fi
+
 # -----------------------------------------------------------------------------
 # Phase 5: Claude Code
 # -----------------------------------------------------------------------------

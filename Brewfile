@@ -15,6 +15,7 @@ brew "jq"               # JSON processing (used by Claude Code hooks)
 brew "tmux"             # Terminal multiplexer — parallel sessions
 brew "starship"         # Cross-shell prompt — fast, customisable
 brew "pre-commit"       # Git pre-commit hook framework
+brew "shellcheck"       # Shell script linter — used by claude-stack-audit
 brew "curl"             # HTTP client (macOS ships an older version)
 brew "wget"             # File downloads
 brew "tree"             # Directory visualisation

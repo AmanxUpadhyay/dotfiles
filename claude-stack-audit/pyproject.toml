@@ -1,0 +1,60 @@
+[project]
+name = "claude-stack-audit"
+version = "0.1.0"
+description = "Audit the Claude Code + dotfiles + Obsidian pipeline against reliability, observability, and documentation criteria."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Aman Upadhyay" }]
+dependencies = [
+    "typer>=0.12.0",
+]
+
+[project.scripts]
+cstack-audit = "claude_stack_audit.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "jsonschema>=4.20",
+    "ruff>=0.6.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/claude_stack_audit"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra --strict-markers --strict-config --cov=src/claude_stack_audit/checks --cov-report=term-missing"
+testpaths = ["tests"]
+markers = [
+    "real: runs against real ~/.dotfiles (default-skipped; opt-in with --real)",
+    "integration: integration tests that build a synthetic dotfiles tree",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src/claude_stack_audit/checks"]
+
+[tool.coverage.report]
+fail_under = 90
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "PT", "RET"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

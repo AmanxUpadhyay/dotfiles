@@ -1,0 +1,1307 @@
+{
+  "schema_version": "1",
+  "generated_at": "2026-04-17T22:50:41.185379+00:00",
+  "tool_version": "0.1.0",
+  "score": 771,
+  "severity_counts": {
+    "critical": 0,
+    "high": 26,
+    "medium": 36,
+    "low": 27,
+    "info": 39
+  },
+  "inventory": {
+    "hooks": [],
+    "crons": [],
+    "launchagents": [],
+    "slash_commands": [],
+    "agents": [],
+    "plugins": [],
+    "mcp_servers": []
+  },
+  "findings": [
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/crons/claude-mem-worker.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/crons/daily-retro-evening.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/crons/daily-retrospective.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/crons/healthcheck.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/crons/mac-cleanup-scan.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/crons/notify-failure.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/crons/weekly-finalize.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/crons/weekly-report-gen.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/env.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/hooks/auto-format.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/hooks/auto-test.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/hooks/breadcrumb-writer.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/hooks/detect-org.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/hooks/permission-auto-approve.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/hooks/permission-denied.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/hooks/pr-gate.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/hooks/prompt-injection-guard.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/hooks/protect-files.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/hooks/safety-guards.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/hooks/session-start.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/hooks/session-stop.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/hooks/stop-notification.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/hooks/test-fix-detector.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/install-launchagents.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "DOC001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "documentation",
+      "artifact": "claude/refresh.sh",
+      "message": "script header missing: purpose, inputs, outputs, side-effects",
+      "details": null,
+      "fix_hint": "Add a 4-line comment block at the top of the script listing purpose, inputs, outputs, and side-effects."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "high",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/refresh.sh",
+      "message": "SC1071: ShellCheck only supports sh/bash/dash/ksh/'busybox sh' scripts. Sorry!",
+      "details": "line 1, column 1",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/daily-retro-evening.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/daily-retro-evening.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/daily-retro-evening.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/daily-retro-evening.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/daily-retro-evening.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/daily-retro-evening.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/daily-retrospective.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/daily-retrospective.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/daily-retrospective.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/daily-retrospective.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/daily-retrospective.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/daily-retrospective.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/healthcheck.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/healthcheck.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/healthcheck.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/healthcheck.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/mac-cleanup-scan.sh",
+      "message": "log write to non-approved path: $NOTE_PATH",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/notify-failure.sh",
+      "message": "log write to non-approved path: $note_path",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/weekly-finalize.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/weekly-finalize.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/weekly-finalize.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/weekly-finalize.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/weekly-finalize.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/weekly-finalize.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/weekly-report-gen.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/weekly-report-gen.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/weekly-report-gen.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/weekly-report-gen.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/weekly-report-gen.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/crons/weekly-report-gen.sh",
+      "message": "log write to non-approved path: $LOGFILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/env.sh",
+      "message": "log write to non-approved path: ~/.dotfiles/claude/env.sh",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/hooks/breadcrumb-writer.sh",
+      "message": "log write to non-approved path: $BREADCRUMB_DIR/breadcrumbs.md",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/hooks/permission-denied.sh",
+      "message": "log write to non-approved path: $LOG_FILE",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "OBS001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "observability",
+      "artifact": "claude/hooks/permission-denied.sh",
+      "message": "log write to non-approved path: $LOG_FILE.tmp",
+      "details": null,
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/crons/healthcheck.sh",
+      "message": "SC2034: MARKER_DIR appears unused. Verify use (or export if used externally).",
+      "details": "line 24, column 1",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "medium",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/hooks/session-start.sh",
+      "message": "SC2034: plugin appears unused. Verify use (or export if used externally).",
+      "details": "line 25, column 7",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/crons/claude-mem-worker.sh",
+      "message": "SC2012: Use find instead of ls to better handle non-alphanumeric filenames.",
+      "details": "line 22, column 12",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/crons/daily-retro-evening.sh",
+      "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
+      "details": "line 11, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/crons/daily-retro-evening.sh",
+      "message": "SC1091: Not following: ./.dotfiles/claude/crons/notify-failure.sh was not specified as input (see shellcheck -x).",
+      "details": "line 12, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/crons/daily-retrospective.sh",
+      "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
+      "details": "line 10, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/crons/daily-retrospective.sh",
+      "message": "SC1091: Not following: ./.dotfiles/claude/crons/notify-failure.sh was not specified as input (see shellcheck -x).",
+      "details": "line 11, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/crons/healthcheck.sh",
+      "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
+      "details": "line 11, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/crons/healthcheck.sh",
+      "message": "SC1091: Not following: ./.dotfiles/claude/crons/notify-failure.sh was not specified as input (see shellcheck -x).",
+      "details": "line 12, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/crons/mac-cleanup-scan.sh",
+      "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
+      "details": "line 18, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/crons/mac-cleanup-scan.sh",
+      "message": "SC1091: Not following: ./.dotfiles/claude/crons/notify-failure.sh was not specified as input (see shellcheck -x).",
+      "details": "line 19, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/crons/weekly-finalize.sh",
+      "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
+      "details": "line 9, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/crons/weekly-finalize.sh",
+      "message": "SC1091: Not following: ./.dotfiles/claude/crons/notify-failure.sh was not specified as input (see shellcheck -x).",
+      "details": "line 10, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/crons/weekly-report-gen.sh",
+      "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
+      "details": "line 10, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/crons/weekly-report-gen.sh",
+      "message": "SC1091: Not following: ./.dotfiles/claude/crons/notify-failure.sh was not specified as input (see shellcheck -x).",
+      "details": "line 11, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/hooks/auto-test.sh",
+      "message": "SC2295: Expansions inside ${..} need to be quoted separately, otherwise they match as patterns.",
+      "details": "line 51, column 34",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/hooks/breadcrumb-writer.sh",
+      "message": "SC1091: Not following: ./.claude/hooks/detect-org.sh was not specified as input (see shellcheck -x).",
+      "details": "line 21, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/hooks/detect-org.sh",
+      "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
+      "details": "line 12, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/hooks/pr-gate.sh",
+      "message": "SC2181: Check exit code directly with e.g. 'if ! mycmd;', not indirectly with $?.",
+      "details": "line 50, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/hooks/pr-gate.sh",
+      "message": "SC2181: Check exit code directly with e.g. 'if ! mycmd;', not indirectly with $?.",
+      "details": "line 59, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/hooks/pr-gate.sh",
+      "message": "SC2181: Check exit code directly with e.g. 'if ! mycmd;', not indirectly with $?.",
+      "details": "line 69, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/hooks/pr-gate.sh",
+      "message": "SC2181: Check exit code directly with e.g. 'if ! mycmd;', not indirectly with $?.",
+      "details": "line 90, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/hooks/session-start.sh",
+      "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
+      "details": "line 12, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/hooks/session-start.sh",
+      "message": "SC2012: Use find instead of ls to better handle non-alphanumeric filenames.",
+      "details": "line 29, column 18",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/hooks/session-start.sh",
+      "message": "SC1091: Not following: ./.claude/hooks/detect-org.sh was not specified as input (see shellcheck -x).",
+      "details": "line 74, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/hooks/session-start.sh",
+      "message": "SC2012: Use find instead of ls to better handle non-alphanumeric filenames.",
+      "details": "line 88, column 12",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/hooks/session-stop.sh",
+      "message": "SC1091: Not following: ./.claude/env.sh was not specified as input (see shellcheck -x).",
+      "details": "line 39, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/hooks/session-stop.sh",
+      "message": "SC1091: Not following: ./.claude/hooks/detect-org.sh was not specified as input (see shellcheck -x).",
+      "details": "line 40, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "REL001",
+      "severity": "low",
+      "layer": "automation",
+      "criterion": "reliability",
+      "artifact": "claude/hooks/test-fix-detector.sh",
+      "message": "SC1091: Not following: ./.claude/hooks/detect-org.sh was not specified as input (see shellcheck -x).",
+      "details": "line 33, column 8",
+      "fix_hint": "Run `shellcheck <file>` locally to see context; fix per shellcheck wiki."
+    },
+    {
+      "check_id": "INV001",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "bash \"$HOME/.claude/hooks/auto-format.sh\"",
+      "message": "PostToolUse hook \u2192 bash \"$HOME/.claude/hooks/auto-format.sh\"",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV001",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "bash \"$HOME/.claude/hooks/auto-test.sh\"",
+      "message": "PostToolUse hook \u2192 bash \"$HOME/.claude/hooks/auto-test.sh\"",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV001",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "bash \"$HOME/.claude/hooks/breadcrumb-writer.sh\"",
+      "message": "SessionEnd hook \u2192 bash \"$HOME/.claude/hooks/breadcrumb-writer.sh\"",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV001",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "bash \"$HOME/.claude/hooks/permission-auto-approve.sh\"",
+      "message": "PermissionRequest hook \u2192 bash \"$HOME/.claude/hooks/permission-auto-approve.sh\"",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV001",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "bash \"$HOME/.claude/hooks/permission-denied.sh\"",
+      "message": "PermissionDenied hook \u2192 bash \"$HOME/.claude/hooks/permission-denied.sh\"",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV001",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "bash \"$HOME/.claude/hooks/pr-gate.sh\"",
+      "message": "PreToolUse hook \u2192 bash \"$HOME/.claude/hooks/pr-gate.sh\"",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV001",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "bash \"$HOME/.claude/hooks/prompt-injection-guard.sh\"",
+      "message": "UserPromptSubmit hook \u2192 bash \"$HOME/.claude/hooks/prompt-injection-guard.sh\"",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV001",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "bash \"$HOME/.claude/hooks/protect-files.sh\"",
+      "message": "PreToolUse hook \u2192 bash \"$HOME/.claude/hooks/protect-files.sh\"",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV001",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "bash \"$HOME/.claude/hooks/safety-guards.sh\"",
+      "message": "PreToolUse hook \u2192 bash \"$HOME/.claude/hooks/safety-guards.sh\"",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV001",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "bash \"$HOME/.claude/hooks/session-end-note.sh\"",
+      "message": "SessionEnd hook \u2192 bash \"$HOME/.claude/hooks/session-end-note.sh\"",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV001",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "bash \"$HOME/.claude/hooks/session-start.sh\"",
+      "message": "SessionStart hook \u2192 bash \"$HOME/.claude/hooks/session-start.sh\"",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV001",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "bash \"$HOME/.claude/hooks/session-stop.sh\"",
+      "message": "Stop hook \u2192 bash \"$HOME/.claude/hooks/session-stop.sh\"",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV001",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "bash \"$HOME/.claude/hooks/stop-notification.sh\"",
+      "message": "Stop hook \u2192 bash \"$HOME/.claude/hooks/stop-notification.sh\"",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV001",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "bash \"$HOME/.claude/hooks/test-fix-detector.sh\"",
+      "message": "PostToolUse hook \u2192 bash \"$HOME/.claude/hooks/test-fix-detector.sh\"",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV002",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "/Users/godl1ke/.dotfiles/claude/crons/daily-retro-evening.sh",
+      "message": "cron 30 22 * * * \u2192 /Users/godl1ke/.dotfiles/claude/crons/daily-retro-evening.sh",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV002",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "/Users/godl1ke/.dotfiles/claude/crons/daily-retrospective.sh",
+      "message": "cron 57 8 * * * \u2192 /Users/godl1ke/.dotfiles/claude/crons/daily-retrospective.sh",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV002",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "/Users/godl1ke/.dotfiles/claude/crons/healthcheck.sh postrun",
+      "message": "cron 0 11 * * * \u2192 /Users/godl1ke/.dotfiles/claude/crons/healthcheck.sh postrun",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV002",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "/Users/godl1ke/.dotfiles/claude/crons/healthcheck.sh preflight",
+      "message": "cron 50 8 * * * \u2192 /Users/godl1ke/.dotfiles/claude/crons/healthcheck.sh preflight",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV002",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "/Users/godl1ke/.dotfiles/claude/crons/weekly-finalize.sh",
+      "message": "cron 3 9 * * 1 \u2192 /Users/godl1ke/.dotfiles/claude/crons/weekly-finalize.sh",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV002",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "/Users/godl1ke/.dotfiles/claude/crons/weekly-report-gen.sh",
+      "message": "cron 2 17 * * 5 \u2192 /Users/godl1ke/.dotfiles/claude/crons/weekly-report-gen.sh",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV003",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/launchagents/com.godl1ke.claude-mem-worker.plist",
+      "message": "launchagent com.godl1ke.claude-mem-worker (loaded)",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV003",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/launchagents/com.godl1ke.claude.healthcheck-postrun.plist",
+      "message": "launchagent com.godl1ke.claude.healthcheck-postrun (loaded)",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV003",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/launchagents/com.godl1ke.claude.healthcheck-preflight.plist",
+      "message": "launchagent com.godl1ke.claude.healthcheck-preflight (loaded)",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV003",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/launchagents/com.godl1ke.claude.mac-cleanup-scan.plist",
+      "message": "launchagent com.godl1ke.claude.mac-cleanup-scan (loaded)",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/agents/code-reviewer.md",
+      "message": "agent code-reviewer",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/agents/researcher.md",
+      "message": "agent researcher",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/commands/catchup.md",
+      "message": "command catchup",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/commands/deploy-check.md",
+      "message": "command deploy-check",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/commands/review.md",
+      "message": "command review",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/commands/security-scan.md",
+      "message": "command security-scan",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/commands/session-note.md",
+      "message": "command session-note",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV004",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "claude/commands/test-all.md",
+      "message": "command test-all",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV007",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "env:CLAUDE_LOG_DIR",
+      "message": "CLAUDE_LOG_DIR (referenced)",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV007",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "env:OBSIDIAN_VAULT",
+      "message": "OBSIDIAN_VAULT (referenced)",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV007",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "env:ORG_MAP",
+      "message": "ORG_MAP (referenced)",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV007",
+      "severity": "info",
+      "layer": "automation",
+      "criterion": "inventory",
+      "artifact": "env:PATH",
+      "message": "PATH (unreferenced)",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV006",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "inventory",
+      "artifact": "plugin:cache",
+      "message": "cache",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV006",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "inventory",
+      "artifact": "plugin:data",
+      "message": "data",
+      "details": null,
+      "fix_hint": null
+    },
+    {
+      "check_id": "INV006",
+      "severity": "info",
+      "layer": "core",
+      "criterion": "inventory",
+      "artifact": "plugin:marketplaces",
+      "message": "marketplaces",
+      "details": null,
+      "fix_hint": null
+    }
+  ],
+  "external_tool_versions": {
+    "shellcheck": "ShellCheck - shell script analysis tool"
+  }
+}
