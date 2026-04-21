@@ -11,8 +11,10 @@ set -euo pipefail
 
 INPUT=$(cat)
 
-# Guard: skip in automated/cron-triggered sessions
-[[ "$CLAUDE_AUTOMATED" == "1" ]] && exit 0
+# Guard: skip in automated/cron-triggered sessions.
+# ${VAR:-} form required — bare $CLAUDE_AUTOMATED aborts under `set -u` in
+# any normal interactive session where the var is unset.
+[[ "${CLAUDE_AUTOMATED:-}" == "1" ]] && exit 0
 
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // "unknown"' 2>/dev/null)
 

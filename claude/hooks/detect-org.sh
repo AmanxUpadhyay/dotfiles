@@ -13,6 +13,10 @@ source "$HOME/.claude/env.sh"
 
 CWD_LOWER=$(echo "${CLAUDE_PROJECT_DIR:-$PWD}" | tr '[:upper:]' '[:lower:]')
 
+# Pre-initialise so `set -u` doesn't abort callers when ORG_MAP is missing
+# and the jq branch below is skipped.
+DETECTED_ORG=""
+
 if [[ -f "$ORG_MAP" ]]; then
   DETECTED_ORG=$(jq -r --arg cwd "$CWD_LOWER" '
     [ .mappings[] | select(.path_contains as $p | $cwd | contains($p)) ]

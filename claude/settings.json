@@ -136,12 +136,6 @@
             "command": "bash \"$HOME/.claude/hooks/breadcrumb-writer.sh\"",
             "timeout": 5,
             "async": true
-          },
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/session-end-note.sh\"",
-            "timeout": 5,
-            "async": true
           }
         ]
       }
