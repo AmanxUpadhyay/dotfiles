@@ -21,7 +21,6 @@ Documents each hook event wired in `claude/settings.json`. Handler purposes are 
 | `Stop` | _(any)_ | `stop-notification.sh` | Fires a macOS notification via osascript when Claude completes a non-trivial task, providing audio and visual feedback; skips automated sessions and tool_use stops |
 | `Stop` | _(any)_ | `session-stop.sh` | Fires on Stop hook and blocks Claude from finishing until it writes a session summary note to Obsidian; keeps Claude in-session so MCP tools remain authenticated |
 | `SessionEnd` | _(any)_ | `breadcrumb-writer.sh` | Writes a lightweight `.claude/breadcrumbs.md` into the project repo at session end so the next session can locate relevant vault notes |
-| `SessionEnd` | _(any)_ | `session-end-note.sh` | _(handler; see script for details)_ |
 
 ---
 
