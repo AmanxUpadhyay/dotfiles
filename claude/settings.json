@@ -123,7 +123,7 @@
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/session-stop.sh\"",
             "timeout": 30,
-            "async": true
+            "async": false
           }
         ]
       }
