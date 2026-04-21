@@ -26,7 +26,7 @@ Designed to be both:
    - Suggestion: one `jq -s` pipeline like `jq -s '[.[] | .hook] | group_by(.) | map({hook:.[0], count:length}) | sort_by(-.count)'`.
 
 4. **Pipeline health.**
-   - `claude-mem` worker: `curl -s --max-time 3 http://127.0.0.1:37777/api/health | jq '{status, version, uptime, mcpReady}'`. If it fails, mark worker as DOWN.
+   - `claude-mem` worker: `curl -s --max-time 3 "http://127.0.0.1:${CLAUDE_MEM_WORKER_PORT:-37777}/api/health" | jq '{status, version, uptime, mcpReady}'`. (The port is aligned to the plugin's UID-derived formula via env.sh.) If it fails, mark worker as DOWN.
    - Obsidian MCP: try `mcp__obsidian__get_vault_stats` (if available) to verify reachability. If you can't invoke it, note "MCP not called — manual check needed".
 
 5. **Vault outputs for today.**
