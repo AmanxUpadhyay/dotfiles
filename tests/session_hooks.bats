@@ -323,3 +323,43 @@ SESSION_START="$REPO_ROOT/claude/hooks/session-start.sh"
   echo "$output" | jq -e '.hookSpecificOutput.hookEventName == "SessionStart"' >/dev/null \
     || fail "expected valid SessionStart hook JSON, got: $output"
 }
+
+# ---------------------------------------------------------------------------
+# 17-21. smart-checkpoint.sh — milestone detection on Bash|Task PostToolUse
+# ---------------------------------------------------------------------------
+SMART_CP="$REPO_ROOT/claude/hooks/smart-checkpoint.sh"
+
+@test "settings.json: smart-checkpoint wired on PostToolUse with matcher Bash|Task" {
+  local cmd matcher
+  matcher=$(jq -r '.hooks.PostToolUse[] | select(.hooks[].command | contains("smart-checkpoint.sh")) | .matcher' "$SETTINGS")
+  [ "$matcher" = "Bash|Task" ] || fail "expected matcher=Bash|Task, got: $matcher"
+  cmd=$(jq -r '.hooks.PostToolUse[] | select(.hooks[].command | contains("smart-checkpoint.sh")) | .hooks[].command' "$SETTINGS")
+  [[ "$cmd" =~ smart-checkpoint\.sh ]] || fail "smart-checkpoint not wired: $cmd"
+}
+
+@test "smart-checkpoint detects git push as a milestone" {
+  _run_hook "$SMART_CP" '{"tool_name":"Bash","tool_input":{"command":"git push origin main"}}'
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("git push")' >/dev/null \
+    || fail "expected additionalContext mentioning git push, got: $output"
+}
+
+@test "smart-checkpoint detects Task completion as a milestone" {
+  _run_hook "$SMART_CP" '{"tool_name":"Task","tool_input":{"prompt":"..."}}'
+  [ "$status" -eq 0 ]
+  echo "$output" | jq -e '.hookSpecificOutput.additionalContext | contains("Task")' >/dev/null \
+    || fail "expected additionalContext mentioning Task, got: $output"
+}
+
+@test "smart-checkpoint stays silent for ordinary Bash commands" {
+  _run_hook "$SMART_CP" '{"tool_name":"Bash","tool_input":{"command":"ls -la"}}'
+  [ "$status" -eq 0 ]
+  [ -z "$output" ] || fail "expected no output for non-milestone Bash, got: $output"
+}
+
+@test "smart-checkpoint short-circuits when CLAUDE_AUTOMATED=1" {
+  export CLAUDE_AUTOMATED=1
+  _run_hook "$SMART_CP" '{"tool_name":"Bash","tool_input":{"command":"git push"}}'
+  [ "$status" -eq 0 ]
+  [ -z "$output" ] || fail "expected no output when automated, got: $output"
+}
