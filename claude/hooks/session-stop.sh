@@ -12,7 +12,9 @@ set -euo pipefail
 INPUT=$(cat)
 
 # Guard: skip in automated/cron-triggered sessions.
-if [[ "$CLAUDE_AUTOMATED" == "1" ]]; then
+# ${VAR:-} form required — bare $CLAUDE_AUTOMATED aborts under `set -u` in
+# any normal interactive session where the var is unset.
+if [[ "${CLAUDE_AUTOMATED:-}" == "1" ]]; then
   exit 0
 fi
 
