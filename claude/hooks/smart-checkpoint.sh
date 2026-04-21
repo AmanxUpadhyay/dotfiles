@@ -40,11 +40,11 @@ case "$TOOL_NAME" in
       case "$CMD_TRIMMED" in
         *"git push"*)                       DETECTED="git push" ;;
         *"gh pr create"*|*"gh pr merge"*)   DETECTED="PR creation/merge" ;;
+        *"uv run pytest"*)                  DETECTED="uv pytest run" ;;
         *"pytest"*)                         DETECTED="pytest run" ;;
         *"npm test"*|*"npm run test"*)      DETECTED="npm test run" ;;
         *"ruff check"*)                     DETECTED="ruff check" ;;
         *"bats tests"*|*"bats test"*)       DETECTED="bats test run" ;;
-        *"uv run pytest"*)                  DETECTED="uv pytest run" ;;
       esac
     fi
     ;;

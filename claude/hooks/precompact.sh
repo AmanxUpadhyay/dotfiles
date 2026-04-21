@@ -19,7 +19,9 @@ if [[ -f "$HOME/.claude/libs/hooks-log.sh" ]]; then
   log_hook_fire "PreCompact"
 fi
 
-INPUT=$(cat 2>/dev/null || true)
+# Consume stdin so the upstream hook harness doesn't see EPIPE; contents
+# aren't needed since the decision:block doesn't parse any PreCompact fields.
+cat >/dev/null 2>&1 || true
 
 # Guard: skip in automated/cron-triggered sessions.
 if [[ "${CLAUDE_AUTOMATED:-}" == "1" ]]; then

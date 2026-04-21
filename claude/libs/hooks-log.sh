@@ -1,4 +1,8 @@
 #!/bin/bash
+# Library file: callers source this — do not execute directly.
+# `set -euo pipefail` matches the `env.sh` convention; safe because every
+# file-level command below is defensive (guards, `|| true`, `|| echo`).
+set -euo pipefail
 # =============================================================================
 # hooks-log.sh — NDJSON logger shared by all Claude Code hooks
 # =============================================================================
