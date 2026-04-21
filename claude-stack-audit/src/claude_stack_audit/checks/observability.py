@@ -60,6 +60,9 @@ _VAR_ASSIGN_RE = re.compile(
 )
 _VAR_REF_RE = re.compile(r"^\$(?:\{([A-Za-z_][A-Za-z0-9_]*)\}|([A-Za-z_][A-Za-z0-9_]*))")
 
+# Match ${VAR:-default} or ${VAR:=default} and capture the default value.
+_BASH_DEFAULT_RE = re.compile(r"^\$\{[A-Za-z_][A-Za-z0-9_]*:-([^}]+)\}")
+
 
 def _collect_script_vars(body: str) -> dict[str, str]:
     """Build a dict of VAR → raw RHS from `VAR=value` / `VAR="value"` lines."""
@@ -84,6 +87,16 @@ def _resolve_path_vars(path: str, script_vars: dict[str, str], depth: int = 0) -
         return path
     resolved = script_vars[var_name] + path[m.end() :]
     return _resolve_path_vars(resolved, script_vars, depth + 1)
+
+
+def _extract_bash_default(path: str) -> str | None:
+    """Return the default value from `${VAR:-default}` syntax, or None.
+
+    Used to check the fallback path when the variable itself is unresolved.
+    For example, `${AUTO_FORMAT_DRIFT_LOG:-$HOME/.claude/logs/auto-format-drift.log}`
+    returns `$HOME/.claude/logs/auto-format-drift.log`."""
+    m = _BASH_DEFAULT_RE.match(path)
+    return m.group(1) if m else None
 
 
 def _leading_var_name(raw_path: str) -> str | None:
@@ -142,6 +155,13 @@ class LogPathConsistency:
                 raw_path = m.group("path")
                 path = _resolve_path_vars(raw_path, script_vars)
                 if path.startswith(_APPROVED_PREFIXES):
+                    continue
+
+                # If the resolved path is still a `${VAR:-default}` expression,
+                # check whether the default value starts with an approved prefix.
+                # This handles patterns like `${LOG:-$HOME/.claude/logs/x.log}`.
+                bash_default = _extract_bash_default(path)
+                if bash_default is not None and bash_default.startswith(_APPROVED_PREFIXES):
                     continue
 
                 # Rule 1: variable-name intent signal.

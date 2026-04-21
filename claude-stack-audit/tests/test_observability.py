@@ -303,6 +303,52 @@ def test_OBS001_log_extension_still_flags_under_tmp(  # noqa: N802
     assert all(f.severity == Severity.HIGH for f in flagged)
 
 
+def test_OBS001_skips_default_value_resolving_to_approved_prefix(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """${VAR:-default} where default starts with an approved prefix must NOT flag.
+
+    Reproduces the auto-format.sh FP: DRIFT_LOG is assigned as
+    ${AUTO_FORMAT_DRIFT_LOG:-$HOME/.claude/logs/auto-format-drift.log}.
+    The :-default expands to an approved path, so the write must be skipped."""
+    script = fake_dotfiles / "claude" / "hooks" / "drift-logger.sh"
+    script.parent.mkdir(parents=True, exist_ok=True)
+    script.write_text(
+        "#!/bin/bash\n"
+        "set -euo pipefail\n"
+        'DRIFT_LOG="${AUTO_FORMAT_DRIFT_LOG:-$HOME/.claude/logs/auto-format-drift.log}"\n'
+        'echo msg >> "$DRIFT_LOG"\n'
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogPathConsistency().run(ctx))
+    flagged = [f for f in findings if "drift-logger.sh" in f.artifact]
+    assert flagged == [], f"expected no findings but got: {flagged}"
+
+
+def test_OBS001_still_flags_default_value_to_non_approved_prefix(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """${VAR:-bad-default} where default is a non-approved path must still flag.
+
+    Severity is MEDIUM because the resolved expression starts with '$', not '/tmp/'.
+    The :-default extraction is used only for the approved-prefix allowlist skip."""
+    script = fake_dotfiles / "claude" / "hooks" / "bad-default.sh"
+    script.parent.mkdir(parents=True, exist_ok=True)
+    script.write_text(
+        "#!/bin/bash\n"
+        "set -euo pipefail\n"
+        'BAD_LOG="${OVERRIDE_LOG:-/tmp/fallback.log}"\n'
+        'echo msg >> "$BAD_LOG"\n'
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogPathConsistency().run(ctx))
+    flagged = [f for f in findings if "bad-default.sh" in f.artifact]
+    assert len(flagged) >= 1, f"non-approved default must flag, got: {flagged}"
+    assert all(f.severity == Severity.MEDIUM for f in flagged)
+
+
 def test_OBS002_passes_when_script_uses_date(  # noqa: N802
     empty_registry, fake_dotfiles, fake_external_tools
 ):
