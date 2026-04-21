@@ -42,7 +42,7 @@ export CLAUDE_AUTOMATED=1
 DATE_HINT="${DATE_HINT:-Today is $(date +%Y-%m-%d) ($(date +%A)).}"
 PROMPT="$DATE_HINT $(cat "$PROMPT_FILE")"
 
-timeout 600s "$CLAUDE_BIN" \
+bash_timeout 600 "$CLAUDE_BIN" \
   --print \
   --dangerously-skip-permissions \
   "$PROMPT" \
