@@ -43,6 +43,17 @@ fail() {
   [ "$status" -eq 0 ]
 }
 
+@test "hook-health.md command exists and has required sections" {
+  local cmd="$DOTFILES/claude/commands/hook-health.md"
+  [ -f "$cmd" ] || fail "hook-health.md command not present"
+  run grep -E "description:" "$cmd"
+  [ "$status" -eq 0 ] || fail "hook-health.md missing frontmatter description"
+  run grep -E "hooks-fire\.log" "$cmd"
+  [ "$status" -eq 0 ] || fail "hook-health.md does not reference hooks-fire.log"
+  run grep -E "127\.0\.0\.1:37777" "$cmd"
+  [ "$status" -eq 0 ] || fail "hook-health.md does not reference claude-mem worker"
+}
+
 @test "daily-retrospective.sh is executable" {
   [ -x "$DOTFILES/claude/crons/daily-retrospective.sh" ]
 }
