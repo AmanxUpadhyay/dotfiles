@@ -38,6 +38,24 @@ fi
 # purpose: absolute path to the claude CLI binary, resolved via the chain above
 export CLAUDE_BIN
 
+# Run "$@" with a timeout using pure-bash. Returns the command's exit code,
+# or a nonzero code if it timed out. No external dependencies — avoids GNU
+# `timeout` (coreutils) which is not shipped on macOS.
+# Usage: bash_timeout <seconds> <command> [args...]
+bash_timeout() {
+  local limit="$1"; shift
+  "$@" &
+  local _bt_pid=$!
+  ( sleep "$limit" && kill -9 "$_bt_pid" 2>/dev/null ) &
+  local _bt_watchdog=$!
+  local _bt_rc=0
+  # Use || to capture exit code safely under set -e (if ! ... loses the code)
+  wait "$_bt_pid" 2>/dev/null || _bt_rc=$?
+  kill "$_bt_watchdog" 2>/dev/null || true
+  wait "$_bt_watchdog" 2>/dev/null || true
+  return $_bt_rc
+}
+
 # Validate critical environment variables before any cron script proceeds.
 # Call this after sourcing notify-failure.sh so notify_failure is available.
 preflight_check() {
@@ -49,17 +67,11 @@ preflight_check() {
   [[ ! -f "$ORG_MAP" ]]         && errors+=("ORG_MAP not found: $ORG_MAP")
 
   # Verify binary responds within a short timeout (catches hung/broken installs).
-  # Pure-bash watchdog — avoids GNU `timeout` (coreutils), not on macOS by default.
+  # Uses the shared bash_timeout helper — no GNU coreutils dependency.
   if [[ -x "${CLAUDE_BIN:-}" ]]; then
-    "$CLAUDE_BIN" --version &>/dev/null &
-    local _cb_pid=$!
-    ( sleep 10 && kill -9 "$_cb_pid" 2>/dev/null ) &
-    local _cb_watchdog=$!
-    if ! wait "$_cb_pid" 2>/dev/null; then
+    if ! bash_timeout 10 "$CLAUDE_BIN" --version &>/dev/null; then
       errors+=("CLAUDE_BIN did not respond to --version within 10s: $CLAUDE_BIN")
     fi
-    kill "$_cb_watchdog" 2>/dev/null || true
-    wait "$_cb_watchdog" 2>/dev/null || true
   fi
 
   if [[ ${#errors[@]} -gt 0 ]]; then

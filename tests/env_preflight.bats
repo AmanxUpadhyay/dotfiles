@@ -145,3 +145,47 @@ _make_stub_bin() {
   echo "$output" | grep -qi "OBSIDIAN_VAULT not accessible" \
     || fail "expected vault error. got: $output"
 }
+
+# ---------------------------------------------------------------------------
+# Test 5 — bash_timeout: fast command exits 0 within 1s
+# ---------------------------------------------------------------------------
+@test "bash_timeout: fast command exits 0" {
+  run bash -c "
+    export PATH=\"$PATH\"
+    source \"$ENV_SH\"
+    bash_timeout 5 true
+  "
+  [ "$status" -eq 0 ] || fail "expected exit 0 for fast command, got $status. output: $output"
+}
+
+# ---------------------------------------------------------------------------
+# Test 6 — bash_timeout: slow command (sleep 30) is killed, returns nonzero
+# within ~4s when limit is 2
+# ---------------------------------------------------------------------------
+@test "bash_timeout: slow command is killed and returns nonzero" {
+  local start end elapsed
+  start=$(date +%s)
+  run bash -c "
+    export PATH=\"$PATH\"
+    source \"$ENV_SH\"
+    bash_timeout 2 sleep 30
+  "
+  end=$(date +%s)
+  elapsed=$(( end - start ))
+
+  [ "$status" -ne 0 ] || fail "expected nonzero exit for timed-out command, got $status"
+  # Should complete well within 10s (target ~2s watchdog + overhead)
+  [ "$elapsed" -lt 10 ] || fail "bash_timeout took too long: ${elapsed}s (expected < 10s)"
+}
+
+# ---------------------------------------------------------------------------
+# Test 7 — bash_timeout: propagates command exit code (not 0)
+# ---------------------------------------------------------------------------
+@test "bash_timeout: propagates nonzero exit code from command" {
+  run bash -c "
+    export PATH=\"$PATH\"
+    source \"$ENV_SH\"
+    bash_timeout 5 false
+  "
+  [ "$status" -eq 1 ] || fail "expected exit 1 from 'false', got $status. output: $output"
+}
