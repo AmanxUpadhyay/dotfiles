@@ -1,12 +1,12 @@
 {
   "schema_version": "1",
-  "generated_at": "2026-04-21T10:25:19.130526+00:00",
+  "generated_at": "2026-04-21T12:16:09.387249+00:00",
   "tool_version": "0.1.0",
-  "score": 969,
+  "score": 971,
   "severity_counts": {
     "critical": 0,
     "high": 0,
-    "medium": 1,
+    "medium": 0,
     "low": 29,
     "info": 41
   },
@@ -20,16 +20,6 @@
     "mcp_servers": []
   },
   "findings": [
-    {
-      "check_id": "OBS001",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "claude/hooks/auto-format.sh",
-      "message": "log write to non-approved path: $DRIFT_LOG",
-      "details": "resolved: ${AUTO_FORMAT_DRIFT_LOG:-$HOME/.claude/logs/auto-format-drift.log}",
-      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths. If this write is product output, rename the variable to include NOTE/BREADCRUMB/DOC, use a .md/.html extension, or add `# audit-ignore: OBS001 <reason>` on the redirect line."
-    },
     {
       "check_id": "REL001",
       "severity": "low",
