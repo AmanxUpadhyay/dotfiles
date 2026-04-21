@@ -47,7 +47,7 @@ DATE_HINT="EVENING RUN — Today is $TODAY ($DAY_NAME). Generate or update the d
 
 PROMPT="$DATE_HINT $(cat "$PROMPT_FILE")"
 
-timeout 600s "$CLAUDE_BIN" \
+bash_timeout 600 "$CLAUDE_BIN" \
   --print \
   --dangerously-skip-permissions \
   "$PROMPT" \
