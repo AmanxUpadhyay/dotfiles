@@ -86,7 +86,7 @@ def _load_settings(path: Path) -> Settings:
     if not path.exists():
         return empty
     try:
-        raw = json.loads(path.read_text())
+        raw = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         return empty
     if not isinstance(raw, dict):
@@ -107,7 +107,7 @@ def _parse_env_sh(path: Path) -> dict[str, str]:
     if not path.exists():
         return {}
     result: dict[str, str] = {}
-    for line in path.read_text().splitlines():
+    for line in path.read_text(encoding="utf-8").splitlines():
         m = _EXPORT_RE.match(line)
         if not m:
             continue
@@ -122,7 +122,7 @@ def _load_org_map(path: Path) -> OrgMap:
     if not path.exists():
         return empty
     try:
-        raw = json.loads(path.read_text())
+        raw = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         return empty
     if not isinstance(raw, dict):
@@ -140,7 +140,7 @@ def _parse_crontab(path: Path) -> list[CronEntry]:
     if not path.exists():
         return []
     entries: list[CronEntry] = []
-    for line in path.read_text().splitlines():
+    for line in path.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
         if not stripped or stripped.startswith("#"):
             continue

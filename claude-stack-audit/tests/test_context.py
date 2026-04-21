@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from claude_stack_audit.context import Context, FileCache
@@ -86,3 +87,118 @@ def test_file_cache_reads_with_explicit_utf8_encoding(tmp_path: Path, monkeypatc
     assert captured_kwargs, "read_text was not called"
     assert captured_kwargs[0].get("encoding") == "utf-8"
     assert result == content
+
+
+def test_load_settings_reads_with_explicit_utf8(
+    fake_dotfiles: Path, fake_external_tools, monkeypatch
+):
+    settings_path = fake_dotfiles / "claude" / "settings.json"
+    settings_path.write_text(
+        json.dumps(
+            {
+                "hooks": {"Stop": [{"matcher": "—", "hooks": []}]},
+                "permissions": {"allow": ["Read"], "deny": []},
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    captured_kwargs: list[dict] = []
+    original = Path.read_text
+
+    def spy(self, *args, **kwargs):
+        captured_kwargs.append(kwargs)
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", spy)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+
+    assert "Stop" in ctx.settings.hook_events
+    assert ctx.settings.hook_events["Stop"][0]["matcher"] == "—"
+    assert all(kw.get("encoding") == "utf-8" for kw in captured_kwargs), (
+        f"non-utf8 read_text calls: {captured_kwargs}"
+    )
+
+
+def test_parse_env_sh_reads_with_explicit_utf8(
+    fake_dotfiles: Path, fake_external_tools, monkeypatch
+):
+    env = fake_dotfiles / "claude" / "env.sh"
+    env.write_text(
+        '#!/bin/bash\n# comment with unicode: — é ñ 中文\nexport GREETING="héllo wörld"\n',
+        encoding="utf-8",
+    )
+
+    captured_kwargs: list[dict] = []
+    original = Path.read_text
+
+    def spy(self, *args, **kwargs):
+        captured_kwargs.append(kwargs)
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", spy)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+
+    assert ctx.env_vars["GREETING"] == "héllo wörld"
+    assert all(kw.get("encoding") == "utf-8" for kw in captured_kwargs), (
+        f"non-utf8 read_text calls: {captured_kwargs}"
+    )
+
+
+def test_load_org_map_reads_with_explicit_utf8(
+    fake_dotfiles: Path, fake_external_tools, monkeypatch
+):
+    org_map = fake_dotfiles / "claude" / "org-map.json"
+    org_map.write_text(
+        json.dumps(
+            {
+                "default_org": "Persönal",
+                "orgs": {"Persönal": {"wikilink": "[[Persönal]]", "vault_folder": "Persönal"}},
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    captured_kwargs: list[dict] = []
+    original = Path.read_text
+
+    def spy(self, *args, **kwargs):
+        captured_kwargs.append(kwargs)
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", spy)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+
+    assert ctx.org_map.default_org == "Persönal"
+    assert all(kw.get("encoding") == "utf-8" for kw in captured_kwargs), (
+        f"non-utf8 read_text calls: {captured_kwargs}"
+    )
+
+
+def test_parse_crontab_reads_with_explicit_utf8(
+    fake_dotfiles: Path, fake_external_tools, monkeypatch
+):
+    crontab = fake_dotfiles / "claude" / "crontab.txt"
+    crontab.write_text(
+        "# cron with non-ascii comment: — é ñ 中文\n"
+        "30 7 * * * /bin/bash $HOME/.dotfiles/claude/crons/daily-retrospective.sh\n",
+        encoding="utf-8",
+    )
+
+    captured_kwargs: list[dict] = []
+    original = Path.read_text
+
+    def spy(self, *args, **kwargs):
+        captured_kwargs.append(kwargs)
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", spy)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+
+    assert len(ctx.crontab) == 1
+    assert ctx.crontab[0].script.endswith("daily-retrospective.sh")
+    assert all(kw.get("encoding") == "utf-8" for kw in captured_kwargs), (
+        f"non-utf8 read_text calls: {captured_kwargs}"
+    )
