@@ -92,21 +92,27 @@ runbook exists yet).
 - **OBS001** log to non-approved path → use `$CLAUDE_LOG_DIR` or
   `~/Library/Logs/claude-crons/`.
 
-  **Known false positives** (do not "fix" in the scripts — the check cannot
-  tell these apart from logs with its current heuristic):
+  **Product-output writes are filtered automatically.** The check skips
+  writes whose target variable name matches `NOTE`/`BREADCRUMB`/`DOC`/
+  `VAULT_NOTE` (case-insensitive), whose resolved path ends in
+  `.md`/`.html`/`.htm`, or whose path is rooted in `$OBSIDIAN_VAULT` or
+  iCloud Drive. Naming a product-output variable `LOGFILE` will still
+  flag — rename it, or use the escape hatch.
 
-  | Script | Redirect target | Why it's not a log |
-  |---|---|---|
-  | `crons/mac-cleanup-scan.sh` | `$NOTE_PATH` | Obsidian knowledge note under `04-Knowledge/Mac-Maintenance/`. Product output. |
-  | `crons/notify-failure.sh` | `$note_path` | User-facing error note in the Obsidian vault inbox. Product output. |
-  | `hooks/breadcrumb-writer.sh` | `$BREADCRUMB_DIR/breadcrumbs.md` | Per-repo navigation file inside each project's `.claude/` directory. Product output. |
-  | `crons/notify-failure.sh` | `$logfile` | Function parameter. Actual runtime path is always an approved `$CLAUDE_LOG_DIR/<name>.log` passed by the caller. The regex can't trace params across function scopes. |
+  **Escape hatch** — for writes where static analysis can't determine
+  intent (e.g. a function parameter resolved only at runtime), add an
+  inline suppression on the redirect line or up to 3 lines above it:
 
-  **Why these slip through.** OBS001 is pure prefix-matching on redirect
-  targets. It can't read variable intent (`NOTE_PATH` looks identical to
-  `LOGFILE`), can't follow function parameters across call scopes, and
-  can't distinguish product outputs from operational logs. See the
-  "Future improvements" section below for the planned heuristic upgrades.
+  ```bash
+  # audit-ignore: OBS001 — $logfile is the caller's approved path
+  echo "status=ok" >> "$logfile"
+  ```
+
+  Multiple IDs are allowed (`# audit-ignore: OBS001, OBS002`). A reason
+  is convention, not parser-enforced; always write one so
+  `grep -rn 'audit-ignore'` turns up why every suppression exists.
+  Syntax and ruleset pinned by
+  `docs/superpowers/specs/2026-04-21-obs001-heuristic-upgrade.md`.
 
 - **OBS002** `claude` call without timestamps → pipe through `ts` or prepend
   `date -u +%FT%TZ`.
@@ -160,28 +166,23 @@ drop between runs is a regression — diff the report to see what flipped.
 
 ## Future improvements
 
-Planned but unscheduled heuristic upgrades that would eliminate the OBS001
-false positives listed above. Tracked here so a future session can pick
-them up as its own brainstorm → spec → plan → execute cycle:
+Unscheduled hardening tracked here so a future session can pick each up
+as its own brainstorm → spec → plan → execute cycle:
 
-1. **Variable-name signals.** Skip writes whose target variable matches
-   `/NOTE|DOC|BREADCRUMB|VAULT|REPORT/i`. The variable name is the cheapest
-   intent signal available and catches 3 of the 4 current false positives.
-2. **Extension skip.** Skip writes whose resolved path ends in `.md`,
-   `.html`, or `.json` — document/data extensions, not log formats.
-3. **Product-root allowlist.** Skip writes whose resolved path starts with
-   `$OBSIDIAN_VAULT` or any path declared in a new `[tool.cstack-audit]`
-   config section in `pyproject.toml` / `.cstack-audit.toml`.
-4. **Inline suppression.** Honour an `# audit-ignore: OBS001` comment on
-   or immediately above the write line. Rationale captured inline so
-   `grep -rn 'audit-ignore'` turns up every active suppression.
+1. **`${VAR:-default}` resolver.** `_resolve_path_vars` in
+   `checks/observability.py` walks plain `$VAR` / `${VAR}` prefixes but
+   does not expand the bash default-value operator. `$DRIFT_LOG` in
+   `hooks/auto-format.sh` defaults to `$HOME/.claude/logs/...` — an
+   approved path — but the unresolved RHS leaves OBS001 flagging it.
+2. **Config-driven product-root allowlist.** Rules 1–3 of the current
+   OBS001 heuristic cover Obsidian/iCloud explicitly. A
+   `[tool.cstack-audit]` section in `pyproject.toml` /
+   `.cstack-audit.toml` would let projects declare their own
+   product-output roots without a code change.
 
-None of these should change the set of _real_ OBS001 findings. The
-pre-fix baseline (`2026-04-18`) had 7 such findings and all were in
-operational log paths that got correctly routed to `$CLAUDE_LOG_DIR`
-in the fix round. The upgrades only filter out product-output writes
-that share the `$VAR/path` syntax pattern — a distinct class of write
-the current heuristic can't disambiguate.
+(Rules 1, 2, and 4 from the earlier version of this list — variable-name
+signals, extension skip, inline suppression — shipped 2026-04-21. See
+`docs/superpowers/specs/2026-04-21-obs001-heuristic-upgrade.md`.)
 
 ---
 

@@ -75,6 +75,234 @@ def test_OBS001_still_flags_var_resolving_to_bad_path(  # noqa: N802
     assert all(f.severity == Severity.HIGH for f in flagged)
 
 
+def test_OBS001_skips_note_path_variable_name(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """Variable name NOTE_PATH signals product output, not a log."""
+    script = fake_dotfiles / "claude" / "crons" / "note-writer.sh"
+    script.write_text(
+        "#!/bin/bash\n"
+        "set -euo pipefail\n"
+        'NOTE_PATH="$OBSIDIAN_VAULT/00-Inbox/2026-04-21-report.md"\n'
+        'echo "hello" > "$NOTE_PATH"\n'
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogPathConsistency().run(ctx))
+    flagged = [f for f in findings if "note-writer.sh" in f.artifact]
+    assert flagged == [], f"expected no findings but got: {flagged}"
+
+
+def test_OBS001_skips_note_path_variable_lowercase(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """Variable-name match is case-insensitive."""
+    script = fake_dotfiles / "claude" / "crons" / "lower-note.sh"
+    script.write_text(
+        "#!/bin/bash\n"
+        "set -euo pipefail\n"
+        'local note_path="/Users/me/vault/inbox/x.md"\n'
+        'cat >> "$note_path" <<EOF\nhi\nEOF\n'
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogPathConsistency().run(ctx))
+    flagged = [f for f in findings if "lower-note.sh" in f.artifact]
+    assert flagged == [], f"expected no findings but got: {flagged}"
+
+
+def test_OBS001_skips_breadcrumb_variable_name(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """BREADCRUMB_DIR is product output."""
+    script = fake_dotfiles / "claude" / "hooks" / "bc-writer.sh"
+    script.parent.mkdir(parents=True, exist_ok=True)
+    script.write_text(
+        "#!/bin/bash\n"
+        "set -euo pipefail\n"
+        'BREADCRUMB_DIR="${CLAUDE_PROJECT_DIR:-$PWD}/.claude"\n'
+        'cat > "$BREADCRUMB_DIR/breadcrumbs.md" <<EOF\n'
+        "x\nEOF\n"
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogPathConsistency().run(ctx))
+    flagged = [f for f in findings if "bc-writer.sh" in f.artifact]
+    assert flagged == [], f"expected no findings but got: {flagged}"
+
+
+def test_OBS001_skips_md_extension(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """Literal .md path is product output even under /tmp."""
+    script = fake_dotfiles / "claude" / "crons" / "md-writer.sh"
+    script.write_text("#!/bin/bash\nset -euo pipefail\necho hi > /tmp/report.md\n")
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogPathConsistency().run(ctx))
+    flagged = [f for f in findings if "md-writer.sh" in f.artifact]
+    assert flagged == [], f"expected no findings but got: {flagged}"
+
+
+def test_OBS001_skips_html_extension(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """Literal .html path is product output."""
+    script = fake_dotfiles / "claude" / "crons" / "html-writer.sh"
+    script.write_text("#!/bin/bash\nset -euo pipefail\necho hi > /tmp/index.html\n")
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogPathConsistency().run(ctx))
+    flagged = [f for f in findings if "html-writer.sh" in f.artifact]
+    assert flagged == [], f"expected no findings but got: {flagged}"
+
+
+def test_OBS001_skips_obsidian_vault_prefix(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """Writes rooted under $OBSIDIAN_VAULT are product output."""
+    script = fake_dotfiles / "claude" / "crons" / "vault-writer.sh"
+    script.write_text(
+        "#!/bin/bash\n"
+        "set -euo pipefail\n"
+        'OUTPUT="$OBSIDIAN_VAULT/02-Projects/status.txt"\n'
+        'echo x > "$OUTPUT"\n'
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogPathConsistency().run(ctx))
+    flagged = [f for f in findings if "vault-writer.sh" in f.artifact]
+    assert flagged == [], f"expected no findings but got: {flagged}"
+
+
+def test_OBS001_escape_hatch_same_line(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """# audit-ignore: OBS001 on the redirect line suppresses the finding."""
+    script = fake_dotfiles / "claude" / "crons" / "escaped-inline.sh"
+    script.write_text(
+        "#!/bin/bash\nset -euo pipefail\n"
+        'echo x >> "$logfile"  # audit-ignore: OBS001 — caller-provided runtime log\n'
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogPathConsistency().run(ctx))
+    flagged = [f for f in findings if "escaped-inline.sh" in f.artifact]
+    assert flagged == [], f"expected no findings but got: {flagged}"
+
+
+def test_OBS001_escape_hatch_preceding_line(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """# audit-ignore: OBS001 on the immediately preceding line also suppresses."""
+    script = fake_dotfiles / "claude" / "crons" / "escaped-prev.sh"
+    script.write_text(
+        "#!/bin/bash\nset -euo pipefail\n"
+        "# audit-ignore: OBS001 — runtime path from caller\n"
+        'echo x >> "$logfile"\n'
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogPathConsistency().run(ctx))
+    flagged = [f for f in findings if "escaped-prev.sh" in f.artifact]
+    assert flagged == [], f"expected no findings but got: {flagged}"
+
+
+def test_OBS001_escape_hatch_three_lines_back_ok_four_not(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """Lookback window is 3 lines. 3 back skips; 4 back does not."""
+    # 3 lines back — should skip
+    script3 = fake_dotfiles / "claude" / "crons" / "escape-3-back.sh"
+    script3.write_text(
+        "#!/bin/bash\nset -euo pipefail\n"
+        "# audit-ignore: OBS001 — caller passes this\n"
+        "echo a\n"
+        "echo b\n"
+        'echo x >> "$logfile"\n'
+    )
+    script3.chmod(0o755)
+    # 4 lines back — should still flag
+    script4 = fake_dotfiles / "claude" / "crons" / "escape-4-back.sh"
+    script4.write_text(
+        "#!/bin/bash\nset -euo pipefail\n"
+        "# audit-ignore: OBS001 — too far away\n"
+        "echo a\n"
+        "echo b\n"
+        "echo c\n"
+        "echo x >> /tmp/late.log\n"
+    )
+    script4.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogPathConsistency().run(ctx))
+    flagged3 = [f for f in findings if "escape-3-back.sh" in f.artifact]
+    flagged4 = [f for f in findings if "escape-4-back.sh" in f.artifact]
+    assert flagged3 == [], f"3-back should skip, got: {flagged3}"
+    assert len(flagged4) >= 1, f"4-back should flag, got: {flagged4}"
+
+
+def test_OBS001_escape_hatch_multiple_ids(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """Multiple comma-separated IDs are honoured."""
+    script = fake_dotfiles / "claude" / "crons" / "multi-id.sh"
+    script.write_text(
+        "#!/bin/bash\nset -euo pipefail\n"
+        "echo x >> /tmp/multi.log  # audit-ignore: OBS001, OBS002 — both apply\n"
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogPathConsistency().run(ctx))
+    flagged = [f for f in findings if "multi-id.sh" in f.artifact]
+    assert flagged == [], f"expected no findings but got: {flagged}"
+
+
+def test_OBS001_escape_hatch_wrong_id_still_flags(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """# audit-ignore: OBS002 does not suppress OBS001."""
+    script = fake_dotfiles / "claude" / "crons" / "wrong-id.sh"
+    script.write_text(
+        "#!/bin/bash\nset -euo pipefail\n"
+        "echo x >> /tmp/wrong.log  # audit-ignore: OBS002 — not the right id\n"
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogPathConsistency().run(ctx))
+    flagged = [f for f in findings if "wrong-id.sh" in f.artifact]
+    assert len(flagged) >= 1, "OBS002 suppression must not hide OBS001"
+
+
+def test_OBS001_log_variable_still_flags_to_tmp(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """LOG/LOGFILE are intentionally NOT in the skip list. Real log to /tmp stays flagged."""
+    script = fake_dotfiles / "claude" / "crons" / "real-log.sh"
+    script.write_text(
+        '#!/bin/bash\nset -euo pipefail\nLOGFILE="/tmp/real.log"\necho x >> "$LOGFILE"\n'
+    )
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogPathConsistency().run(ctx))
+    flagged = [f for f in findings if "real-log.sh" in f.artifact]
+    assert len(flagged) >= 1, f"LOG variable must stay flagged, got: {flagged}"
+    assert all(f.severity == Severity.HIGH for f in flagged)
+
+
+def test_OBS001_log_extension_still_flags_under_tmp(  # noqa: N802
+    empty_registry, fake_dotfiles: Path, fake_external_tools
+):
+    """Literal .log extension under /tmp must still flag HIGH."""
+    script = fake_dotfiles / "claude" / "crons" / "tmp-log.sh"
+    script.write_text("#!/bin/bash\nset -euo pipefail\necho x >> /tmp/app.log\n")
+    script.chmod(0o755)
+    ctx = Context.build(dotfiles_root=fake_dotfiles, external=fake_external_tools)
+    findings = list(LogPathConsistency().run(ctx))
+    flagged = [f for f in findings if "tmp-log.sh" in f.artifact]
+    assert len(flagged) >= 1
+    assert all(f.severity == Severity.HIGH for f in flagged)
+
+
 def test_OBS002_passes_when_script_uses_date(  # noqa: N802
     empty_registry, fake_dotfiles, fake_external_tools
 ):

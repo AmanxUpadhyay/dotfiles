@@ -54,6 +54,7 @@ EOF
   local _nf_duration_ms
   _nf_duration_ms=$(( ($(date +%s) - _nf_start) * 1000 ))
   if [[ -n "$logfile" ]]; then
+    # audit-ignore: OBS001 — $logfile is the caller's approved log path (always $CLAUDE_LOG_DIR/<name>.log); static analysis can't trace function args across scopes
     echo "duration_ms=$_nf_duration_ms status=notify_sent" >> "$logfile"
   fi
 }
