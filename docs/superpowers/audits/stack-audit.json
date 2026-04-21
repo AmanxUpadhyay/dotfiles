@@ -1,14 +1,14 @@
 {
   "schema_version": "1",
-  "generated_at": "2026-04-20T20:40:00.606841+00:00",
+  "generated_at": "2026-04-21T10:25:19.130526+00:00",
   "tool_version": "0.1.0",
-  "score": 961,
+  "score": 969,
   "severity_counts": {
     "critical": 0,
     "high": 0,
-    "medium": 5,
+    "medium": 1,
     "low": 29,
-    "info": 42
+    "info": 41
   },
   "inventory": {
     "hooks": [],
@@ -25,50 +25,10 @@
       "severity": "medium",
       "layer": "automation",
       "criterion": "observability",
-      "artifact": "claude/crons/mac-cleanup-scan.sh",
-      "message": "log write to non-approved path: $NOTE_PATH",
-      "details": "resolved: $OBSIDIAN_VAULT/04-Knowledge/Mac-Maintenance/${DATE}-cleanup-scan.md",
-      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
-    },
-    {
-      "check_id": "OBS001",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "claude/crons/notify-failure.sh",
-      "message": "log write to non-approved path: $note_path",
-      "details": "resolved: $OBSIDIAN_VAULT/00-Inbox/${date_str}-cron-error.md",
-      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
-    },
-    {
-      "check_id": "OBS001",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "claude/crons/notify-failure.sh",
-      "message": "log write to non-approved path: $logfile",
-      "details": "resolved: ${2:-}",
-      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
-    },
-    {
-      "check_id": "OBS001",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "observability",
       "artifact": "claude/hooks/auto-format.sh",
       "message": "log write to non-approved path: $DRIFT_LOG",
       "details": "resolved: ${AUTO_FORMAT_DRIFT_LOG:-$HOME/.claude/logs/auto-format-drift.log}",
-      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
-    },
-    {
-      "check_id": "OBS001",
-      "severity": "medium",
-      "layer": "automation",
-      "criterion": "observability",
-      "artifact": "claude/hooks/breadcrumb-writer.sh",
-      "message": "log write to non-approved path: $BREADCRUMB_DIR/breadcrumbs.md",
-      "details": "resolved: ${CLAUDE_PROJECT_DIR:-$PWD}/.claude/breadcrumbs.md",
-      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths."
+      "fix_hint": "Use one of: $CLAUDE_LOG_DIR, ~/Library/Logs/claude-crons/, or ~/.claude/logs/ instead of ad-hoc paths. If this write is product output, rename the variable to include NOTE/BREADCRUMB/DOC, use a .md/.html extension, or add `# audit-ignore: OBS001 <reason>` on the redirect line."
     },
     {
       "check_id": "REL001",
@@ -739,16 +699,6 @@
       "message": "PATH (unreferenced)",
       "details": null,
       "fix_hint": null
-    },
-    {
-      "check_id": "CROSS004",
-      "severity": "info",
-      "layer": "core",
-      "criterion": "cross_cutting",
-      "artifact": "claude/commands/audit.md",
-      "message": "uncommitted change (M): claude/commands/audit.md",
-      "details": null,
-      "fix_hint": "Commit or stash the change to keep the dotfiles tree clean."
     },
     {
       "check_id": "INV006",
