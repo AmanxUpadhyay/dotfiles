@@ -48,11 +48,18 @@ preflight_check() {
   [[ ! -d "$OBSIDIAN_VAULT" ]]  && errors+=("OBSIDIAN_VAULT not accessible: $OBSIDIAN_VAULT")
   [[ ! -f "$ORG_MAP" ]]         && errors+=("ORG_MAP not found: $ORG_MAP")
 
-  # Verify binary responds within a short timeout (catches hung/broken installs)
+  # Verify binary responds within a short timeout (catches hung/broken installs).
+  # Pure-bash watchdog — avoids GNU `timeout` (coreutils), not on macOS by default.
   if [[ -x "${CLAUDE_BIN:-}" ]]; then
-    if ! timeout 10s "$CLAUDE_BIN" --version &>/dev/null; then
+    "$CLAUDE_BIN" --version &>/dev/null &
+    local _cb_pid=$!
+    ( sleep 10 && kill -9 "$_cb_pid" 2>/dev/null ) &
+    local _cb_watchdog=$!
+    if ! wait "$_cb_pid" 2>/dev/null; then
       errors+=("CLAUDE_BIN did not respond to --version within 10s: $CLAUDE_BIN")
     fi
+    kill "$_cb_watchdog" 2>/dev/null || true
+    wait "$_cb_watchdog" 2>/dev/null || true
   fi
 
   if [[ ${#errors[@]} -gt 0 ]]; then
