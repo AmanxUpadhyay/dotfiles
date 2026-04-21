@@ -363,3 +363,14 @@ SMART_CP="$REPO_ROOT/claude/hooks/smart-checkpoint.sh"
   [ "$status" -eq 0 ]
   [ -z "$output" ] || fail "expected no output when automated, got: $output"
 }
+
+@test "smart-checkpoint detects uv-pytest over bare pytest (case order regression)" {
+  # `*"pytest"*` case must come AFTER `*"uv run pytest"*` so the more specific
+  # label wins. If someone reorders them, this test fails.
+  _run_hook "$SMART_CP" '{"tool_name":"Bash","tool_input":{"command":"uv run pytest tests/"}}'
+  [ "$status" -eq 0 ]
+  local label
+  label=$(echo "$output" | jq -r '.hookSpecificOutput.additionalContext' | grep -oE 'uv pytest run|pytest run' | head -1)
+  [ "$label" = "uv pytest run" ] \
+    || fail "expected 'uv pytest run' label, got: '$label'"
+}

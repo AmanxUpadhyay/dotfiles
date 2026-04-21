@@ -148,8 +148,10 @@ fi
 [[ -z "$CLAUDE_MEM_SCOPE" ]] && CLAUDE_MEM_SCOPE="${DETECTED_ORG:-}"
 
 if [[ -n "$CLAUDE_MEM_SCOPE" ]]; then
-  MEM_QUERY=$(printf '%s' "$CLAUDE_MEM_SCOPE" | sed 's/[^a-zA-Z0-9._-]/%20/g')
-  MEM_RAW=$(curl -sS --max-time 2 "http://127.0.0.1:37777/api/search?query=$MEM_QUERY&limit=5" 2>/dev/null || echo "")
+  # URL-encode: escape literal % first (to %25) so a scope containing '%'
+  # doesn't produce a malformed query; then map remaining non-safe chars to %20.
+  MEM_QUERY=$(printf '%s' "$CLAUDE_MEM_SCOPE" | sed -e 's/%/%25/g' -e 's/[^a-zA-Z0-9._%-]/%20/g')
+  MEM_RAW=$(curl -s --max-time 2 "http://127.0.0.1:37777/api/search?query=$MEM_QUERY&limit=5" 2>/dev/null || echo "")
   if [[ -n "$MEM_RAW" ]]; then
     MEM_TEXT=$(echo "$MEM_RAW" | jq -r '.content[0].text // empty' 2>/dev/null || echo "")
     if [[ -n "$MEM_TEXT" ]]; then
