@@ -145,6 +145,18 @@
           }
         ]
       }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/precompact.sh\"",
+            "timeout": 30,
+            "async": false
+          }
+        ]
+      }
     ]
   },
   "enabledPlugins": {

@@ -240,3 +240,54 @@ _run_hook() {
   [ "$status" -eq 0 ] || fail "expected exit 0 with unset CLAUDE_AUTOMATED, got $status. output: $output"
   [ -f "$proj/.claude/breadcrumbs.md" ] || fail "breadcrumb should still be written"
 }
+
+# ---------------------------------------------------------------------------
+# 10-13. precompact.sh — PreCompact safety net for session-note finalization
+# ---------------------------------------------------------------------------
+PRECOMPACT="$REPO_ROOT/claude/hooks/precompact.sh"
+
+@test "settings.json PreCompact hook commands all point to existing repo scripts" {
+  local cmds
+  cmds=$(jq -r '.hooks.PreCompact[].hooks[].command' "$SETTINGS")
+  [ -n "$cmds" ] || fail "no PreCompact commands found in settings.json"
+
+  while IFS= read -r cmd; do
+    [ -z "$cmd" ] && continue
+    local script
+    script=$(echo "$cmd" | sed -n 's|.*\$HOME/\.claude/hooks/\([A-Za-z0-9._-]*\).*|\1|p')
+    [ -n "$script" ] || fail "could not parse script name from command: $cmd"
+    [ -f "$REPO_ROOT/claude/hooks/$script" ] \
+      || fail "PreCompact references claude/hooks/$script but file is missing"
+  done <<< "$cmds"
+}
+
+@test "settings.json: precompact.sh registered as synchronous on PreCompact" {
+  local async
+  async=$(jq -r '.hooks.PreCompact[].hooks[] | select(.command | contains("precompact.sh")) | .async' "$SETTINGS")
+  [ "$async" = "false" ] \
+    || fail "precompact.sh must be async:false (got: $async); async:true makes decision:block a no-op"
+}
+
+@test "precompact emits decision=block JSON on happy path" {
+  _run_hook "$PRECOMPACT" '{"session_id":"t","hook_event_name":"PreCompact","trigger":"auto"}'
+  [ "$status" -eq 0 ] || fail "expected exit 0, got $status. output: $output"
+  local decision
+  decision=$(echo "$output" | jq -r '.decision')
+  [ "$decision" = "block" ] || fail "expected decision=block, got: $decision. output: $output"
+  echo "$output" | jq -r '.reason' | grep -q "PATCH" \
+    || fail "expected reason to mention PATCH semantics"
+}
+
+@test "precompact short-circuits silently when CLAUDE_AUTOMATED=1" {
+  export CLAUDE_AUTOMATED=1
+  _run_hook "$PRECOMPACT" '{"session_id":"x","hook_event_name":"PreCompact"}'
+  [ "$status" -eq 0 ] || fail "expected exit 0, got $status"
+  [ -z "$output" ] || fail "expected no stdout when automated, got: $output"
+}
+
+@test "precompact survives unset CLAUDE_AUTOMATED under set -u" {
+  unset CLAUDE_AUTOMATED
+  _run_hook "$PRECOMPACT" '{"session_id":"u","hook_event_name":"PreCompact"}'
+  [ "$status" -eq 0 ] \
+    || fail "expected exit 0 with unset CLAUDE_AUTOMATED, got $status. output: $output"
+}
