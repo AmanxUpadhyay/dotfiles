@@ -106,6 +106,16 @@ _run_hook() {
   done <<< "$cmds"
 }
 
+@test "settings.json: session-stop.sh registered as synchronous on Stop" {
+  # Regression: async:true makes the harness ignore `decision:block`, so the
+  # script's design intent (force a summary-note write) was nominal only.
+  # Must be async:false. stop-notification.sh can stay async — it's cosmetic.
+  local async
+  async=$(jq -r '.hooks.Stop[].hooks[] | select(.command | contains("session-stop.sh")) | .async' "$SETTINGS")
+  [ "$async" = "false" ] \
+    || fail "session-stop.sh must be async:false (got: $async); async:true makes decision:block a no-op"
+}
+
 # ---------------------------------------------------------------------------
 # 2-5. session-stop.sh
 # ---------------------------------------------------------------------------
