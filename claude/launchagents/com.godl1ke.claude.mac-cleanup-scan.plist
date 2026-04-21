@@ -7,7 +7,7 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>/bin/bash</string>
+        <string>/opt/homebrew/opt/bash/bin/bash</string>
         <string>/Users/godl1ke/.dotfiles/claude/crons/mac-cleanup-scan.sh</string>
     </array>
 
