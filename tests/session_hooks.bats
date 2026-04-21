@@ -141,6 +141,55 @@ _run_hook() {
 # ---------------------------------------------------------------------------
 # 2-5. session-stop.sh
 # ---------------------------------------------------------------------------
+@test "session-stop PATCH mode: existing today-note triggers PATCH instruction" {
+  # Pre-create a today-note for Personal org so the hook sees it and switches
+  # from CREATE to PATCH mode.
+  local today existing
+  today=$(date +%Y-%m-%d)
+  existing="$OBSIDIAN_VAULT/06-Sessions/Personal/${today}-existing-slug.md"
+  mkdir -p "$(dirname "$existing")"
+  echo "stub note" > "$existing"
+
+  # Fake a transcript with a tool_use so the trivial-session guard doesn't skip.
+  local transcript="$BATS_TEST_TMPDIR/transcript.jsonl"
+  printf '{"message":{"content":[{"type":"tool_use","name":"Write"}]}}\n' > "$transcript"
+
+  local json
+  json=$(jq -cn --arg t "$transcript" '{session_id:"t",hook_event_name:"Stop",stop_hook_active:false,transcript_path:$t,cwd:"/tmp"}')
+  _run_hook "$SESSION_STOP" "$json"
+  [ "$status" -eq 0 ] || fail "expected exit 0, got $status. output: $output"
+
+  local reason
+  reason=$(echo "$output" | jq -r '.reason')
+  [[ "$reason" == *"PATCH"* ]] \
+    || fail "expected PATCH instruction in reason, got: $reason"
+  [[ "$reason" == *"${today}-existing-slug.md"* ]] \
+    || fail "expected existing filename in reason, got: $reason"
+  [[ "$reason" != *"choose a descriptive"* ]] \
+    || fail "PATCH mode must NOT include 'choose a descriptive <slug>' (that's CREATE-mode wording): $reason"
+}
+
+@test "session-stop CREATE mode: no today-note yet triggers CREATE instruction" {
+  # Ensure no today-note exists (setup creates a fresh temp OBSIDIAN_VAULT).
+  local today
+  today=$(date +%Y-%m-%d)
+
+  local transcript="$BATS_TEST_TMPDIR/transcript.jsonl"
+  printf '{"message":{"content":[{"type":"tool_use","name":"Write"}]}}\n' > "$transcript"
+
+  local json
+  json=$(jq -cn --arg t "$transcript" '{session_id:"t",hook_event_name:"Stop",stop_hook_active:false,transcript_path:$t,cwd:"/tmp"}')
+  _run_hook "$SESSION_STOP" "$json"
+  [ "$status" -eq 0 ] || fail "expected exit 0, got $status. output: $output"
+
+  local reason
+  reason=$(echo "$output" | jq -r '.reason')
+  [[ "$reason" == *"choose a descriptive"* ]] \
+    || fail "expected CREATE-mode 'choose a descriptive <slug>' wording, got: $reason"
+  [[ "$reason" != *"PATCH"* ]] \
+    || fail "CREATE mode must NOT include PATCH wording: $reason"
+}
+
 @test "session-stop emits decision=block JSON for today's date on happy path" {
   local today
   today=$(date +%Y-%m-%d)
@@ -184,6 +233,35 @@ _run_hook() {
 # ---------------------------------------------------------------------------
 # 6-9. breadcrumb-writer.sh
 # ---------------------------------------------------------------------------
+@test "breadcrumb-writer logs the real hook_event_name (Stop vs SessionEnd)" {
+  # Regression: hook is wired to both Stop and SessionEnd; the fire-log label
+  # must reflect which event actually fired rather than a hardcoded string.
+  local proj="$BATS_TEST_TMPDIR/proj-event-label"
+  mkdir -p "$proj"
+  (cd "$proj" && git init -q && git config user.email t@t && git config user.name t \
+    && git commit -q --allow-empty -m init)
+  export CLAUDE_PROJECT_DIR="$proj"
+
+  # Symlink the hooks-log lib into the fake HOME so the logging branch runs.
+  mkdir -p "$HOME/.claude/libs"
+  ln -sf "$REPO_ROOT/claude/libs/hooks-log.sh" "$HOME/.claude/libs/hooks-log.sh"
+
+  _run_hook "$BREADCRUMB" '{"session_id":"abc","hook_event_name":"Stop"}'
+  [ "$status" -eq 0 ]
+  [ -f "$CLAUDE_LOG_DIR/hooks-fire.log" ]
+  run jq -r '.event' "$CLAUDE_LOG_DIR/hooks-fire.log"
+  [ "$output" = "Stop" ] \
+    || fail "expected event=Stop (from hook_event_name), got: $output"
+
+  rm -f "$CLAUDE_LOG_DIR/hooks-fire.log"
+
+  _run_hook "$BREADCRUMB" '{"session_id":"abc","hook_event_name":"SessionEnd"}'
+  [ "$status" -eq 0 ]
+  run jq -r '.event' "$CLAUDE_LOG_DIR/hooks-fire.log"
+  [ "$output" = "SessionEnd" ] \
+    || fail "expected event=SessionEnd, got: $output"
+}
+
 @test "breadcrumb-writer writes .claude/breadcrumbs.md with expected fields" {
   local proj="$BATS_TEST_TMPDIR/proj"
   mkdir -p "$proj"
