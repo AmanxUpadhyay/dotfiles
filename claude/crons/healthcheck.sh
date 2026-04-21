@@ -9,21 +9,26 @@ set -euo pipefail
 # side-effects: notifies on failure via notify_failure; rotates healthcheck.log when > 100 KB
 # =============================================================================
 
-# Idempotency guard: only one instance may run at a time
-exec 9>/tmp/claude-healthcheck.lock
-if ! flock -n 9; then
+# Idempotency guard: only one instance may run at a time.
+# Uses /usr/bin/shlock (ships with macOS) in place of flock (Linux/util-linux only).
+# shlock writes $$ to the lockfile and reclaims it automatically if that PID is dead.
+_LOCK_FILE="${HEALTHCHECK_LOCK:-/tmp/claude-healthcheck.lock}"
+trap 'rm -f "$_LOCK_FILE"' EXIT
+if ! /usr/bin/shlock -p $$ -f "$_LOCK_FILE"; then
   echo "[$(date)] healthcheck already running — skipping" >&2
+  # Remove EXIT trap: the lock is not ours, do not delete it
+  trap - EXIT
   exit 0
 fi
 
 source "$HOME/.claude/env.sh"
 source "$HOME/.dotfiles/claude/crons/notify-failure.sh"
-trap 'notify_failure healthcheck "$LOGFILE"' ERR
+trap 'rm -f "$_LOCK_FILE"; notify_failure healthcheck "$LOGFILE"' ERR
 
 _START_EPOCH=$(date +%s)
 MODE="${1:-both}"
-LOGFILE="$CLAUDE_LOG_DIR/healthcheck.log"
-mkdir -p "$CLAUDE_LOG_DIR"
+LOGFILE="${CLAUDE_LOG_DIR:-$HOME/Library/Logs/claude-crons}/healthcheck.log"
+mkdir -p "${CLAUDE_LOG_DIR:-$HOME/Library/Logs/claude-crons}"
 
 # Log rotation: keep healthcheck.log from growing unbounded
 if [[ -f "$LOGFILE" ]] && (( $(stat -f %z "$LOGFILE" 2>/dev/null || echo 0) > 102400 )); then
@@ -44,9 +49,12 @@ run_preflight() {
   if [[ ! -x "${CLAUDE_BIN:-}" ]]; then
     errors+=("CLAUDE_BIN not executable: ${CLAUDE_BIN:-<unset>}")
   else
-    timeout 10s "$CLAUDE_BIN" --version &>/dev/null || errors+=("CLAUDE_BIN --version failed: $CLAUDE_BIN")
-    # Audit log: record which binary and version will be used by crons today
-    _claude_version=$(timeout 10s "$CLAUDE_BIN" --version 2>/dev/null | head -1)
+    # Use bash_timeout helper (from env.sh) — GNU timeout is not on macOS
+    bash_timeout 10 "$CLAUDE_BIN" --version &>/dev/null \
+      || errors+=("CLAUDE_BIN --version failed: $CLAUDE_BIN")
+    # Audit log: record which binary and version will be used by crons today.
+    # Line 47 already proved responsiveness within 10s; run without extra timeout.
+    _claude_version=$("$CLAUDE_BIN" --version 2>/dev/null | head -1) || true
     echo "  CLAUDE_BIN: $CLAUDE_BIN ($_claude_version)" >> "$LOGFILE"
     unset _claude_version
   fi
@@ -99,7 +107,8 @@ run_preflight() {
     [[ ! -d "$OBSIDIAN_VAULT/$vdir" ]] && errors+=("Vault dir missing: $vdir")
   done
 
-  FAILURES+=("${errors[@]}")
+  # Guard: empty errors[] array is safe to expand under set -u
+  FAILURES+=("${errors[@]+"${errors[@]}"}")
 }
 
 # ---------------------------------------------------------------------------
@@ -128,7 +137,8 @@ run_postrun() {
     fi
   fi
 
-  FAILURES+=("${errors[@]}")
+  # Guard: empty errors[] array is safe to expand under set -u
+  FAILURES+=("${errors[@]+"${errors[@]}"}")
 }
 
 # ---------------------------------------------------------------------------
