@@ -121,6 +121,12 @@
           },
           {
             "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/breadcrumb-writer.sh\"",
+            "timeout": 5,
+            "async": true
+          },
+          {
+            "type": "command",
             "command": "bash \"$HOME/.claude/hooks/session-stop.sh\"",
             "timeout": 30,
             "async": false
