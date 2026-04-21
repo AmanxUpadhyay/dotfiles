@@ -46,7 +46,16 @@ if echo "$COMMAND" | grep -qE 'git\s+push\s+origin\s+worktree-'; then
 fi
 
 CWD=$(echo "$INPUT" | jq -r '.cwd // empty')
-cd "$CWD" 2>/dev/null || { VERDICT_REACHED=1; exit 0; }
+# Resolve CWD to the nearest git repo root so checks run at project scope.
+# Without this, a session CWD of $HOME would make `ruff check .` / `pytest`
+# walk the entire home tree (OrbStack mounts, .azure, iCloud, etc.).
+if PROJECT_ROOT=$(git -C "$CWD" rev-parse --show-toplevel 2>/dev/null); then
+  cd "$PROJECT_ROOT"
+else
+  echo "pr-gate: CWD ($CWD) is not inside a git repo; skipping gate" >&2
+  VERDICT_REACHED=1
+  exit 0
+fi
 
 ERRORS=""
 

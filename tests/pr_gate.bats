@@ -82,6 +82,42 @@ EOF
   [ "$status" -eq 0 ] || fail "expected exit 0 on worktree push, got $status"
 }
 
+@test "pr-gate skips cleanly when CWD is not a git repo" {
+  # Regression: hook used to `cd "$CWD"` unconditionally and run ruff/pytest
+  # against whatever was there (e.g. $HOME scanning OrbStack / .azure).
+  # It must now detect a non-repo CWD and skip with a visible stderr note.
+  non_repo="$BATS_TEST_TMPDIR/not-a-repo"
+  mkdir -p "$non_repo"
+  run _invoke_gate "$non_repo"
+  [ "$status" -eq 0 ] || fail "expected exit 0 when CWD not a repo, got $status. output: $output"
+  echo "$output" | grep -qi "not in a git repo\|skipping gate" \
+    || fail "expected stderr note about skipping non-repo CWD. got: $output"
+}
+
+@test "pr-gate resolves to git top-level from subdir" {
+  # Regression: when invoked from a subdirectory inside a repo, the gate must
+  # operate at the repo root so it sees root-level Python files. Discrimination
+  # test — a ruff-breaking file exists ONLY at the repo root. If the hook stays
+  # in the empty subdir, ruff finds nothing (exit 0). If it resolves to the
+  # top-level, ruff catches the F821 and blocks (exit 2).
+  repo="$BATS_TEST_TMPDIR/topfind"
+  _make_repo "$repo"
+  cat > "$repo/pyproject.toml" <<'EOF'
+[project]
+name = "test"
+version = "0"
+EOF
+  cat > "$repo/bad.py" <<'EOF'
+from __future__ import annotations
+def foo(x: Path) -> None:
+    return None
+EOF
+  mkdir -p "$repo/sub/nested"
+  run _invoke_gate "$repo/sub/nested"
+  [ "$status" -eq 2 ] || fail "expected exit 2 (root-level lint caught), got $status. output: $output"
+  echo "$output" | grep -qi "lint\|F821\|Path" || fail "expected lint mention. got: $output"
+}
+
 @test "pr-gate blocks on failing pytest" {
   repo="$BATS_TEST_TMPDIR/pytest-fail"
   _make_repo "$repo"
