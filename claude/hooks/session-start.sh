@@ -25,13 +25,16 @@ PLUGIN_CACHE="$HOME/.claude/plugins/cache"
 PLUGIN_MKT="$HOME/.claude/plugins/marketplaces"
 if [[ -d "$PLUGIN_CACHE" ]]; then
   for author_dir in "$PLUGIN_CACHE"/*/; do
+    [[ -d "$author_dir" ]] || continue  # skip literal glob when author_dir has no matches
     author=$(basename "$author_dir")
     for plugin_dir in "$author_dir"*/; do
+      [[ -d "$plugin_dir" ]] || continue  # skip literal glob when plugin_dir has no matches
       _plugin=$(basename "$plugin_dir")  # intentionally unused: loop iterates dirs, target path uses author
       target="$PLUGIN_MKT/$author/plugin"
       if [[ ! -e "$target" ]]; then
-        # Find the latest version in cache (sort -V for semantic versioning)
-        latest=$(ls -d "$plugin_dir"*/ 2>/dev/null | sort -V | tail -1)
+        # Find the latest version in cache (sort -V for semantic versioning).
+        # `|| true` protects against pipefail when the ls glob finds nothing.
+        latest=$(ls -d "$plugin_dir"*/ 2>/dev/null | sort -V | tail -1 || true)
         if [[ -n "$latest" ]]; then
           mkdir -p "$PLUGIN_MKT/$author"
           ln -sf "$latest" "$target"
@@ -129,6 +132,33 @@ if [[ -f "$BREADCRUMB" ]]; then
 
 ## Repo Breadcrumbs
 $CRUMB"
+fi
+
+# ---------------------------------------------------------------------------
+# 6. claude-mem: relevant past observations for this project
+# ---------------------------------------------------------------------------
+# Explicit HTTP query to the claude-mem worker (localhost:37777). Takes over
+# injection from the plugin's IMPORTANT tool convention, which Claude wasn't
+# reliably self-calling at session start. Fails open — worker down or slow
+# just skips the section, never fails SessionStart.
+CLAUDE_MEM_SCOPE=""
+if git rev-parse --is-inside-work-tree &>/dev/null; then
+  CLAUDE_MEM_SCOPE=$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "")
+fi
+[[ -z "$CLAUDE_MEM_SCOPE" ]] && CLAUDE_MEM_SCOPE="${DETECTED_ORG:-}"
+
+if [[ -n "$CLAUDE_MEM_SCOPE" ]]; then
+  MEM_QUERY=$(printf '%s' "$CLAUDE_MEM_SCOPE" | sed 's/[^a-zA-Z0-9._-]/%20/g')
+  MEM_RAW=$(curl -sS --max-time 2 "http://127.0.0.1:37777/api/search?query=$MEM_QUERY&limit=5" 2>/dev/null || echo "")
+  if [[ -n "$MEM_RAW" ]]; then
+    MEM_TEXT=$(echo "$MEM_RAW" | jq -r '.content[0].text // empty' 2>/dev/null || echo "")
+    if [[ -n "$MEM_TEXT" ]]; then
+      CONTEXT="$CONTEXT
+
+## Past Context (claude-mem, scope=$CLAUDE_MEM_SCOPE)
+$MEM_TEXT"
+    fi
+  fi
 fi
 
 # ---------------------------------------------------------------------------
