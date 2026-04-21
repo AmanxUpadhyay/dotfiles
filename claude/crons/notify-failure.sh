@@ -23,8 +23,14 @@ notify_failure() {
   _nf_start=$(date +%s)
 
   # macOS notification (silent if osascript unavailable)
+  # Security: escape backslashes then double-quotes so caller-supplied values
+  # cannot break out of the AppleScript string literal (Option A — substitution).
   if command -v osascript &>/dev/null; then
-    osascript -e "display notification \"Cron failed: $script_name at $time_str\" with title \"Claude Automation\" sound name \"Basso\"" 2>/dev/null || true
+    local _safe_name="${script_name//\\/\\\\}"
+    _safe_name="${_safe_name//\"/\\\"}"
+    local _safe_time="${time_str//\\/\\\\}"
+    _safe_time="${_safe_time//\"/\\\"}"
+    osascript -e "display notification \"Cron failed: $_safe_name at $_safe_time\" with title \"Claude Automation\" sound name \"Basso\"" 2>/dev/null || true
   fi
 
   # Write error note to Obsidian inbox (direct filesystem write — no MCP dependency)
