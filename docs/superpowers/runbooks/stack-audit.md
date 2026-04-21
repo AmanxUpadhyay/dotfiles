@@ -285,6 +285,16 @@ history and should guide any future hardening work on the Claude stack
    four rules above. Artifacts (PR bodies, audit reports, subagent
    reports, hook logs) must be self-contained evidence — not pointers
    to state that may have already changed.
+6. **Coverage scope must match the shipped package.** The pytest
+   `--cov` target covers the whole `src/claude_stack_audit` package,
+   not a hand-picked subset. Narrow scope (e.g. only `checks/`) hides
+   regressions in the CLI, runner, reporters, and context layers and
+   produces a misleading "90%+ covered" signal. The only omission is
+   `__main__.py` (a trivial `python -m` entry shim). Per-module floors
+   are deliberately not enforced: the package currently sits at ~92%
+   with the weakest real module (`cli.py`) at 74%, and a package-wide
+   gate at 90% is sufficient signal without premature per-module
+   constraints.
 
 These principles apply to every layer of the stack the audit tool
 inventories. They are the "why" behind the specific check IDs above.

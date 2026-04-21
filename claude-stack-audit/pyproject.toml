@@ -29,7 +29,7 @@ packages = ["src/claude_stack_audit"]
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "-ra --strict-markers --strict-config --cov=src/claude_stack_audit/checks --cov-report=term-missing"
+addopts = "-ra --strict-markers --strict-config --cov=src/claude_stack_audit --cov-report=term-missing"
 testpaths = ["tests"]
 markers = [
     "real: runs against real ~/.dotfiles (default-skipped; opt-in with --real)",
@@ -38,7 +38,10 @@ markers = [
 
 [tool.coverage.run]
 branch = true
-source = ["src/claude_stack_audit/checks"]
+source = ["src/claude_stack_audit"]
+omit = [
+    "src/claude_stack_audit/__main__.py",
+]
 
 [tool.coverage.report]
 fail_under = 90
