@@ -35,8 +35,10 @@ exit 0
 EOF
   chmod +x "$BATS_TEST_TMPDIR/osascript"
 
-  # Prepend stub dir to PATH so our osascript shim wins.
-  export PATH="$BATS_TEST_TMPDIR:$PATH"
+  # Restrict PATH so terminal-notifier (Homebrew) is invisible and osascript
+  # fallback is forced. notify-failure.sh prefers terminal-notifier when present;
+  # our test intent is to exercise the osascript branch and its escaping logic.
+  export PATH="$BATS_TEST_TMPDIR:/usr/bin:/bin:/usr/sbin:/sbin"
 }
 
 # ---------------------------------------------------------------------------

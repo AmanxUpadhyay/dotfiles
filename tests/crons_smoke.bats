@@ -50,7 +50,8 @@ fail() {
   [ "$status" -eq 0 ] || fail "hook-health.md missing frontmatter description"
   run grep -E "hooks-fire\.log" "$cmd"
   [ "$status" -eq 0 ] || fail "hook-health.md does not reference hooks-fire.log"
-  run grep -E "127\.0\.0\.1:37777" "$cmd"
+  # Accept either the literal port or the UID-derived ${CLAUDE_MEM_WORKER_PORT:-NNNNN} form.
+  run grep -E "127\.0\.0\.1:(\\$\\{CLAUDE_MEM_WORKER_PORT[^}]*\\}|[0-9]+)" "$cmd"
   [ "$status" -eq 0 ] || fail "hook-health.md does not reference claude-mem worker"
 }
 

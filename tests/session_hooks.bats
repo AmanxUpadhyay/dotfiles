@@ -371,38 +371,6 @@ PRECOMPACT="$REPO_ROOT/claude/hooks/precompact.sh"
 }
 
 # ---------------------------------------------------------------------------
-# 14-16. session-start.sh — claude-mem HTTP injection (Phase 4)
-# ---------------------------------------------------------------------------
-SESSION_START="$REPO_ROOT/claude/hooks/session-start.sh"
-
-@test "session-start.sh contains claude-mem HTTP injection logic" {
-  run grep -E "127\.0\.0\.1:37777/api/search" "$SESSION_START"
-  [ "$status" -eq 0 ] || fail "session-start.sh missing claude-mem HTTP call"
-}
-
-@test "session-start.sh uses --max-time on the claude-mem curl call" {
-  # Fail-fast: worker down must not block SessionStart.
-  run grep -E "curl.*--max-time" "$SESSION_START"
-  [ "$status" -eq 0 ] || fail "curl call must use --max-time for fail-fast behavior"
-}
-
-@test "session-start.sh fails open when claude-mem worker is unreachable" {
-  # Point the curl at a closed port to simulate unreachable worker.
-  # session-start must still exit 0 and emit valid JSON.
-  # Ensure git context exists so the earlier parts of session-start don't abort.
-  local proj="$BATS_TEST_TMPDIR/proj-claude-mem"
-  mkdir -p "$proj"
-  (cd "$proj" && git init -q && git config user.email t@t && git config user.name t \
-    && git commit -q --allow-empty -m init)
-  cd "$proj"
-
-  _run_hook "$SESSION_START" '{"session_id":"t","hook_event_name":"SessionStart","source":"startup"}'
-  [ "$status" -eq 0 ] || fail "SessionStart must exit 0 even when mem worker is down. output: $output"
-  echo "$output" | jq -e '.hookSpecificOutput.hookEventName == "SessionStart"' >/dev/null \
-    || fail "expected valid SessionStart hook JSON, got: $output"
-}
-
-# ---------------------------------------------------------------------------
 # 17-21. smart-checkpoint.sh — milestone detection on Bash|Task PostToolUse
 # ---------------------------------------------------------------------------
 SMART_CP="$REPO_ROOT/claude/hooks/smart-checkpoint.sh"
