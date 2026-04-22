@@ -54,3 +54,29 @@ SETTINGS="$HOME/.claude/settings.json"
   run grep -E '^model: claude-opus-4-7' "$BATS_TEST_DIRNAME/../claude/agents/researcher.md"
   [ "$status" -eq 0 ]
 }
+
+@test "settings.json registers PostToolUseFailure hook" {
+  run python3 -c "import json,sys; d=json.load(open('$HOME/.claude/settings.json')); sys.exit(0 if 'PostToolUseFailure' in d.get('hooks',{}) else 1)"
+  [ "$status" -eq 0 ]
+}
+
+@test "settings.json registers StopFailure hook" {
+  run python3 -c "import json,sys; d=json.load(open('$HOME/.claude/settings.json')); sys.exit(0 if 'StopFailure' in d.get('hooks',{}) else 1)"
+  [ "$status" -eq 0 ]
+}
+
+@test "settings.json registers PostCompact hook" {
+  run python3 -c "import json,sys; d=json.load(open('$HOME/.claude/settings.json')); sys.exit(0 if 'PostCompact' in d.get('hooks',{}) else 1)"
+  [ "$status" -eq 0 ]
+}
+
+@test "breadcrumb-writer is NOT registered for SessionEnd" {
+  run python3 -c "import json,sys; d=json.load(open('$HOME/.claude/settings.json')); se=d.get('hooks',{}).get('SessionEnd',[]); sys.exit(1 if any('breadcrumb' in h.get('command','') for block in se for h in block.get('hooks',[])) else 0)"
+  [ "$status" -eq 0 ]
+}
+
+@test "all three new log hook scripts exist and are executable" {
+  [ -x "$BATS_TEST_DIRNAME/../claude/hooks/log-tool-failure.sh" ]
+  [ -x "$BATS_TEST_DIRNAME/../claude/hooks/log-stop-failure.sh" ]
+  [ -x "$BATS_TEST_DIRNAME/../claude/hooks/log-post-compact.sh" ]
+}
