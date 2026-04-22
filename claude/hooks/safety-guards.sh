@@ -1,5 +1,10 @@
 #!/bin/bash
 set -euo pipefail
+
+if [[ -f "$HOME/.claude/libs/hooks-log.sh" ]]; then
+  source "$HOME/.claude/libs/hooks-log.sh"
+  log_hook_fire "PreToolUse"
+fi
 # =============================================================================
 # safety-guards.sh — Block Dangerous Bash Commands
 # =============================================================================
@@ -41,11 +46,14 @@ if [[ "$COMMAND" =~ rm[[:space:]]+-[rRfFrF]*[[:space:]].*\* ]]; then
 fi
 
 # --- Git: force push ---
-if [[ "$COMMAND" =~ git[[:space:]]+push[[:space:]].*(-f|--force)[^-] ]]; then
-  if [[ ! "$COMMAND" =~ force-with-lease ]]; then
-    echo "BLOCKED: Force push prohibited. Use --force-with-lease for safer force pushes." >&2
-    exit 2
-  fi
+# Match -f/--force only as a real flag: preceded by whitespace, followed by
+# whitespace, `=`, or end-of-string. Avoids false positives on branch names
+# containing "-f" (e.g. "feat/observability-foundation") and correctly
+# allows --force-with-lease (terminator is `-`, not space/= / end).
+if [[ "$COMMAND" =~ git[[:space:]]+push([[:space:]]|$) ]] \
+   && [[ "$COMMAND" =~ [[:space:]](-f|--force)([[:space:]]|=|$) ]]; then
+  echo "BLOCKED: Force push prohibited. Use --force-with-lease for safer force pushes." >&2
+  exit 2
 fi
 
 # --- Git: direct push to main/master ---

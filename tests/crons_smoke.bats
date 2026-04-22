@@ -25,6 +25,35 @@ fail() {
   [ -x "$DOTFILES/claude/crons/log-rotate.sh" ]
 }
 
+@test "log-rotate has size-based hooks-fire rotation logic" {
+  run grep -c "hooks-fire" "$DOTFILES/claude/crons/log-rotate.sh"
+  [ "$status" -eq 0 ]
+  [ "$output" -ge 3 ] || fail "expected >=3 hooks-fire references, got $output"
+}
+
+@test "log-rotate respects HOOKS_FIRE_MAX_SIZE override" {
+  run grep -c "HOOKS_FIRE_MAX_SIZE" "$DOTFILES/claude/crons/log-rotate.sh"
+  [ "$status" -eq 0 ]
+  [ "$output" -ge 1 ]
+}
+
+@test "log-rotate gzip snapshots match the 30-day sweep pattern" {
+  # The sweep find must include *.log.gz or rotated snapshots pile up forever.
+  run grep -E 'name .\*\.log\.gz' "$DOTFILES/claude/crons/log-rotate.sh"
+  [ "$status" -eq 0 ]
+}
+
+@test "hook-health.md command exists and has required sections" {
+  local cmd="$DOTFILES/claude/commands/hook-health.md"
+  [ -f "$cmd" ] || fail "hook-health.md command not present"
+  run grep -E "description:" "$cmd"
+  [ "$status" -eq 0 ] || fail "hook-health.md missing frontmatter description"
+  run grep -E "hooks-fire\.log" "$cmd"
+  [ "$status" -eq 0 ] || fail "hook-health.md does not reference hooks-fire.log"
+  run grep -E "127\.0\.0\.1:37777" "$cmd"
+  [ "$status" -eq 0 ] || fail "hook-health.md does not reference claude-mem worker"
+}
+
 @test "daily-retrospective.sh is executable" {
   [ -x "$DOTFILES/claude/crons/daily-retrospective.sh" ]
 }

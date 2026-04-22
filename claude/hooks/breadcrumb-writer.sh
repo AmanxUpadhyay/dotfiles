@@ -1,5 +1,15 @@
 #!/bin/bash
 set -euo pipefail
+
+# Read stdin first so we can log the actual event (Stop or SessionEnd) — the
+# hook is wired to both, and hardcoding the label misrepresents Stop fires.
+INPUT=$(cat)
+
+if [[ -f "$HOME/.claude/libs/hooks-log.sh" ]]; then
+  source "$HOME/.claude/libs/hooks-log.sh"
+  HOOK_EVENT=$(echo "$INPUT" | jq -r '.hook_event_name // "SessionEnd"' 2>/dev/null)
+  log_hook_fire "$HOOK_EVENT"
+fi
 # =============================================================================
 # breadcrumb-writer.sh — Write session breadcrumb to project repo
 # =============================================================================
@@ -9,13 +19,13 @@ set -euo pipefail
 # side-effects: creates .claude/ directory if absent; skips if not inside a git repo or if CLAUDE_AUTOMATED=1
 # =============================================================================
 
-INPUT=$(cat)
-
 # Guard: skip in automated/cron-triggered sessions.
 # ${VAR:-} form required — bare $CLAUDE_AUTOMATED aborts under `set -u` in
 # any normal interactive session where the var is unset.
 [[ "${CLAUDE_AUTOMATED:-}" == "1" ]] && exit 0
 
+# (INPUT was already read at top of file so the hook-fire log can record the
+# real event name; reuse it here — don't cat stdin again.)
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // "unknown"' 2>/dev/null)
 
 # Guard: only write breadcrumbs inside a git repo

@@ -1,5 +1,10 @@
 #!/bin/bash
 set -euo pipefail
+
+if [[ -f "$HOME/.claude/libs/hooks-log.sh" ]]; then
+  source "$HOME/.claude/libs/hooks-log.sh"
+  log_hook_fire "UserPromptSubmit"
+fi
 # =============================================================================
 # prompt-injection-guard.sh — Reject Obvious Prompt Injection Attempts
 # =============================================================================
@@ -17,12 +22,12 @@ PATTERNS=(
   'ignore (all )?(previous|above|prior) instructions'
   'disregard (all )?(previous|above|prior) instructions'
   'forget (everything|all instructions)'
-  'new (system |)prompt:'
+  'new (system )?prompt:'
   'system override'
   'admin mode (enabled|activated|on)'
   'developer mode (enabled|activated|on)'
-  'bypass (all |your |safety |)restrictions'
-  'ignore (all |your |safety |)restrictions'
+  'bypass ((all|your|safety) )?restrictions'
+  'ignore ((all|your|safety) )?restrictions'
   'jailbreak'
   'DAN mode'
   '\[SYSTEM\]'

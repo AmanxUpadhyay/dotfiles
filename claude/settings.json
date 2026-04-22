@@ -75,6 +75,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "Bash|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/smart-checkpoint.sh\"",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -121,6 +131,12 @@
           },
           {
             "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/breadcrumb-writer.sh\"",
+            "timeout": 5,
+            "async": true
+          },
+          {
+            "type": "command",
             "command": "bash \"$HOME/.claude/hooks/session-stop.sh\"",
             "timeout": 30,
             "async": false
@@ -136,6 +152,18 @@
             "command": "bash \"$HOME/.claude/hooks/breadcrumb-writer.sh\"",
             "timeout": 5,
             "async": true
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/precompact.sh\"",
+            "timeout": 30,
+            "async": false
           }
         ]
       }

@@ -1,5 +1,10 @@
 #!/bin/bash
 set -euo pipefail
+
+if [[ -f "$HOME/.claude/libs/hooks-log.sh" ]]; then
+  source "$HOME/.claude/libs/hooks-log.sh"
+  log_hook_fire "PostToolUse"
+fi
 # =============================================================================
 # test-fix-detector.sh — Bug Jar: Detect Test File Modifications
 # =============================================================================

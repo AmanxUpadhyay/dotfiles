@@ -15,12 +15,26 @@ set -euo pipefail
 # Must come first so CLAUDE_BIN resolution and child processes find all binaries.
 export PATH="$HOME/.local/bin:$HOME/.bun/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin"
 
-# purpose: vault root for Obsidian notes written by retros and session hooks
-export OBSIDIAN_VAULT="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/GODL1KE"
+# purpose: vault root for Obsidian notes written by retros and session hooks.
+# Respect a pre-existing override so tests can point at a tmpdir.
+export OBSIDIAN_VAULT="${OBSIDIAN_VAULT:-$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/GODL1KE}"
 # purpose: canonical log directory for all claude automation output
-export CLAUDE_LOG_DIR="$HOME/Library/Logs/claude-crons"
+export CLAUDE_LOG_DIR="${CLAUDE_LOG_DIR:-$HOME/Library/Logs/claude-crons}"
 # purpose: JSON map of org-keyword -> vault folder; used by detect-org.sh
-export ORG_MAP="$HOME/.claude/org-map.json"
+export ORG_MAP="${ORG_MAP:-$HOME/.claude/org-map.json}"
+
+# purpose: HTTP port for the claude-mem worker (bun HTTP server).
+# The plugin ships an upstream formula `37700 + (uid % 100)` in its
+# UserPromptSubmit hook (~/.claude/plugins/cache/thedotmack/claude-mem/<v>/
+# hooks/hooks.json). The worker's own default is a hardcoded 37777 —
+# mismatch means the plugin's per-prompt hook can't reach the worker and
+# fails with exit 1, surfacing in Claude Code as "Hook Error Failed with
+# non-blocking status code: No stderr output" on every UserPromptSubmit.
+# Fix: align both sides on the plugin's formula. When the
+# claude-mem-worker launchd script sources this file, it picks up
+# CLAUDE_MEM_WORKER_PORT and bun binds to the matching port. Our
+# session-start.sh injection reads the same var.
+export CLAUDE_MEM_WORKER_PORT="${CLAUDE_MEM_WORKER_PORT:-$((37700 + $(id -u 2>/dev/null || echo 77) % 100))}"
 
 # Resolve CLAUDE_BIN: respect env override, fall back to known install paths in priority order
 if [[ -z "${CLAUDE_BIN:-}" ]] || [[ ! -x "${CLAUDE_BIN:-}" ]]; then

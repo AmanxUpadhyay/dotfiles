@@ -189,3 +189,47 @@ _make_stub_bin() {
   "
   [ "$status" -eq 1 ] || fail "expected exit 1 from 'false', got $status. output: $output"
 }
+
+# ---------------------------------------------------------------------------
+# Test 8 — env.sh exports CLAUDE_MEM_WORKER_PORT aligned to plugin formula
+# ---------------------------------------------------------------------------
+# The claude-mem plugin's own UserPromptSubmit hook uses
+# `37700 + (id -u % 100)`. env.sh must derive the same value so both the
+# worker (when the LaunchAgent sources env.sh) and the plugin hook agree.
+@test "env.sh exports CLAUDE_MEM_WORKER_PORT aligned to plugin formula" {
+  local uid expected
+  uid=$(id -u)
+  expected=$((37700 + uid % 100))
+
+  run bash -c "
+    unset CLAUDE_MEM_WORKER_PORT
+    export PATH=\"$PATH\"
+    source \"$ENV_SH\"
+    echo \"\$CLAUDE_MEM_WORKER_PORT\"
+  "
+  [ "$status" -eq 0 ] || fail "sourcing env.sh failed: $output"
+  [ "$output" = "$expected" ] \
+    || fail "expected CLAUDE_MEM_WORKER_PORT=$expected, got $output"
+}
+
+@test "env.sh respects pre-existing CLAUDE_MEM_WORKER_PORT override" {
+  run bash -c "
+    export CLAUDE_MEM_WORKER_PORT=55555
+    export PATH=\"$PATH\"
+    source \"$ENV_SH\"
+    echo \"\$CLAUDE_MEM_WORKER_PORT\"
+  "
+  [ "$output" = "55555" ] \
+    || fail "expected override to survive, got $output"
+}
+
+@test "session-start.sh uses the env-var port, not hardcoded 37777" {
+  # Regression: if someone reintroduces `http://127.0.0.1:37777/api/search`
+  # the plugin/worker alignment breaks again.
+  local hook="$BATS_TEST_DIRNAME/../claude/hooks/session-start.sh"
+  ! grep -E "127\\.0\\.0\\.1:37777" "$hook" \
+    || fail "session-start.sh still references hardcoded 37777; should use \$CLAUDE_MEM_WORKER_PORT"
+  run grep -E "CLAUDE_MEM_WORKER_PORT" "$hook"
+  [ "$status" -eq 0 ] \
+    || fail "session-start.sh doesn't reference CLAUDE_MEM_WORKER_PORT"
+}

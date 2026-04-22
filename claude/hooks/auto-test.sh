@@ -1,5 +1,10 @@
 #!/bin/bash
 set -euo pipefail
+
+if [[ -f "$HOME/.claude/libs/hooks-log.sh" ]]; then
+  source "$HOME/.claude/libs/hooks-log.sh"
+  log_hook_fire "PostToolUse"
+fi
 # =============================================================================
 # auto-test.sh — Auto-Run Related Tests After Python Edits
 # =============================================================================
