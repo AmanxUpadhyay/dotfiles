@@ -91,7 +91,7 @@ If you're forking and don't have an existing repo, fork on GitHub first, then cl
 What it does to `~/.claude/`:
 
 - Symlinks `claude/CLAUDE.md` → `~/.claude/CLAUDE.md`
-- Symlinks `claude/settings.json` → `~/.claude/settings.json` (if `claude/settings.json` exists; typically it does not — see §4.3)
+- Symlinks `claude/settings.json` → `~/.claude/settings.json` (this file IS tracked in the repo; the symlink means edits to the tracked file take effect in the live runtime immediately)
 - Symlinks every `claude/hooks/*.sh` into `~/.claude/hooks/` and makes them executable
 - Symlinks every `claude/agents/*.md` into `~/.claude/agents/`
 - Symlinks every `claude/commands/*.md` into `~/.claude/commands/`
@@ -202,27 +202,13 @@ This maps CWD-path keywords to org names. Each of your work projects should have
 
 `detect-org.sh` uses longest-match-wins on the CWD path. If no keyword matches, it falls back to `default`.
 
-### 4.3 `~/.claude/settings.json`
+### 4.3 `claude/settings.json` (tracked in this repo, symlinked as `~/.claude/settings.json`)
 
-This file is not in the dotfiles repo — it holds your personal Claude Code configuration and often contains auth tokens. A minimum template:
+Unlike many dotfiles setups, this one **does** track `settings.json`. `install.sh` symlinks it to `~/.claude/settings.json`, so edits to the tracked file take effect in the live runtime immediately. The file holds hooks wiring, permission rules, enabled plugins, and env vars.
 
-```json
-{
-  "env": {
-    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "80",
-    "MAX_MCP_OUTPUT_TOKENS": "50000"
-  },
-  "permissions": {
-    "allow": ["Read", "Grep", "Glob", "Agent"],
-    "defaultMode": "acceptEdits"
-  },
-  "effortLevel": "high",
-  "hooks": { },
-  "enabledPlugins": { }
-}
-```
+The canonical on-repo version is tuned to this machine and contains no secrets. If you need auth tokens in settings.json for your own forks, either (a) put them in a gitignored `settings.local.json` that Claude Code merges with the tracked one, or (b) keep your secrets in environment variables Claude Code resolves at runtime (`ANTHROPIC_API_KEY`, `LINEAR_API_KEY`, etc.) rather than baking them into the file.
 
-The `hooks` block is populated by hand from `docs/settings.hooks.md` — that file is the canonical event-to-handler catalog. Copy the hook configuration you want from there.
+The `hooks` block in the tracked file is the canonical wiring — you don't have to re-populate it. If you want a lighter-weight starting point for a fork, [docs/settings.hooks.md](settings.hooks.md) is the event-to-handler catalog you can cherry-pick from.
 
 ### 4.4 `claude-json/claude.json` MCP tokens
 
