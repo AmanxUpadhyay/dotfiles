@@ -12,7 +12,7 @@ The user has typed `/checkpoint <description>`. The `$ARGUMENTS` value contains 
 
 ## Steps
 
-1. **Detect the org** from the current working directory (same mapping as `/session-note`):
+1. **Detect the org** from the current working directory (same mapping `session-stop.sh` uses via `detect-org.sh` + `org-map.json`):
    - `vulcan` or `adtecher` → `AdTecher`
    - `ledgx` → `Ledgx`
    - `clubrevai` or `clubrev` → `ClubRevAI`
@@ -41,5 +41,5 @@ The user has typed `/checkpoint <description>`. The `$ARGUMENTS` value contains 
 
 - NEVER overwrite existing session-note content; always append/patch.
 - If `$ARGUMENTS` is empty, ask the user what to record instead of creating an empty bullet.
-- Do not create a new session note if none exists — complain that there's no session note yet and suggest running `/session-note` first (or let session-stop.sh generate one at turn-end).
-- Keep the bullet terse (one line, max ~120 chars). Longer context goes in `## What was done` via `/session-note`.
+- Do not create a new session note if none exists — tell the user there's no session note yet and suggest letting `session-stop.sh` generate one at turn-end (it fires automatically on Stop with a `decision: block` that makes Claude write the note).
+- Keep the bullet terse (one line, max ~120 chars). Longer context goes in `## What was done`, which `session-stop.sh` builds automatically at turn-end.
