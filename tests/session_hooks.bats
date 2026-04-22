@@ -76,11 +76,13 @@ _run_hook() {
 # ---------------------------------------------------------------------------
 # 1. Static config: referenced scripts exist in the repo
 # ---------------------------------------------------------------------------
-@test "settings.json SessionEnd registration absent (Stop covers the need every turn)" {
-  # As of the 2026-04-22 pipeline upgrade, SessionEnd registration was removed
-  # because Stop already fires every turn — wiring to both was redundant and
-  # caused double-fires of breadcrumb-writer. If a future change re-introduces
-  # SessionEnd, make sure it references only scripts that exist in this repo.
+@test "settings.json SessionEnd script refs valid when present (absence enforced by pipeline_upgrade.bats)" {
+  # Absence of SessionEnd is the primary invariant — enforced by
+  # pipeline_upgrade.bats test "breadcrumb-writer is NOT registered for SessionEnd".
+  # THIS test is a graceful future-proofing guard: if SessionEnd is ever
+  # re-introduced (e.g., for a non-breadcrumb hook), each referenced script
+  # must exist in the repo. Re-introduction without that check would let a
+  # dangling-script hook pass unnoticed.
   local has_session_end
   has_session_end=$(jq -r '.hooks | has("SessionEnd")' "$SETTINGS")
   if [ "$has_session_end" = "true" ]; then

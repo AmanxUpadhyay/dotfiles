@@ -4,7 +4,10 @@
 # =============================================================================
 
 SESSION_START="$BATS_TEST_DIRNAME/../claude/hooks/session-start.sh"
-SETTINGS="$HOME/.claude/settings.json"
+# Read the repo-tracked settings.json (auto-synced with ~/.claude/settings.json) so
+# assertions run against the committed diff — matches session_hooks.bats pattern and
+# keeps the test file hermetic across clones.
+SETTINGS="$BATS_TEST_DIRNAME/../claude/settings.json"
 
 @test "session-start.sh does not contain claude-mem curl block" {
   run grep -c '/api/search?query=' "$SESSION_START"
@@ -31,17 +34,17 @@ SETTINGS="$HOME/.claude/settings.json"
 }
 
 @test "settings.json permission mode is acceptEdits" {
-  run python3 -c "import json,sys; d=json.load(open('$HOME/.claude/settings.json')); sys.exit(0 if d['permissions']['defaultMode']=='acceptEdits' else 1)"
+  run python3 -c "import json,sys; d=json.load(open('$SETTINGS')); sys.exit(0 if d['permissions']['defaultMode']=='acceptEdits' else 1)"
   [ "$status" -eq 0 ]
 }
 
 @test "settings.json does not contain skipDangerousModePermissionPrompt" {
-  run grep -c skipDangerousModePermissionPrompt "$HOME/.claude/settings.json"
+  run grep -c skipDangerousModePermissionPrompt "$SETTINGS"
   [ "$status" -ne 0 ] || [ "$output" -eq 0 ]
 }
 
 @test "settings.json does not pin subagent model globally" {
-  run python3 -c "import json,sys; d=json.load(open('$HOME/.claude/settings.json')); sys.exit(0 if 'CLAUDE_CODE_SUBAGENT_MODEL' not in d.get('env',{}) else 1)"
+  run python3 -c "import json,sys; d=json.load(open('$SETTINGS')); sys.exit(0 if 'CLAUDE_CODE_SUBAGENT_MODEL' not in d.get('env',{}) else 1)"
   [ "$status" -eq 0 ]
 }
 
@@ -56,22 +59,22 @@ SETTINGS="$HOME/.claude/settings.json"
 }
 
 @test "settings.json registers PostToolUseFailure hook" {
-  run python3 -c "import json,sys; d=json.load(open('$HOME/.claude/settings.json')); sys.exit(0 if 'PostToolUseFailure' in d.get('hooks',{}) else 1)"
+  run python3 -c "import json,sys; d=json.load(open('$SETTINGS')); sys.exit(0 if 'PostToolUseFailure' in d.get('hooks',{}) else 1)"
   [ "$status" -eq 0 ]
 }
 
 @test "settings.json registers StopFailure hook" {
-  run python3 -c "import json,sys; d=json.load(open('$HOME/.claude/settings.json')); sys.exit(0 if 'StopFailure' in d.get('hooks',{}) else 1)"
+  run python3 -c "import json,sys; d=json.load(open('$SETTINGS')); sys.exit(0 if 'StopFailure' in d.get('hooks',{}) else 1)"
   [ "$status" -eq 0 ]
 }
 
 @test "settings.json registers PostCompact hook" {
-  run python3 -c "import json,sys; d=json.load(open('$HOME/.claude/settings.json')); sys.exit(0 if 'PostCompact' in d.get('hooks',{}) else 1)"
+  run python3 -c "import json,sys; d=json.load(open('$SETTINGS')); sys.exit(0 if 'PostCompact' in d.get('hooks',{}) else 1)"
   [ "$status" -eq 0 ]
 }
 
 @test "breadcrumb-writer is NOT registered for SessionEnd" {
-  run python3 -c "import json,sys; d=json.load(open('$HOME/.claude/settings.json')); se=d.get('hooks',{}).get('SessionEnd',[]); sys.exit(1 if any('breadcrumb' in h.get('command','') for block in se for h in block.get('hooks',[])) else 0)"
+  run python3 -c "import json,sys; d=json.load(open('$SETTINGS')); se=d.get('hooks',{}).get('SessionEnd',[]); sys.exit(1 if any('breadcrumb' in h.get('command','') for block in se for h in block.get('hooks',[])) else 0)"
   [ "$status" -eq 0 ]
 }
 
