@@ -99,6 +99,69 @@ EOF
 # ---------------------------------------------------------------------------
 # Test 3 — Good-path regression: inbox note uses ORIGINAL (unescaped) name
 # ---------------------------------------------------------------------------
+@test "notify_failure: prefers terminal-notifier when available (with -group for auto-replace)" {
+  # Stub terminal-notifier to capture args; it must be chosen over osascript
+  # because it supports -group for replacing older notifications in-place
+  # (fixes the "ghost notification" accumulation in Notification Center).
+  export TN_CAPTURE_FILE="$BATS_TEST_TMPDIR/captured-tn-args"
+  cat > "$BATS_TEST_TMPDIR/terminal-notifier" <<'EOF'
+#!/bin/bash
+printf '%s\n' "$@" > "$TN_CAPTURE_FILE"
+exit 0
+EOF
+  chmod +x "$BATS_TEST_TMPDIR/terminal-notifier"
+
+  local dummy_log="$BATS_TEST_TMPDIR/dummy.log"
+  touch "$dummy_log"
+
+  run bash -c "
+    export OBSIDIAN_VAULT=\"$OBSIDIAN_VAULT\"
+    export CLAUDE_LOG_DIR=\"$CLAUDE_LOG_DIR\"
+    export CAPTURE_FILE=\"$CAPTURE_FILE\"
+    export TN_CAPTURE_FILE=\"$TN_CAPTURE_FILE\"
+    export PATH=\"$PATH\"
+    source \"$NOTIFY_SH\"
+    notify_failure 'log-rotate' '$dummy_log'
+  "
+  [ "$status" -eq 0 ] || fail "expected exit 0, got $status. output: $output"
+
+  # terminal-notifier MUST have been invoked
+  [ -f "$TN_CAPTURE_FILE" ] \
+    || fail "terminal-notifier stub not invoked — script fell through to osascript despite tn being on PATH"
+
+  # osascript MUST NOT have been invoked in this run (tn should have won the branch)
+  [ ! -f "$CAPTURE_FILE" ] \
+    || fail "osascript fallback fired even though terminal-notifier was available: $(cat "$CAPTURE_FILE")"
+
+  # Captured args must include -group flag (auto-replace behavior)
+  grep -q "^-group$" "$TN_CAPTURE_FILE" \
+    || fail "terminal-notifier was called without -group — ghost notifications will still pile up. args: $(cat "$TN_CAPTURE_FILE")"
+
+  # -group value must be scoped to the script name (namespaced)
+  grep -q "^claude-automation\.log-rotate$" "$TN_CAPTURE_FILE" \
+    || fail "expected -group value 'claude-automation.log-rotate'; got: $(cat "$TN_CAPTURE_FILE")"
+}
+
+@test "notify_failure: osascript fallback path still works when terminal-notifier absent" {
+  # No terminal-notifier stub this time — osascript should take over.
+  # (Setup block doesn't install terminal-notifier, so this is the baseline.)
+  local dummy_log="$BATS_TEST_TMPDIR/dummy.log"
+  touch "$dummy_log"
+
+  run bash -c "
+    export OBSIDIAN_VAULT=\"$OBSIDIAN_VAULT\"
+    export CLAUDE_LOG_DIR=\"$CLAUDE_LOG_DIR\"
+    export CAPTURE_FILE=\"$CAPTURE_FILE\"
+    export PATH=\"$PATH\"
+    source \"$NOTIFY_SH\"
+    notify_failure 'weekly-report-gen' '$dummy_log'
+  "
+  [ "$status" -eq 0 ] || fail "expected exit 0, got $status"
+
+  [ -f "$CAPTURE_FILE" ] \
+    || fail "osascript fallback didn't fire even though terminal-notifier is absent"
+}
+
 @test "notify_failure: inbox note body uses original unescaped script_name" {
   local dummy_log="$BATS_TEST_TMPDIR/dummy.log"
   touch "$dummy_log"

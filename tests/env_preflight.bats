@@ -223,6 +223,23 @@ _make_stub_bin() {
     || fail "expected override to survive, got $output"
 }
 
+@test "env.sh preserves caller's pre-existing PATH entries (no test-stub clobber)" {
+  # Regression: env.sh used to hardcode PATH, clobbering test stubs of
+  # osascript/pgrep/npx prepended to PATH via $BATS_TEST_TMPDIR/bin. That
+  # caused notify_failure calls from bats tests to leak REAL macOS
+  # notifications instead of hitting the stub (seen live at 10:26 BST on
+  # 2026-04-22 as a "Cron failed: healthcheck-preflight" notification
+  # fired by the test suite itself).
+  run bash -c "
+    export PATH=\"/path/to/bats-stubs:\$PATH\"
+    source \"$ENV_SH\"
+    echo \"\$PATH\"
+  "
+  [ "$status" -eq 0 ] || fail "sourcing env.sh failed: $output"
+  [[ "$output" == /path/to/bats-stubs:* ]] \
+    || fail "env.sh clobbered the caller's PATH — test stubs will leak real notifications. got: $output"
+}
+
 @test "session-start.sh uses the env-var port, not hardcoded 37777" {
   # Regression: if someone reintroduces `http://127.0.0.1:37777/api/search`
   # the plugin/worker alignment breaks again.

@@ -12,8 +12,12 @@ set -euo pipefail
 # =============================================================================
 
 # Centralized PATH — applies to all consumers (cron, launchd, hooks).
-# Must come first so CLAUDE_BIN resolution and child processes find all binaries.
-export PATH="$HOME/.local/bin:$HOME/.bun/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin"
+# Prepend our known-good paths but keep any pre-existing PATH at the FRONT
+# so callers (e.g. bats tests) can stub binaries via $BATS_TEST_TMPDIR/bin.
+# Without this, env.sh's PATH reset would bypass test stubs of osascript /
+# pgrep / npx and leak real macOS notifications from notify-failure during
+# tests that intentionally trigger preflight failures.
+export PATH="${PATH:+$PATH:}$HOME/.local/bin:$HOME/.bun/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin"
 
 # purpose: vault root for Obsidian notes written by retros and session hooks.
 # Respect a pre-existing override so tests can point at a tmpdir.
