@@ -39,7 +39,7 @@ Designed to be both:
    - `WARN` if: ≥50 hook fires today AND 0 session notes (pipeline disconnect) • OR any single hook has > 500 fires (possible loop).
    - Otherwise `OK`.
 
-7. **Write the report** via `mcp__obsidian__write_note` to `99-Logs/YYYY-MM-DD-hook-health.md`. If the `99-Logs/` folder doesn't exist, create it first (MCP should handle this; fall back to `Write` tool if not).
+7. **Write the report** via `mcp__obsidian__write_note` to `04-Knowledge/Hook-Health/YYYY-MM-DD-hook-health.md`. If the `04-Knowledge/Hook-Health/` folder doesn't exist, create it first (MCP should handle this; fall back to `Write` tool if not).
 
    Use this structure:
 
@@ -97,7 +97,7 @@ Part of [[VAULT]]
 <Compact output of the aggregation for spot-checks; keep under 20 lines.>
 ```
 
-8. **Report back** to the invoker: "Wrote 99-Logs/YYYY-MM-DD-hook-health.md. Status: OK/WARN/FAIL. N fires logged."
+8. **Report back** to the invoker: "Wrote 04-Knowledge/Hook-Health/YYYY-MM-DD-hook-health.md. Status: OK/WARN/FAIL. N fires logged."
 
 ## Rules
 
@@ -111,4 +111,4 @@ Part of [[VAULT]]
 2. Name: **Hook Health**.
 3. Description: paste this entire file content (or at least the `## Steps` through `## Rules` sections).
 4. Schedule: **Every day at 23:45**. Enable "Keep awake" if not already.
-5. First run: test by running the task immediately; confirm a file appears at `99-Logs/YYYY-MM-DD-hook-health.md`.
+5. First run: test by running the task immediately; confirm a file appears at `04-Knowledge/Hook-Health/YYYY-MM-DD-hook-health.md`.

@@ -64,7 +64,7 @@ Each gated by a specific data threshold; if observed, cheap to execute.
 
 ### Decision 3 — Weekly `/hook-health` review
 
-The new `/hook-health` command (see `claude/commands/hook-health.md`) runs nightly via Claude Desktop Scheduled Tasks and writes a digest to `99-Logs/YYYY-MM-DD-hook-health.md`. Review weekly to catch drift against the triggers above.
+The new `/hook-health` command (see `claude/commands/hook-health.md`) runs nightly via Claude Desktop Scheduled Tasks and writes a digest to `04-Knowledge/Hook-Health/YYYY-MM-DD-hook-health.md`. Review weekly to catch drift against the triggers above.
 
 ## Consequences
 
