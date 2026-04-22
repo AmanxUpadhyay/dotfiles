@@ -135,36 +135,6 @@ $CRUMB"
 fi
 
 # ---------------------------------------------------------------------------
-# 6. claude-mem: relevant past observations for this project
-# ---------------------------------------------------------------------------
-# Explicit HTTP query to the claude-mem worker (localhost:37777). Takes over
-# injection from the plugin's IMPORTANT tool convention, which Claude wasn't
-# reliably self-calling at session start. Fails open — worker down or slow
-# just skips the section, never fails SessionStart.
-CLAUDE_MEM_SCOPE=""
-if git rev-parse --is-inside-work-tree &>/dev/null; then
-  CLAUDE_MEM_SCOPE=$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null || echo "")
-fi
-[[ -z "$CLAUDE_MEM_SCOPE" ]] && CLAUDE_MEM_SCOPE="${DETECTED_ORG:-}"
-
-if [[ -n "$CLAUDE_MEM_SCOPE" ]]; then
-  # URL-encode: escape literal % first (to %25) so a scope containing '%'
-  # doesn't produce a malformed query; then map remaining non-safe chars to %20.
-  MEM_QUERY=$(printf '%s' "$CLAUDE_MEM_SCOPE" | sed -e 's/%/%25/g' -e 's/[^a-zA-Z0-9._%-]/%20/g')
-  MEM_PORT="${CLAUDE_MEM_WORKER_PORT:-37777}"
-  MEM_RAW=$(curl -s --max-time 2 "http://127.0.0.1:${MEM_PORT}/api/search?query=$MEM_QUERY&limit=5" 2>/dev/null || echo "")
-  if [[ -n "$MEM_RAW" ]]; then
-    MEM_TEXT=$(echo "$MEM_RAW" | jq -r '.content[0].text // empty' 2>/dev/null || echo "")
-    if [[ -n "$MEM_TEXT" ]]; then
-      CONTEXT="$CONTEXT
-
-## Past Context (claude-mem, scope=$CLAUDE_MEM_SCOPE)
-$MEM_TEXT"
-    fi
-  fi
-fi
-
-# ---------------------------------------------------------------------------
 # Output
 # ---------------------------------------------------------------------------
 echo "{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": $(echo "$CONTEXT" | jq -Rs .)}}"
