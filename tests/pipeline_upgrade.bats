@@ -20,3 +20,7 @@ SETTINGS="$HOME/.claude/settings.json"
   run grep -F 'hookSpecificOutput' "$SESSION_START"
   [ "$status" -eq 0 ]
 }
+
+@test "session-end-note.sh has been removed" {
+  [ ! -e "$HOME/.claude/hooks/session-end-note.sh" ]
+}
