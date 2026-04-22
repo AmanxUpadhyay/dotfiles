@@ -24,3 +24,8 @@ SETTINGS="$HOME/.claude/settings.json"
 @test "session-end-note.sh has been removed" {
   [ ! -e "$HOME/.claude/hooks/session-end-note.sh" ]
 }
+
+@test "/session-note command file has been removed" {
+  [ ! -e "$BATS_TEST_DIRNAME/../claude/commands/session-note.md" ]
+  [ ! -e "$HOME/.claude/commands/session-note.md" ]
+}
