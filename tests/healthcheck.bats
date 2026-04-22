@@ -82,6 +82,16 @@ setup() {
   printf '#!/bin/bash\nexit 0\n' > "$stub_osa"
   chmod +x "$stub_osa"
 
+  # Stub terminal-notifier. MUST be stubbed — env.sh prepends /opt/homebrew/bin
+  # after the caller's PATH (to preserve homebrew tooling), which exposes the
+  # real terminal-notifier binary even when the test tries to restrict PATH.
+  # notify-failure.sh prefers terminal-notifier over osascript when both are on
+  # PATH, so without this stub the preflight-fail path in healthcheck.sh leaks
+  # real notifications to macOS Notification Centre on every run.
+  local stub_tn="$BATS_TEST_TMPDIR/bin/terminal-notifier"
+  printf '#!/bin/bash\nexit 0\n' > "$stub_tn"
+  chmod +x "$stub_tn"
+
   # Stub pgrep to always report Claude Desktop as running
   local stub_pgrep="$BATS_TEST_TMPDIR/bin/pgrep"
   printf '#!/bin/bash\nexit 0\n' > "$stub_pgrep"
