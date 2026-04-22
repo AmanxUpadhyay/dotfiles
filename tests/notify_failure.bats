@@ -35,6 +35,23 @@ exit 0
 EOF
   chmod +x "$BATS_TEST_TMPDIR/osascript"
 
+  # Stub terminal-notifier globally. Belt-and-braces: the PATH restriction
+  # below hides the real Homebrew terminal-notifier, but any helper script
+  # that sources env.sh will re-prepend /opt/homebrew/bin and expose it.
+  # Installing a stub at $BATS_TEST_TMPDIR (which stays ahead of the
+  # re-prepended homebrew paths) guarantees notify-failure.sh calls the
+  # stub, not the real binary, regardless of env.sh's PATH manipulation.
+  # Tests 1, 2, 4, 5 currently assert osascript-specific behaviour — those
+  # tests delete this stub on entry to force the osascript fallback branch.
+  cat > "$BATS_TEST_TMPDIR/terminal-notifier" <<'EOF'
+#!/bin/bash
+# stub: capture all args to $TN_GLOBAL_CAPTURE, exit 0.
+printf '%s\n' "$@" > "${TN_GLOBAL_CAPTURE:-/dev/null}"
+exit 0
+EOF
+  chmod +x "$BATS_TEST_TMPDIR/terminal-notifier"
+  export TN_GLOBAL_CAPTURE="$BATS_TEST_TMPDIR/tn-global-capture"
+
   # Restrict PATH so terminal-notifier (Homebrew) is invisible and osascript
   # fallback is forced. notify-failure.sh prefers terminal-notifier when present;
   # our test intent is to exercise the osascript branch and its escaping logic.
@@ -42,9 +59,18 @@ EOF
 }
 
 # ---------------------------------------------------------------------------
+# Helper: force osascript-fallback branch by deleting the global terminal-
+# notifier stub. Tests that assert osascript-specific behaviour call this.
+# ---------------------------------------------------------------------------
+_force_osascript_fallback() {
+  rm -f "$BATS_TEST_TMPDIR/terminal-notifier"
+}
+
+# ---------------------------------------------------------------------------
 # Test 1 — Safe path: normal script_name exits 0 and writes inbox note
 # ---------------------------------------------------------------------------
 @test "notify_failure: safe name exits 0 and writes inbox note" {
+  _force_osascript_fallback  # this test asserts osascript-specific capture
   local dummy_log="$BATS_TEST_TMPDIR/dummy.log"
   touch "$dummy_log"
 
@@ -70,6 +96,7 @@ EOF
 # Test 2 — Injection attempt: evil script_name must be escaped in AppleScript
 # ---------------------------------------------------------------------------
 @test "notify_failure: injection in script_name is escaped before osascript" {
+  _force_osascript_fallback  # this test asserts osascript escaping specifically
   local evil_name='evil"; delay 5; display dialog "pwned'
   local dummy_log="$BATS_TEST_TMPDIR/dummy.log"
   touch "$dummy_log"
@@ -145,8 +172,7 @@ EOF
 }
 
 @test "notify_failure: osascript fallback path still works when terminal-notifier absent" {
-  # No terminal-notifier stub this time — osascript should take over.
-  # (Setup block doesn't install terminal-notifier, so this is the baseline.)
+  _force_osascript_fallback  # remove the setup-installed stub so osascript wins
   local dummy_log="$BATS_TEST_TMPDIR/dummy.log"
   touch "$dummy_log"
 
@@ -165,6 +191,7 @@ EOF
 }
 
 @test "notify_failure: inbox note body uses original unescaped script_name" {
+  _force_osascript_fallback  # inbox-note content doesn't depend on notification path; force osascript for test determinism
   local dummy_log="$BATS_TEST_TMPDIR/dummy.log"
   touch "$dummy_log"
 
