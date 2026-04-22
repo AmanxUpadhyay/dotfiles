@@ -76,19 +76,25 @@ _run_hook() {
 # ---------------------------------------------------------------------------
 # 1. Static config: referenced scripts exist in the repo
 # ---------------------------------------------------------------------------
-@test "settings.json SessionEnd hook commands all point to existing repo scripts" {
-  local cmds
-  cmds=$(jq -r '.hooks.SessionEnd[].hooks[].command' "$SETTINGS")
-  [ -n "$cmds" ] || fail "no SessionEnd commands found in settings.json"
-
-  while IFS= read -r cmd; do
-    [ -z "$cmd" ] && continue
-    local script
-    script=$(echo "$cmd" | sed -n 's|.*\$HOME/\.claude/hooks/\([A-Za-z0-9._-]*\).*|\1|p')
-    [ -n "$script" ] || fail "could not parse script name from command: $cmd"
-    [ -f "$REPO_ROOT/claude/hooks/$script" ] \
-      || fail "SessionEnd references claude/hooks/$script but file is missing"
-  done <<< "$cmds"
+@test "settings.json SessionEnd registration absent (Stop covers the need every turn)" {
+  # As of the 2026-04-22 pipeline upgrade, SessionEnd registration was removed
+  # because Stop already fires every turn — wiring to both was redundant and
+  # caused double-fires of breadcrumb-writer. If a future change re-introduces
+  # SessionEnd, make sure it references only scripts that exist in this repo.
+  local has_session_end
+  has_session_end=$(jq -r '.hooks | has("SessionEnd")' "$SETTINGS")
+  if [ "$has_session_end" = "true" ]; then
+    local cmds
+    cmds=$(jq -r '.hooks.SessionEnd[].hooks[].command' "$SETTINGS")
+    while IFS= read -r cmd; do
+      [ -z "$cmd" ] && continue
+      local script
+      script=$(echo "$cmd" | sed -n 's|.*\$HOME/\.claude/hooks/\([A-Za-z0-9._-]*\).*|\1|p')
+      [ -n "$script" ] || fail "could not parse script name from command: $cmd"
+      [ -f "$REPO_ROOT/claude/hooks/$script" ] \
+        || fail "SessionEnd references claude/hooks/$script but file is missing"
+    done <<< "$cmds"
+  fi
 }
 
 @test "settings.json Stop hook commands all point to existing repo scripts" {
@@ -116,17 +122,18 @@ _run_hook() {
     || fail "session-stop.sh must be async:false (got: $async); async:true makes decision:block a no-op"
 }
 
-@test "settings.json: breadcrumb-writer wired to both Stop and SessionEnd" {
-  # SessionEnd alone is lost on Cmd+Q / SIGKILL. Wiring to Stop too means the
-  # breadcrumb is rewritten every turn, so a force-quit still leaves a fresh
-  # pointer file in the repo.
+@test "settings.json: breadcrumb-writer wired to Stop only (SessionEnd removed 2026-04-22)" {
+  # Stop fires every turn — the breadcrumb stays fresh even on Cmd+Q/SIGKILL
+  # because Stop runs during normal turn-end before the force-quit can land.
+  # SessionEnd wiring was removed because it double-fired the breadcrumb
+  # writer without adding reliability.
   local on_stop on_session_end
   on_stop=$(jq -r '.hooks.Stop[].hooks[] | select(.command | contains("breadcrumb-writer.sh")) | .command' "$SETTINGS")
-  on_session_end=$(jq -r '.hooks.SessionEnd[].hooks[] | select(.command | contains("breadcrumb-writer.sh")) | .command' "$SETTINGS")
+  on_session_end=$(jq -r '.hooks | (if has("SessionEnd") then .SessionEnd[].hooks[] | select(.command | contains("breadcrumb-writer.sh")) | .command else empty end)' "$SETTINGS")
   [ -n "$on_stop" ] \
     || fail "breadcrumb-writer.sh must be wired to Stop (for Cmd+Q survival)"
-  [ -n "$on_session_end" ] \
-    || fail "breadcrumb-writer.sh must also stay wired to SessionEnd (belt and suspenders)"
+  [ -z "$on_session_end" ] \
+    || fail "breadcrumb-writer.sh should NOT be wired to SessionEnd anymore (removed 2026-04-22 to eliminate double-fire)"
 }
 
 @test "settings.json: breadcrumb-writer on Stop is async:true" {

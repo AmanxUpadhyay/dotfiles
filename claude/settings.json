@@ -144,18 +144,6 @@
         ]
       }
     ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/breadcrumb-writer.sh\"",
-            "timeout": 5,
-            "async": true
-          }
-        ]
-      }
-    ],
     "PreCompact": [
       {
         "hooks": [
@@ -164,6 +152,42 @@
             "command": "bash \"$HOME/.claude/hooks/precompact.sh\"",
             "timeout": 30,
             "async": false
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/log-tool-failure.sh\"",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/log-stop-failure.sh\"",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/log-post-compact.sh\"",
+            "timeout": 5,
+            "async": true
           }
         ]
       }
