@@ -29,3 +29,13 @@ SETTINGS="$HOME/.claude/settings.json"
   [ ! -e "$BATS_TEST_DIRNAME/../claude/commands/session-note.md" ]
   [ ! -e "$HOME/.claude/commands/session-note.md" ]
 }
+
+@test "settings.json permission mode is acceptEdits" {
+  run python3 -c "import json,sys; d=json.load(open('$HOME/.claude/settings.json')); sys.exit(0 if d['permissions']['defaultMode']=='acceptEdits' else 1)"
+  [ "$status" -eq 0 ]
+}
+
+@test "settings.json does not contain skipDangerousModePermissionPrompt" {
+  run grep -c skipDangerousModePermissionPrompt "$HOME/.claude/settings.json"
+  [ "$status" -ne 0 ] || [ "$output" -eq 0 ]
+}

@@ -15,7 +15,7 @@
       "Glob",
       "Agent"
     ],
-    "defaultMode": "bypassPermissions"
+    "defaultMode": "acceptEdits"
   },
   "hooks": {
     "SessionStart": [
@@ -226,6 +226,5 @@
       "autoUpdate": true
     }
   },
-  "effortLevel": "high",
-  "skipDangerousModePermissionPrompt": true
+  "effortLevel": "high"
 }
