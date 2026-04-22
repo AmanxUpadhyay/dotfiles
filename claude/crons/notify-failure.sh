@@ -22,14 +22,30 @@ notify_failure() {
   local _nf_start
   _nf_start=$(date +%s)
 
-  # macOS notification (silent if osascript unavailable)
+  # macOS notification. Prefer `terminal-notifier` (Homebrew) when present
+  # because it supports `-group` for auto-replace (so repeated failures for
+  # the same cron don't pile up ghost notifications in Notification Center —
+  # each new fire replaces the previous one for that group). Fall back to
+  # `osascript display notification` which leaves persistent entries that
+  # linger until manually dismissed (known macOS limitation).
+  #
   # Security: escape backslashes then double-quotes so caller-supplied values
-  # cannot break out of the AppleScript string literal (Option A — substitution).
-  if command -v osascript &>/dev/null; then
-    local _safe_name="${script_name//\\/\\\\}"
-    _safe_name="${_safe_name//\"/\\\"}"
-    local _safe_time="${time_str//\\/\\\\}"
-    _safe_time="${_safe_time//\"/\\\"}"
+  # cannot break out of shell/AppleScript string literals.
+  local _safe_name="${script_name//\\/\\\\}"
+  _safe_name="${_safe_name//\"/\\\"}"
+  local _safe_time="${time_str//\\/\\\\}"
+  _safe_time="${_safe_time//\"/\\\"}"
+
+  if command -v terminal-notifier &>/dev/null; then
+    # -group key means new failures for the same script replace the previous
+    # notification rather than stacking. Namespaced under claude-automation.
+    terminal-notifier \
+      -title "Claude Automation" \
+      -message "Cron failed: $_safe_name at $_safe_time" \
+      -sound Basso \
+      -group "claude-automation.$_safe_name" \
+      &>/dev/null || true
+  elif command -v osascript &>/dev/null; then
     osascript -e "display notification \"Cron failed: $_safe_name at $_safe_time\" with title \"Claude Automation\" sound name \"Basso\"" 2>/dev/null || true
   fi
 
