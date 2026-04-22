@@ -33,14 +33,21 @@ SETTINGS="$BATS_TEST_DIRNAME/../claude/settings.json"
   [ ! -e "$HOME/.claude/commands/session-note.md" ]
 }
 
-@test "settings.json permission mode is acceptEdits" {
-  run python3 -c "import json,sys; d=json.load(open('$SETTINGS')); sys.exit(0 if d['permissions']['defaultMode']=='acceptEdits' else 1)"
+@test "settings.json permission mode is bypassPermissions" {
+  # User preference confirmed 2026-04-22: bypassPermissions chosen over the
+  # original defense-in-depth acceptEdits decision (PR #132 Phase 2.4).
+  # permissions.allow list and permission-auto-approve.sh are retained as
+  # dormant belt-and-braces — they don't fire under bypass, but stay in
+  # place so a future revert back to acceptEdits is a one-line change.
+  run python3 -c "import json,sys; d=json.load(open('$SETTINGS')); sys.exit(0 if d['permissions']['defaultMode']=='bypassPermissions' else 1)"
   [ "$status" -eq 0 ]
 }
 
-@test "settings.json does not contain skipDangerousModePermissionPrompt" {
-  run grep -c skipDangerousModePermissionPrompt "$SETTINGS"
-  [ "$status" -ne 0 ] || [ "$output" -eq 0 ]
+@test "settings.json contains skipDangerousModePermissionPrompt: true" {
+  # Paired with bypassPermissions above — suppresses the bypass-mode warning
+  # banner. Meaningless in acceptEdits mode.
+  run python3 -c "import json,sys; d=json.load(open('$SETTINGS')); sys.exit(0 if d.get('skipDangerousModePermissionPrompt') is True else 1)"
+  [ "$status" -eq 0 ]
 }
 
 @test "settings.json does not pin subagent model globally" {
