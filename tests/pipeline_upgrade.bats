@@ -39,3 +39,18 @@ SETTINGS="$HOME/.claude/settings.json"
   run grep -c skipDangerousModePermissionPrompt "$HOME/.claude/settings.json"
   [ "$status" -ne 0 ] || [ "$output" -eq 0 ]
 }
+
+@test "settings.json does not pin subagent model globally" {
+  run python3 -c "import json,sys; d=json.load(open('$HOME/.claude/settings.json')); sys.exit(0 if 'CLAUDE_CODE_SUBAGENT_MODEL' not in d.get('env',{}) else 1)"
+  [ "$status" -eq 0 ]
+}
+
+@test "code-reviewer agent pinned to Opus 4.7" {
+  run grep -E '^model: claude-opus-4-7' "$BATS_TEST_DIRNAME/../claude/agents/code-reviewer.md"
+  [ "$status" -eq 0 ]
+}
+
+@test "researcher agent pinned to Opus 4.7" {
+  run grep -E '^model: claude-opus-4-7' "$BATS_TEST_DIRNAME/../claude/agents/researcher.md"
+  [ "$status" -eq 0 ]
+}
