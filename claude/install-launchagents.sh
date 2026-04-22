@@ -51,5 +51,5 @@ if [[ "$UNINSTALL" == false ]]; then
     echo "  launchctl print $GUI_DOMAIN | grep godl1ke.claude"
     echo ""
     echo "Test-fire an agent with:"
-    echo "  launchctl kickstart $GUI_DOMAIN/com.godl1ke.claude.healthcheck-preflight"
+    echo "  launchctl kickstart $GUI_DOMAIN/com.godl1ke.claude-mem-worker"
 fi
