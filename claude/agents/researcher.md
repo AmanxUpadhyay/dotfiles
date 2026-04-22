@@ -1,7 +1,7 @@
 ---
 name: researcher
-description: "Background researcher. Investigates libraries, patterns, and documentation while you code. Run with Ctrl+B to background."
-model: claude-sonnet-4-6
+description: "Background researcher. Investigates libraries, patterns, and documentation while you code. Use proactively: dispatch at the start of every superpowers:brainstorming session, and again before writing any spec, to validate libraries and assumptions. Run with Ctrl+B to background."
+model: claude-opus-4-7
 tools: Read, Grep, Glob, WebSearch, WebFetch
 disallowedTools: Write, Edit, MultiEdit
 permissionMode: plan

@@ -76,19 +76,27 @@ _run_hook() {
 # ---------------------------------------------------------------------------
 # 1. Static config: referenced scripts exist in the repo
 # ---------------------------------------------------------------------------
-@test "settings.json SessionEnd hook commands all point to existing repo scripts" {
-  local cmds
-  cmds=$(jq -r '.hooks.SessionEnd[].hooks[].command' "$SETTINGS")
-  [ -n "$cmds" ] || fail "no SessionEnd commands found in settings.json"
-
-  while IFS= read -r cmd; do
-    [ -z "$cmd" ] && continue
-    local script
-    script=$(echo "$cmd" | sed -n 's|.*\$HOME/\.claude/hooks/\([A-Za-z0-9._-]*\).*|\1|p')
-    [ -n "$script" ] || fail "could not parse script name from command: $cmd"
-    [ -f "$REPO_ROOT/claude/hooks/$script" ] \
-      || fail "SessionEnd references claude/hooks/$script but file is missing"
-  done <<< "$cmds"
+@test "settings.json SessionEnd script refs valid when present (absence enforced by pipeline_upgrade.bats)" {
+  # Absence of SessionEnd is the primary invariant — enforced by
+  # pipeline_upgrade.bats test "breadcrumb-writer is NOT registered for SessionEnd".
+  # THIS test is a graceful future-proofing guard: if SessionEnd is ever
+  # re-introduced (e.g., for a non-breadcrumb hook), each referenced script
+  # must exist in the repo. Re-introduction without that check would let a
+  # dangling-script hook pass unnoticed.
+  local has_session_end
+  has_session_end=$(jq -r '.hooks | has("SessionEnd")' "$SETTINGS")
+  if [ "$has_session_end" = "true" ]; then
+    local cmds
+    cmds=$(jq -r '.hooks.SessionEnd[].hooks[].command' "$SETTINGS")
+    while IFS= read -r cmd; do
+      [ -z "$cmd" ] && continue
+      local script
+      script=$(echo "$cmd" | sed -n 's|.*\$HOME/\.claude/hooks/\([A-Za-z0-9._-]*\).*|\1|p')
+      [ -n "$script" ] || fail "could not parse script name from command: $cmd"
+      [ -f "$REPO_ROOT/claude/hooks/$script" ] \
+        || fail "SessionEnd references claude/hooks/$script but file is missing"
+    done <<< "$cmds"
+  fi
 }
 
 @test "settings.json Stop hook commands all point to existing repo scripts" {
@@ -116,17 +124,18 @@ _run_hook() {
     || fail "session-stop.sh must be async:false (got: $async); async:true makes decision:block a no-op"
 }
 
-@test "settings.json: breadcrumb-writer wired to both Stop and SessionEnd" {
-  # SessionEnd alone is lost on Cmd+Q / SIGKILL. Wiring to Stop too means the
-  # breadcrumb is rewritten every turn, so a force-quit still leaves a fresh
-  # pointer file in the repo.
+@test "settings.json: breadcrumb-writer wired to Stop only (SessionEnd removed 2026-04-22)" {
+  # Stop fires every turn — the breadcrumb stays fresh even on Cmd+Q/SIGKILL
+  # because Stop runs during normal turn-end before the force-quit can land.
+  # SessionEnd wiring was removed because it double-fired the breadcrumb
+  # writer without adding reliability.
   local on_stop on_session_end
   on_stop=$(jq -r '.hooks.Stop[].hooks[] | select(.command | contains("breadcrumb-writer.sh")) | .command' "$SETTINGS")
-  on_session_end=$(jq -r '.hooks.SessionEnd[].hooks[] | select(.command | contains("breadcrumb-writer.sh")) | .command' "$SETTINGS")
+  on_session_end=$(jq -r '.hooks | (if has("SessionEnd") then .SessionEnd[].hooks[] | select(.command | contains("breadcrumb-writer.sh")) | .command else empty end)' "$SETTINGS")
   [ -n "$on_stop" ] \
     || fail "breadcrumb-writer.sh must be wired to Stop (for Cmd+Q survival)"
-  [ -n "$on_session_end" ] \
-    || fail "breadcrumb-writer.sh must also stay wired to SessionEnd (belt and suspenders)"
+  [ -z "$on_session_end" ] \
+    || fail "breadcrumb-writer.sh should NOT be wired to SessionEnd anymore (removed 2026-04-22 to eliminate double-fire)"
 }
 
 @test "settings.json: breadcrumb-writer on Stop is async:true" {
@@ -368,38 +377,6 @@ PRECOMPACT="$REPO_ROOT/claude/hooks/precompact.sh"
   _run_hook "$PRECOMPACT" '{"session_id":"u","hook_event_name":"PreCompact"}'
   [ "$status" -eq 0 ] \
     || fail "expected exit 0 with unset CLAUDE_AUTOMATED, got $status. output: $output"
-}
-
-# ---------------------------------------------------------------------------
-# 14-16. session-start.sh — claude-mem HTTP injection (Phase 4)
-# ---------------------------------------------------------------------------
-SESSION_START="$REPO_ROOT/claude/hooks/session-start.sh"
-
-@test "session-start.sh contains claude-mem HTTP injection logic" {
-  run grep -E "127\.0\.0\.1:37777/api/search" "$SESSION_START"
-  [ "$status" -eq 0 ] || fail "session-start.sh missing claude-mem HTTP call"
-}
-
-@test "session-start.sh uses --max-time on the claude-mem curl call" {
-  # Fail-fast: worker down must not block SessionStart.
-  run grep -E "curl.*--max-time" "$SESSION_START"
-  [ "$status" -eq 0 ] || fail "curl call must use --max-time for fail-fast behavior"
-}
-
-@test "session-start.sh fails open when claude-mem worker is unreachable" {
-  # Point the curl at a closed port to simulate unreachable worker.
-  # session-start must still exit 0 and emit valid JSON.
-  # Ensure git context exists so the earlier parts of session-start don't abort.
-  local proj="$BATS_TEST_TMPDIR/proj-claude-mem"
-  mkdir -p "$proj"
-  (cd "$proj" && git init -q && git config user.email t@t && git config user.name t \
-    && git commit -q --allow-empty -m init)
-  cd "$proj"
-
-  _run_hook "$SESSION_START" '{"session_id":"t","hook_event_name":"SessionStart","source":"startup"}'
-  [ "$status" -eq 0 ] || fail "SessionStart must exit 0 even when mem worker is down. output: $output"
-  echo "$output" | jq -e '.hookSpecificOutput.hookEventName == "SessionStart"' >/dev/null \
-    || fail "expected valid SessionStart hook JSON, got: $output"
 }
 
 # ---------------------------------------------------------------------------

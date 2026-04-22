@@ -240,13 +240,13 @@ _make_stub_bin() {
     || fail "env.sh clobbered the caller's PATH — test stubs will leak real notifications. got: $output"
 }
 
-@test "session-start.sh uses the env-var port, not hardcoded 37777" {
-  # Regression: if someone reintroduces `http://127.0.0.1:37777/api/search`
-  # the plugin/worker alignment breaks again.
+@test "session-start.sh has no direct curl to the claude-mem worker" {
+  # Regression: B2 (2026-04-22) removed the manual HTTP curl block entirely;
+  # the plugin's own SessionStart hook now owns memory injection.
+  # Guard against reintroduction of either the hardcoded port or the env-var curl.
   local hook="$BATS_TEST_DIRNAME/../claude/hooks/session-start.sh"
   ! grep -E "127\\.0\\.0\\.1:37777" "$hook" \
-    || fail "session-start.sh still references hardcoded 37777; should use \$CLAUDE_MEM_WORKER_PORT"
-  run grep -E "CLAUDE_MEM_WORKER_PORT" "$hook"
-  [ "$status" -eq 0 ] \
-    || fail "session-start.sh doesn't reference CLAUDE_MEM_WORKER_PORT"
+    || fail "session-start.sh still references hardcoded 37777; curl block should be absent"
+  ! grep -E "curl.*CLAUDE_MEM_WORKER_PORT|curl.*/api/search" "$hook" \
+    || fail "session-start.sh still contains a curl to the claude-mem worker; plugin owns injection now"
 }

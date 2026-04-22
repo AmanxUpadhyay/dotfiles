@@ -1,6 +1,5 @@
 {
   "env": {
-    "CLAUDE_CODE_SUBAGENT_MODEL": "claude-sonnet-4-6",
     "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "80",
     "MAX_MCP_OUTPUT_TOKENS": "50000"
   },
@@ -15,7 +14,7 @@
       "Glob",
       "Agent"
     ],
-    "defaultMode": "bypassPermissions"
+    "defaultMode": "acceptEdits"
   },
   "hooks": {
     "SessionStart": [
@@ -144,18 +143,6 @@
         ]
       }
     ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/breadcrumb-writer.sh\"",
-            "timeout": 5,
-            "async": true
-          }
-        ]
-      }
-    ],
     "PreCompact": [
       {
         "hooks": [
@@ -164,6 +151,42 @@
             "command": "bash \"$HOME/.claude/hooks/precompact.sh\"",
             "timeout": 30,
             "async": false
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/log-tool-failure.sh\"",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/log-stop-failure.sh\"",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/log-post-compact.sh\"",
+            "timeout": 5,
+            "async": true
           }
         ]
       }
@@ -202,6 +225,5 @@
       "autoUpdate": true
     }
   },
-  "effortLevel": "high",
-  "skipDangerousModePermissionPrompt": true
+  "effortLevel": "high"
 }

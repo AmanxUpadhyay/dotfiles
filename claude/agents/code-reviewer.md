@@ -1,7 +1,7 @@
 ---
 name: code-reviewer
 description: "Project-specific code reviewer. Checks against this project's conventions in CLAUDE.md as well as correctness. Read-only."
-model: claude-sonnet-4-6
+model: claude-opus-4-7
 tools: Read, Grep, Glob
 disallowedTools: Write, Edit, MultiEdit, Bash
 permissionMode: plan
