@@ -1,143 +1,136 @@
 # GODL1KE Dotfiles
 
-Aman's complete dev environment — M2 Max MacBook Pro fresh install blueprint.
+> A fresh-Mac blueprint for an AI-assisted engineering environment: Claude Code with opinionated hooks, a second-brain pipeline into Obsidian, and enough observability to know when something's broken.
 
-## What's Inside
+Aman's personal setup. Forkable, customisable, and documented for three kinds of reader:
 
-| Directory | Contents |
-|-----------|----------|
-| `zsh/` | Shell config, aliases, project switching |
-| `starship/` | Prompt configuration |
-| `tmux/` | Terminal multiplexer config with project sessions |
-| `git/` | Git config with SSH signing, global gitignore |
-| `ghostty/` | Terminal appearance and behaviour |
-| `claude/` | Claude Code: CLAUDE.md, hooks, agents, slash commands |
-| `claude-json/` | MCP server configuration |
-| `pre-commit/` | Git pre-commit hook template |
-| `raycast/` | Project switching scripts |
-| `templates/` | Per-project templates (CLAUDE.md, .env.example, Obsidian) |
+- **You, six months from now** — jump to [ARCHITECTURE.md](docs/ARCHITECTURE.md) for the why-it's-shaped-like-this.
+- **A stranger on GitHub wanting to replicate it** — go to [INSTALL.md](docs/INSTALL.md).
+- **Someone adding a hook / command / agent** — see [CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
-## Quick Start
+---
+
+## What this actually is
+
+A dotfiles repo with the usual shell/git/terminal configs, plus a heavily customised Claude Code harness:
+
+- **19 hooks** covering the full lifecycle (session start/end, prompt submit, pre/post tool use, permission grant/deny, compaction, failures). Each one is a small bash script with a `purpose / inputs / outputs / side-effects` header.
+- **10 slash commands** (`/review`, `/security-scan`, `/health-check`, `/handoff-to-execute`, `/checkpoint`, `/catchup`, `/hook-health`, `/audit`, `/deploy-check`, `/test-all`).
+- **2 custom subagents** (`code-reviewer`, `researcher`) with per-agent model routing and per-agent permission scopes.
+- **3 live LaunchAgents** (`claude-mem-worker`, `log-rotate`, `mac-cleanup-scan`) plus 6 archived ones kept for historical reference.
+- **Obsidian integration** — session notes, bug-jar entries, checkpoints, and daily retrospectives are written automatically via MCP.
+- **13 bats regression suites** guarding the hook + cron contracts.
+
+If that sounds useful, keep reading. If you just want the shell and git config, the relevant directories are `zsh/`, `git/`, `tmux/`, `starship/`, `ghostty/` — they're all standalone.
+
+---
+
+## Quick start (for someone who knows what they're doing)
 
 ```bash
-# 1. Clone this repo
 git clone git@github.com:YOUR_USERNAME/dotfiles.git ~/.dotfiles
-
-# 2. Run the installer
-cd ~/.dotfiles
-chmod +x install.sh
-./install.sh
-
-# 3. Follow the post-install steps printed at the end
+cd ~/.dotfiles && ./install.sh
+./claude/install-launchagents.sh   # optional: installs the 3 live crons
 ```
 
-## The Setup Philosophy
+Then read [INSTALL.md](docs/INSTALL.md) for the customisation you'll almost certainly need to do (Obsidian vault path, org-map keywords, MCP server auth).
 
-- **Hooks over instructions**: Safety guards and formatting are enforced by hooks (deterministic), not CLAUDE.md (advisory)
-- **Under 200 lines**: CLAUDE.md files are kept lean — every line competes for Claude's attention
-- **Symlinks over copies**: All configs are symlinked from this repo, so `git pull` updates everything
-- **PR gate**: Every PR must pass lint, tests, and security checks automatically
-- **Memory on autopilot**: Auto Memory + claude-mem run in the background with zero manual management
-<!-- Updated: 2026-04-15 23:13:20 -->
-<!-- Updated: 2026-04-15 23:13:30 -->
-<!-- Updated: 2026-04-15 23:13:39 -->
-<!-- Updated: 2026-04-15 23:13:49 -->
-<!-- Updated: 2026-04-15 23:13:58 -->
-<!-- Updated: 2026-04-15 23:14:07 -->
-<!-- Updated: 2026-04-15 23:14:17 -->
-<!-- Updated: 2026-04-15 23:14:27 -->
-<!-- Updated: 2026-04-15 23:14:37 -->
-<!-- Updated: 2026-04-15 23:14:46 -->
-<!-- Updated: 2026-04-15 23:14:55 -->
-<!-- Updated: 2026-04-15 23:15:04 -->
-<!-- Updated: 2026-04-15 23:15:14 -->
-<!-- Updated: 2026-04-15 23:15:23 -->
-<!-- Updated: 2026-04-15 23:15:33 -->
-<!-- Updated: 2026-04-15 23:15:44 -->
-<!-- Updated: 2026-04-15 23:15:53 -->
-<!-- Updated: 2026-04-15 23:16:03 -->
-<!-- Updated: 2026-04-15 23:16:12 -->
-<!-- Updated: 2026-04-15 23:16:22 -->
-<!-- Updated: 2026-04-15 23:16:32 -->
-<!-- Updated: 2026-04-15 23:16:41 -->
-<!-- Updated: 2026-04-15 23:16:50 -->
-<!-- Updated: 2026-04-15 23:17:00 -->
-<!-- Updated: 2026-04-15 23:17:10 -->
-<!-- Updated: 2026-04-15 23:17:19 -->
-<!-- Updated: 2026-04-15 23:17:28 -->
-<!-- Updated: 2026-04-15 23:17:38 -->
-<!-- Updated: 2026-04-15 23:17:47 -->
-<!-- Updated: 2026-04-15 23:17:57 -->
-<!-- Updated: 2026-04-15 23:18:07 -->
-<!-- Updated: 2026-04-15 23:18:17 -->
-<!-- Updated: 2026-04-15 23:18:27 -->
-<!-- Updated: 2026-04-15 23:18:36 -->
-<!-- Updated: 2026-04-15 23:18:46 -->
-<!-- Updated: 2026-04-15 23:18:55 -->
-<!-- Updated: 2026-04-15 23:19:05 -->
-<!-- Updated: 2026-04-15 23:19:14 -->
-<!-- Updated: 2026-04-15 23:19:24 -->
-<!-- Updated: 2026-04-15 23:19:33 -->
-<!-- Updated: 2026-04-15 23:19:42 -->
-<!-- Updated: 2026-04-15 23:19:51 -->
-<!-- Updated: 2026-04-15 23:20:01 -->
-<!-- Updated: 2026-04-15 23:20:12 -->
-<!-- Updated: 2026-04-15 23:20:21 -->
-<!-- Updated: 2026-04-15 23:20:30 -->
-<!-- Updated: 2026-04-15 23:20:40 -->
-<!-- Updated: 2026-04-15 23:20:49 -->
-<!-- Updated: 2026-04-15 23:20:58 -->
-<!-- Updated: 2026-04-15 23:21:08 -->
-<!-- Updated: 2026-04-15 23:21:18 -->
-<!-- Updated: 2026-04-15 23:21:27 -->
-<!-- Updated: 2026-04-16 16:09:33 -->
-<!-- Updated: 2026-04-16 16:09:57 -->
-<!-- Updated: 2026-04-16 16:10:21 -->
-<!-- Updated: 2026-04-16 16:10:45 -->
-<!-- Updated: 2026-04-16 16:11:09 -->
-<!-- Updated: 2026-04-16 16:11:33 -->
-<!-- Updated: 2026-04-16 16:11:57 -->
-<!-- Updated: 2026-04-16 16:12:21 -->
-<!-- Updated: 2026-04-16 16:12:45 -->
-<!-- Updated: 2026-04-16 16:13:09 -->
-<!-- Updated: 2026-04-16 16:13:32 -->
-<!-- Updated: 2026-04-16 16:13:56 -->
-<!-- Updated: 2026-04-16 16:14:19 -->
-<!-- Updated: 2026-04-16 16:14:42 -->
-<!-- Updated: 2026-04-16 16:15:06 -->
-<!-- Updated: 2026-04-16 16:15:30 -->
-<!-- Updated: 2026-04-16 16:15:54 -->
-<!-- Updated: 2026-04-16 16:16:18 -->
-<!-- Updated: 2026-04-16 16:16:43 -->
-<!-- Updated: 2026-04-16 16:17:06 -->
-<!-- Updated: 2026-04-16 16:17:30 -->
-<!-- Updated: 2026-04-16 16:17:55 -->
-<!-- Updated: 2026-04-16 16:18:19 -->
-<!-- Updated: 2026-04-16 16:18:43 -->
-<!-- Updated: 2026-04-16 16:19:06 -->
-<!-- Updated: 2026-04-16 16:19:29 -->
-<!-- Updated: 2026-04-16 16:19:53 -->
-<!-- Updated: 2026-04-16 16:20:16 -->
-<!-- Updated: 2026-04-16 16:20:40 -->
-<!-- Updated: 2026-04-16 16:21:03 -->
-<!-- Updated: 2026-04-16 16:21:27 -->
-<!-- Updated: 2026-04-16 16:21:50 -->
-<!-- Updated: 2026-04-16 16:22:13 -->
-<!-- Updated: 2026-04-16 16:22:37 -->
-<!-- Updated: 2026-04-16 16:23:00 -->
-<!-- Updated: 2026-04-16 16:23:23 -->
-<!-- Updated: 2026-04-16 16:23:47 -->
-<!-- Updated: 2026-04-16 16:24:11 -->
-<!-- Updated: 2026-04-16 16:24:34 -->
-<!-- Updated: 2026-04-16 16:24:57 -->
-<!-- Updated: 2026-04-16 16:25:21 -->
-<!-- Updated: 2026-04-16 16:25:44 -->
-<!-- Updated: 2026-04-16 16:26:08 -->
-<!-- Updated: 2026-04-16 16:26:31 -->
-<!-- Updated: 2026-04-16 16:26:54 -->
-<!-- Updated: 2026-04-16 16:27:18 -->
-<!-- Updated: 2026-04-16 16:27:42 -->
-<!-- Updated: 2026-04-16 16:28:05 -->
-<!-- Updated: 2026-04-16 16:28:29 -->
-<!-- Updated: 2026-04-16 16:28:52 -->
-<!-- Updated: 2026-04-16 16:29:16 -->
+---
+
+## Prerequisites
+
+Minimum versions that have been tested on this machine (M2 Max, macOS 15+).
+
+| Tool | Version | Why |
+|---|---|---|
+| macOS | 14.0+ | Some hooks use `log show` and modern `launchctl` subcommands |
+| Homebrew | Any recent | Installs everything below |
+| bash | 4.0+ (Homebrew) | Several hooks use `declare -A` which crashes Apple's bundled bash 3.2 |
+| Node | 20+ | claude-mem plugin runs under bun/Node |
+| Python | 3.11+ | `claude-stack-audit` subproject + settings.json parsing |
+| jq | Any | Every hook parses/builds JSON with it |
+| bats-core | 1.10+ | Test harness for all shell code |
+| terminal-notifier | Any | Preferred over osascript for cron failure notifications (auto-replaces) |
+| Claude Code CLI | 2.x+ | The whole pipeline runs under Claude Code |
+| Obsidian | Any | Vault must be iCloud-synced for the MCP integration |
+
+Homebrew one-liner for all required packages:
+
+```bash
+brew install bash jq bats-core terminal-notifier gh node@20
+```
+
+---
+
+## What's inside
+
+| Directory | Contents |
+|---|---|
+| `zsh/` | Shell config, aliases, project-switching helpers |
+| `starship/` | Prompt configuration |
+| `tmux/` | Terminal multiplexer config with project sessions |
+| `git/` | Git config with SSH-signed commits, global gitignore |
+| `ghostty/` | Terminal appearance + keybindings |
+| `claude/` | **The main event** — CLAUDE.md, hooks, agents, commands, crons, launchagents. See [claude/README.md](claude/README.md). |
+| `claude-json/` | MCP server configuration (`context7`, `sequential-thinking`, `linear`, `obsidian`) |
+| `claude-stack-audit/` | Python tool that audits the hook + cron pipeline health |
+| `tests/` | bats regression suites — 13 files, covers every hook and cron |
+| `docs/` | Audience-facing documentation: [INSTALL](docs/INSTALL.md), [CONTRIBUTING](docs/CONTRIBUTING.md), [ARCHITECTURE](docs/ARCHITECTURE.md), [settings.hooks.md](docs/settings.hooks.md) |
+| `pre-commit/` | Git pre-commit hook template |
+| `raycast/` | Project switching scripts |
+| `templates/` | Per-project templates (CLAUDE.md, .env.example, Obsidian setup) |
+
+---
+
+## Design principles
+
+These are load-bearing — everything else follows from them. Full reasoning lives in [ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+- **Hooks over instructions.** Safety guards, formatting, and test-on-save are enforced by hooks (deterministic), not CLAUDE.md (advisory). If it has to happen, a hook enforces it.
+- **Upstream safety.** Zero modifications to plugins or Claude Code internals. Every customisation lives in this repo. Plugin auto-updates cannot break the pipeline.
+- **Passive observability.** New hooks log failures; they don't modify behaviour. `/health-check` is on-demand. Nothing runs on a schedule that didn't have to.
+- **Per-agent model routing.** Critical-path subagents (`code-reviewer`, `researcher`, `/review`, `/security-scan`) run Opus 4.7. Everything else stays Sonnet for cost.
+- **Defense in depth on permissions.** `defaultMode: acceptEdits` + `permissions.allow` list + `permission-auto-approve.sh` hook + `safety-guards.sh` hook. Four overlapping layers.
+- **Soft enforcement for LLM behaviour.** Context7 use, researcher dispatch, plan handoffs — all enforced via CLAUDE.md rules, not hard-blocking hooks. Cheaper and upstream-safe.
+- **Obsidian as a second brain.** Session notes, bug fixes, architectural decisions, project context — all persisted automatically. No markdown written by hand.
+- **launchd over crontab.** Every scheduled job runs as a user LaunchAgent with proper env vars, stdout/stderr capture, and per-job logs.
+- **TDD on shell.** Every hook has a bats regression suite. The `pr-gate.sh` hook will reject a PR that breaks one.
+
+---
+
+## Key files you'll want to customise
+
+On a fresh fork, these are the four places that need your personal info before the pipeline works:
+
+| File | What to change |
+|---|---|
+| `claude/env.sh` | `OBSIDIAN_VAULT` (path to your iCloud Obsidian vault), `CLAUDE_BIN` (falls back through a resolution chain, usually unset is fine) |
+| `claude/org-map.json` | CWD-keyword → org-name mapping. The pipeline routes session notes and daily retros to different vault folders based on which org a repo belongs to. |
+| `claude-json/claude.json` | MCP server tokens (Linear API key, Obsidian vault path) — these are template strings in the committed file; fill in your own |
+| `~/.claude/settings.json` | **Not in this repo.** Symlinked by `install.sh`. Holds your enabled plugins, allow-list, env vars. Customise after install. |
+
+Everything else should work out of the box.
+
+---
+
+## Verifying the install worked
+
+From a fresh Claude Code session in any repo:
+
+```
+/health-check
+```
+
+That runs a read-only validator across: enabled plugins, MCP server responsiveness, critical slash commands present, removed files actually removed, recent hook activity, agents loadable, permission mode, subagent model pin state. Expect 8/8 pass.
+
+The full bats suite runs from the dotfiles root:
+
+```bash
+cd ~/.dotfiles && bats tests/
+```
+
+---
+
+## License
+
+Personal repo, no license — fork freely, attribute if useful. No warranties.

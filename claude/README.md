@@ -58,7 +58,7 @@ source ~/.dotfiles/claude/refresh.sh
 | `commands/` | Slash command definitions (`.md` files). |
 | `launchagents/` | launchd plist files for active scheduled jobs. `archived/` contains jobs that migrated away. |
 | `prompts/` | Prompt templates consumed by cron scripts via `cat`. |
-| `docs/` | Runbooks, specs, and ADRs for this automation stack. |
+| `docs/` | Nothing Claude-specific lives here any more; see the root-level `docs/` (INSTALL, CONTRIBUTING, ARCHITECTURE) and `docs/settings.hooks.md` for the hook event catalog. |
 
 ---
 
@@ -80,8 +80,11 @@ All hooks live in `claude/hooks/` and are symlinked to `~/.claude/hooks/`. The e
 | `permission-denied.sh` | `PermissionDenied` | (all) | Logs all denials to `~/.claude/logs/permission-denied.log`; retries safe read-only operations |
 | `stop-notification.sh` | `Stop` | (all) | Fires a macOS notification with Glass sound when Claude completes a non-trivial task |
 | `session-stop.sh` | `Stop` | (all) | Blocks Claude from finishing until it writes a session summary note to Obsidian (skips trivial sessions and automated sessions) |
-| `breadcrumb-writer.sh` | `SessionEnd` | (all) | Writes `.claude/breadcrumbs.md` into the project repo so the next session can locate relevant vault notes |
-| `session-end-note.sh` | `SessionEnd` | (all) | Additional session-end note handler |
+| `breadcrumb-writer.sh` | `Stop` | (all) | Writes `.claude/breadcrumbs.md` into the project repo so the next session can locate relevant vault notes |
+| `log-tool-failure.sh` | `PostToolUseFailure` | (all) | Passive logger for silent tool failures (Write/Edit/Bash). Appends to the hooks-fire log for daily digest surfacing. |
+| `log-stop-failure.sh` | `StopFailure` | (all) | Passive logger for session-level failures (rate-limit, auth, billing). Fires async; never blocks. |
+| `log-post-compact.sh` | `PostCompact` | (all) | Passive logger for compaction events. Pairs with `precompact.sh` for before/after visibility. |
+| `precompact.sh` | `PreCompact` | (all) | Ensures the session note is current before the context gets summarised away. |
 | `detect-org.sh` | (library) | — | Sourced by other hooks; maps CWD to org name, vault folder, and wikilink via `org-map.json` |
 
 > `detect-org.sh` is a sourced library, not directly wired in `settings.json`. It is invoked by `session-start.sh`, `session-stop.sh`, `breadcrumb-writer.sh`, and `test-fix-detector.sh`.
@@ -94,12 +97,12 @@ Scheduled automation scripts live in `claude/crons/`. All are managed by launchd
 
 | Script | Schedule | Status | Purpose |
 |---|---|---|---|
-| `healthcheck.sh preflight` | Daily 8:50 AM | Active (launchd) | Validates env, binary, vault dirs, and prompt templates before the morning retro fires |
-| `daily-retrospective.sh` | Daily 8:57 AM | Archived plist | Generates yesterday's daily note in Obsidian using the Claude CLI |
-| `healthcheck.sh postrun` | Daily 11:00 AM | Active (launchd) | Verifies yesterday's daily note exists in the vault after the morning retro |
-| `daily-retro-evening.sh` | Daily 10:30 PM | Archived plist | Patches or creates today's daily note to catch sessions created after the morning run |
-| `weekly-report-gen.sh` | Friday 5:02 PM | Archived plist | Generates per-org weekly reports and a combined weekly summary from Mon–Fri daily notes |
-| `weekly-finalize.sh` | Monday 9:03 AM | Archived plist | Finalizes last week's draft reports: sets status to `final`, adds Week Start Focus |
+| `healthcheck.sh preflight` | Daily 8:50 AM | Archived plist (retired 2026-04-22) | Historical: validated env/binary/vault before the morning retro. Retired because the retro itself migrated to Claude Desktop. |
+| `daily-retrospective.sh` | Daily 8:57 AM | Archived plist (migrated 2026-04-07 to Claude Desktop Scheduled Tasks) | Generates yesterday's daily note in Obsidian using the Claude CLI |
+| `healthcheck.sh postrun` | Daily 11:00 AM | Archived plist (retired 2026-04-22) | Historical: verified the morning retro landed. Retired alongside the retro migration. |
+| `daily-retro-evening.sh` | Daily 10:30 PM | Archived plist (migrated 2026-04-07 to Claude Desktop Scheduled Tasks) | Patches or creates today's daily note to catch sessions created after the morning run |
+| `weekly-report-gen.sh` | Friday 5:02 PM | Archived plist (migrated 2026-04-07 to Claude Desktop Scheduled Tasks) | Generates per-org weekly reports and a combined weekly summary from Mon–Fri daily notes |
+| `weekly-finalize.sh` | Monday 9:03 AM | Archived plist (migrated 2026-04-07 to Claude Desktop Scheduled Tasks) | Finalizes last week's draft reports: sets status to `final`, adds Week Start Focus |
 | `mac-cleanup-scan.sh` | Sunday 10:00 AM | Active (launchd) | Scans disk cleanup targets; writes an Obsidian report if recoverable space >= 1 GB |
 | `claude-mem-worker.sh` | At login + KeepAlive | Active (launchd) | Resolves and launches the claude-mem `worker-service.cjs` via bun; keeps the memory service running |
 | `notify-failure.sh` | (library) | — | Shared library; provides `notify_failure()` for macOS notifications and Obsidian error notes |
@@ -130,12 +133,12 @@ source ~/.claude/env.sh && echo $CLAUDE_BIN
 # Check it's loaded
 launchctl print gui/$(id -u) | grep godl1ke.claude
 
-# Kick it manually
-launchctl kickstart gui/$(id -u)/com.godl1ke.claude.healthcheck-preflight
+# Kick it manually (use one of the live agents: claude-mem-worker, log-rotate, mac-cleanup-scan)
+launchctl kickstart gui/$(id -u)/com.godl1ke.claude-mem-worker
 
 # Check launchd stdout/stderr
-tail ~/Library/Logs/claude-crons/healthcheck-preflight-launchd.log
-tail ~/Library/Logs/claude-crons/healthcheck-preflight-launchd-err.log
+tail ~/Library/Logs/claude-crons/mac-cleanup-scan-launchd.log
+tail ~/Library/Logs/claude-crons/mac-cleanup-scan-launchd-err.log
 ```
 
 **Cron ran but produced no Obsidian note:**
@@ -155,7 +158,7 @@ cstack-audit run
 
 **claude-mem worker not running:**
 ```bash
-curl -s http://127.0.0.1:37777/api/health
+curl -s "http://127.0.0.1:${CLAUDE_MEM_WORKER_PORT:-37701}/api/health"
 # If no response:
 launchctl kickstart -k gui/$(id -u)/com.godl1ke.claude-mem-worker
 tail ~/Library/Logs/claude-mem-worker.log
