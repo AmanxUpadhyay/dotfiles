@@ -7,7 +7,11 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>/bin/bash</string>
+        <!-- Use Homebrew bash 4+: mac-cleanup-scan.sh uses `declare -A` which
+             crashes under Apple's frozen bash 3.2 (`declare: -A: invalid option`,
+             exit 512). The /opt/homebrew/opt/bash/bin/bash path is keg-stable
+             and survives `brew upgrade bash` symlink updates. -->
+        <string>/opt/homebrew/opt/bash/bin/bash</string>
         <string>/Users/godl1ke/.dotfiles/claude/crons/mac-cleanup-scan.sh</string>
     </array>
 
