@@ -44,6 +44,18 @@ if [[ -d "$PLUGIN_CACHE" ]]; then
   done
 fi
 
+# ---------------------------------------------------------------------------
+# 0b. Self-heal: claude-mem plugin hook fail-open patch
+#    Upstream ships observer hooks (UserPromptSubmit, PostToolUse, Stop, etc.)
+#    without a `|| true` tail, so a transient worker-health-probe failure
+#    surfaces as "UserPromptSubmit hook error: Failed with non-blocking
+#    status code: No stderr output" on the user's prompt. We append ` || true`
+#    to every observer hook command, idempotently, before the plugin's hooks
+#    fire this session. Upstream issues: #2090, #2095. Script is fail-open.
+# ---------------------------------------------------------------------------
+PATCHER="$HOME/.dotfiles/claude/scripts/patch-claude-mem-hooks.sh"
+[[ -x "$PATCHER" ]] && "$PATCHER" >/dev/null 2>&1 || true
+
 VAULT="$OBSIDIAN_VAULT"
 CONTEXT=""
 
